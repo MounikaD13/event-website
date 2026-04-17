@@ -5,63 +5,7 @@ const jwt = require("jsonwebtoken")
 const User = require("../models/Users")
 const transporter = require("../utils/mail")
 
-// Send OTP to email
-// router.post("/send-otp", async (req, res) => {
-//     try {
-//         const { email} = req.body
-//         if (!email) {
-//             return res.status(400).json({ "message": "Email are required" })
-//         }
-//         // Check if user already registered
-//         const existingUser = await User.findOne({ email })
-//         if (existingUser && existingUser.isVerified) {
-//             return res.status(409).json({ "message": "Email already registered" })
-//         }
-
-//         // Generate 5-digit OTP
-//         const otp = Math.floor(10000 + Math.random() * 90000).toString()
-
-//         // Save or update OTP in database
-//         if (existingUser) {
-//             existingUser.verificationOtp = otp
-//             existingUser.otpExpires = Date.now() + 10 * 60 * 1000 // 10 minutes
-//             await existingUser.save()
-//         } else {
-//             const tempUser = new Model({
-//                 email,
-//                 verificationOtp: otp,
-//                 otpExpires: Date.now() + 10 * 60 * 1000,
-//                 // Temporary placeholder values
-//                 name: "temp",
-//                 password: "temp",
-//                 mobileNumber: "temp",
-//             })
-//             await tempUser.save()
-//         }
-
-//         // Send OTP email
-//         await transporter.sendMail({
-//             from: process.env.EMAIL_USER,
-//             to: email,
-//             subject: "Your OTP for MERAKI EVENT PLANNER Registration",
-//             html: `
-//                 <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
-//                     <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px;">
-//                         <h2 style="color: #333;">Job Portal - Email Verification</h2>
-//                         <p style="font-size: 16px; color: #555;">Your OTP for registration is:</p>
-//                         <h1 style="color: #8c4caf; font-size: 30px; letter-spacing: 5px;">${otp}</h1>
-//                         <p style="color: #777;">This OTP will expire in <strong>10 minutes</strong>.</p>
-//                         <p style="color: #777;">If you didn't request this, please ignore this email.</p>
-//                     </div>
-//                 </div>
-//             `
-//         })
-//         res.status(200).json({ "message": "OTP sent successfully to your email" })
-//     } catch (err) {
-//         console.log("Error in send-otp:", err)
-//         res.status(500).json({ "message": "Failed to send OTP. Please try again." })
-//     }
-// })
+//send otp
 router.post("/send-otp", async (req, res) => {
     try {
         const { email } = req.body
