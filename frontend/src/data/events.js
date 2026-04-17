@@ -210,26 +210,34 @@ export const testimonials = [
 export const heroSlides = [
   {
     id: 1,
-    cursiveTitle: 'extraordinary',
-    mainTitle: 'EVENTS',
-    image: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1400&q=80', // Dark moody concert/party
-    cta: 'Explore Events',
-    ctaPath: '/events',
+    cursiveTitle: 'your dream',
+    mainTitle: 'WEDDING',
+    image: '/images/hero_wedding_aesthetic.png',
+    cta: 'Plan Your Wedding',
+    ctaPath: '/events?type=wedding',
   },
   {
     id: 2,
     cursiveTitle: 'corporate',
     mainTitle: 'EXCELLENCE',
-    image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1400&q=80', // Dark Corporate stage
+    image: '/images/hero_corporate_aesthetic.png',
     cta: 'Book a Retreat',
     ctaPath: '/events?type=corporate',
   },
   {
     id: 3,
-    cursiveTitle: 'your dream',
-    mainTitle: 'WEDDING',
-    image: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=1400&q=80', // Wedding / Romance
-    cta: 'Plan Your Wedding',
+    cursiveTitle: 'traditional',
+    mainTitle: 'INDIAN WEDDING',
+    image: '/images/hero_indian_wedding.png',
+    cta: 'Plan Your Shaadi',
     ctaPath: '/events?type=wedding',
+  },
+  {
+    id: 4,
+    cursiveTitle: 'unforgettable',
+    mainTitle: 'BIRTHDAY PARTY',
+    image: '/images/hero_birthday_party.png',
+    cta: 'Celebrate With Us',
+    ctaPath: '/events?type=party',
   },
 ];

@@ -9,7 +9,6 @@ import 'swiper/css/navigation';
 import 'swiper/css/effect-fade';
 import EventCard from '../components/EventCard';
 import { eventsData, destinations, testimonials, heroSlides } from '../data/events';
-import { useAuth } from '../context/AuthContext';
 
 function useReveal() {
   const ref = useRef(null);
@@ -43,7 +42,7 @@ const categories = [
 
 export default function LandingPage() {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+
   const [activeSlide, setActiveSlide] = useState(0);
   const [statsRef, statsVisible] = useReveal();
   const [eventsRef, eventsVisible] = useReveal();
@@ -64,10 +63,10 @@ export default function LandingPage() {
           loop
           className="h-full"
         >
-          {heroSlides.map((slide) => (
-            <SwiperSlide key={slide.id} className="relative h-full">
+          {heroSlides.map((slide, index) => (
+            <SwiperSlide key={slide.id} className="relative h-full overflow-hidden">
               <div
-                className="absolute inset-0 bg-cover bg-center"
+                className={`absolute inset-0 bg-cover bg-center transition-transform duration-[10000ms] ease-out ${activeSlide === index ? 'scale-110' : 'scale-100'}`}
                 style={{ backgroundImage: `url(${slide.image})` }}
               />
               <div className="absolute inset-0 bg-[#0f0e17]/50" />
@@ -80,18 +79,12 @@ export default function LandingPage() {
                     <h1 className="font-['Playfair_Display'] text-4xl sm:text-6xl md:text-7xl lg:text-[5.5rem] leading-none font-medium text-white tracking-[0.1em] sm:tracking-[0.15em] text-center uppercase mb-8 sm:mb-12 drop-shadow-lg -mt-2 sm:-mt-6">
                       {slide.mainTitle}
                     </h1>
-                    <div className="flex flex-col sm:flex-row justify-center gap-4 mt-6 sm:mt-8">
+                    <div className="flex justify-center mt-12 md:mt-20">
                       <Link
                         to="/booking"
-                        className="btn-earthy px-8 py-3 rounded-full text-sm font-semibold tracking-widest uppercase shadow-lg shadow-black/10"
+                        className="btn-earthy px-16 py-6 rounded-full text-xl font-bold tracking-[0.25em] uppercase shadow-2xl transition-all hover:scale-105 active:scale-95"
                       >
-                        Book a Discovery Call
-                      </Link>
-                      <Link
-                        to="/contact"
-                        className="bg-transparent border border-white text-white hover:bg-white/10 transition-all px-8 py-3 rounded-full text-sm font-semibold tracking-widest uppercase shadow-lg shadow-black/10"
-                      >
-                        Message on Whatsapp
+                        BOOK NOW
                       </Link>
                     </div>
                   </div>

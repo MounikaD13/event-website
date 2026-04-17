@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import {
   Mail, Phone, MapPin, Clock, Send, ArrowRight, MessageSquare,
   Globe, Sparkles, CheckCircle2
 } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
 const contactInfo = [
@@ -18,7 +18,7 @@ const eventTypes = ['Wedding', 'Corporate Event', 'Private Party', 'Gala / Fundr
 const budgetRanges = ['Under $5,000', '$5,000 – $10,000', '$10,000 – $20,000', '$20,000 – $50,000', '$50,000+'];
 
 export default function ContactPage() {
-  const { isAuthenticated, user } = useAuth();
+  const { user } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -37,11 +37,11 @@ export default function ContactPage() {
 
   // If not authenticated, redirect to sign up with state
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!user) {
       toast('Please sign up to contact us or book an event', { icon: '🔐' });
       navigate('/signup', { state: { from: '/contact' } });
     }
-  }, [isAuthenticated, navigate]);
+  }, [user, navigate]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -69,7 +69,7 @@ export default function ContactPage() {
     toast.success('Your enquiry has been submitted! We\'ll be in touch within 24 hours.');
   };
 
-  if (!isAuthenticated) return null;
+  if (!user) return null;
 
   return (
     <div className="min-h-screen pt-20 bg-[#FAF9F6]">
