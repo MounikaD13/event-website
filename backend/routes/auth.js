@@ -146,4 +146,138 @@ router.post("/register", async (req, res) => {
         res.status(500).json({ message: "Registration failed" })
     }
 })
-module.exports = router
+// Helper function to generate tokens
+const generateTokens = (user) => {
+    const accesssToken = jwt.sign(
+        { id: user._id, email: user.email },
+        process.env.JWT_SECRET || "access_secret",
+        { expiresIn: "15m" }
+    )
+    const refreshToken = jwt.sign(
+        { id: user._id },
+        process.env.JWT_REFRESH_SECRET || "refresh_secret",
+        { expiresIn: "7d" }
+    )
+    return { accesssToken, refreshToken }
+}
+
+
+
+// 2. LOGIN PROCESS
+router.post("/login", async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        const user = await User.findOne({ email });
+        if (!user) return res.status(400).json({ message: "User not found" });
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) return res.status(400).json({ message: "Invalid email or password" });
+
+        const { accesssToken, refreshToken } = generateTokens(user);
+
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: false,
+            path: "/",
+            sameSite: "lax"
+        });
+
+        res.status(200).json({
+            message: "User identified",
+            token: accesssToken,
+            user: { id: user._id, name: user.name, email: user.email }
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 3. LOGOUT PROCESS
+router.post("/logout", (req, res) => {
+    res.clearCookie("refreshToken");
+    res.status(200).json({ message: "Logged out successfully" });
+});
+
+// 4. SEND FORGOT OTP / FORGOT PASSWORD
+router.post("/forgot-password", async (req, res) => {
+    try {
+        const { email } = req.body;
+        const user = await User.findOne({ email });
+        if (!user) return res.status(400).json({ message: "No account found with this email" });
+
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        user.otp = otp;
+        user.otpExpires = Date.now() + 10 * 60 * 1000;
+        await user.save();
+
+        await sendEmail(email, otp);
+        res.status(200).json({ success: true, message: "OTP sent to your email" });
+    } catch (err) {
+        res.status(500).json({ success: false, message: "Error sending email: " + err.message });
+    }
+});
+
+// Keep alias as requested
+router.post("/send-forgot-otp", async (req, res) => {
+    try {
+        const { email } = req.body;
+        const user = await User.findOne({ email });
+        if (!user) return res.status(400).json({ message: "No account found with this email" });
+
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        user.otp = otp;
+        user.otpExpires = Date.now() + 10 * 60 * 1000;
+        await user.save();
+
+        await sendEmail(email, otp);
+        res.status(200).json({ success: true, message: "OTP sent to your email" });
+    } catch (err) {
+        res.status(500).json({ success: false, message: "Error sending email: " + err.message });
+    }
+});
+
+// 5. VERIFY FORGOT OTP
+router.post("/verify-forgot-otp", async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+        const user = await User.findOne({
+            email,
+            otp,
+            otpExpires: { $gt: Date.now() }
+        });
+
+        if (!user) return res.status(400).json({ message: "Invalid or expired OTP" });
+
+        res.status(200).json({ success: true, message: "OTP verified successfully" });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 6. RESET PASSWORD
+router.post("/reset-password", async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(400).json({ "message": "user not found" });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        user.password = hashedPassword;
+        user.otp = undefined; // Clearing OTP fields as they aren't needed anymore
+        user.otpExpires = undefined;
+
+        await user.save();
+        res.status(200).json({ "message": "Password updated successfully" });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+
+
+
+module.exports = router;
