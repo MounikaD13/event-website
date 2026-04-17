@@ -1,23 +1,23 @@
-const mongoose=require("mongoose")
-const userSchema=mongoose.Schema({
-    name:{
-        type:String
+const mongoose = require("mongoose")
+const userSchema = mongoose.Schema({
+    name: {
+        type: String
     },
     gender: {
         type: String,
         enum: ["Male", "Female", "Other"]
     },
-    email:{
-        type:String,
-        unique:true,
-        required:true
+    email: {
+        type: String,
+        unique: true,
+        required: true
     },
-    password:{
-        type:String
+    password: {
+        type: String
     },
-    mobileNumber:Number,
-    address:{
-        type:String
+    mobileNumber: Number,
+    address: {
+        type: String
     },
     resetOtp: String,
     resetOtpExpire: Date,
@@ -33,4 +33,6 @@ const userSchema=mongoose.Schema({
     }
 })
 
-module.exports=mongoose.model("User",userSchema)
+module.exports = mongoose.model("User", userSchema)
+
+
