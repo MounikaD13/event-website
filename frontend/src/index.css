@@ -1,0 +1,144 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800&family=Great+Vibes&display=swap');
+@import "tailwindcss";
+
+:root {
+  --primary: #C1A27B;
+  --primary-dark: #b0916a;
+  --primary-light: #D6CA9C;
+  --secondary: #EBE5DA;
+  --accent: #D8C3A5;
+  --dark: #4A4F4D;
+  --light: #FFFFFF;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--light);
+  color: var(--dark);
+  overflow-x: hidden;
+}
+
+.font-cursive {
+  font-family: 'Great Vibes', cursive;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #EAE6DE;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 3px;
+}
+
+/* Swiper custom styles */
+.swiper-pagination-bullet {
+  background: var(--primary) !important;
+}
+.swiper-button-next,
+.swiper-button-prev {
+  color: var(--primary) !important;
+}
+
+/* Earthy flat text gradient (optional, mostly going to use solid colors) */
+.earthy-text {
+  color: var(--primary);
+}
+
+/* Glassmorphism - Light, airy blur */
+.glass {
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+/* Animation keyframes */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-float { animation: float 4s ease-in-out infinite; }
+.animate-fadeInUp { animation: fadeInUp 0.8s ease forwards; }
+
+/* Delay utilities */
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+.delay-500 { animation-delay: 0.5s; }
+
+/* Hero particle overlay */
+.hero-overlay {
+  background: rgba(0,0,0,0.25);
+}
+
+/* Card hover effect */
+.event-card {
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.event-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+}
+
+/* Shimmer button */
+.btn-earthy, .btn-pastel {
+  background-color: var(--primary);
+  transition: all 0.3s ease;
+  color: #FFF;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+.btn-earthy:hover, .btn-pastel:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(193, 162, 123, 0.3);
+}
+
+/* Input focus styles */
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px rgba(193, 162, 123, 0.15);
+}
+
+/* Navbar blur */
+.navbar-top {
+  background-color: rgba(140, 140, 140, 0.6); /* Grayish translucent like in screenshot */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.navbar-solid {
+  background-color: rgba(140, 140, 140, 0.95);
+}
+
+/* Section reveal animation */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
