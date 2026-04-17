@@ -11,13 +11,21 @@ const authMiddleware = (roles = []) => {
             }
             const token = authHeader.split(" ")[1]
             const decoded = jwt.verify(token, process.env.JWT_SECRET)
+            if (!decoded.role) {
+                return res.status(401).json({ message: "Invalid token payload" })
+            }
+
             let user
+
             if (decoded.role === "user") {
                 user = await Users.findById(decoded.id).select("-password")
             }
             else if (decoded.role === "admin") {
                 user = await Admin.findById(decoded.id).select("-password")
+            } else {
+                return res.status(401).json({ message: "Invalid role" })
             }
+
             if (!user) {
                 return res.status(401).json({ message: "User not found" })
             }

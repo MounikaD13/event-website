@@ -14,9 +14,13 @@ const adminSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    role: {
-        type: String,
-        default: "admin"
+    resetOtp: String,
+    resetOtpExpire: Date,
+    verificationOtp: String,
+    otpExpires: Date,
+    isVerified: {
+        type: Boolean,
+        default: false
     },
     createdAt: {
         type: Date,
