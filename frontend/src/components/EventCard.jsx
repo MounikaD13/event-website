@@ -12,7 +12,7 @@ export default function EventCard({ event }) {
 
   const handleBook = () => {
     if (!isAuthenticated) {
-      toast('Please sign up to book an event', { icon: '🔐' });
+      toast('Please sign up to book an event', { id: 'auth-required', icon: '🔐' });
       navigate('/signup', { state: { from: '/booking', event: event } });
     } else {
       navigate('/booking', { state: { event } });

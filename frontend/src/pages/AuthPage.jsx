@@ -268,7 +268,7 @@ export default function AuthPage() {
   return (
     <div style={{
       height: '100vh', width: '100%', overflow: 'hidden',
-      backgroundImage: "url('https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=1400&q=80')",
+      backgroundImage: "url('/images/hero_wedding_aesthetic.png')",
       backgroundSize: 'cover', backgroundPosition: 'center',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       padding: '72px 16px 16px', boxSizing: 'border-box', position: 'relative',

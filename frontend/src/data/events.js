@@ -11,7 +11,7 @@ export const eventsData = [
     rating: 4.9,
     reviews: 124,
     description: 'An intimate beachside ceremony with sunset views, tropical florals, and bespoke Balinese décor for a truly magical day.',
-    image: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=600&q=80',
+    image: '/images/event_beach_wedding.jpg',
     destination: 'bali',
   },
   {
@@ -26,7 +26,7 @@ export const eventsData = [
     rating: 5.0,
     reviews: 89,
     description: 'Exchange vows on a breathtaking clifftop overlooking the Aegean Sea with iconic white-and-blue architecture all around.',
-    image: 'https://images.unsplash.com/photo-1570053756420-77a9018e24c0?w=600&q=80',
+    image: '/images/event_santorini_wedding.jpg',
     destination: 'santorini',
   },
   {
@@ -41,7 +41,7 @@ export const eventsData = [
     rating: 4.8,
     reviews: 56,
     description: 'Inspire your team with a premium overwater villa corporate retreat featuring workshops, team building, and luxury dining.',
-    image: 'https://images.unsplash.com/photo-1573843981267-be1999ff37cd?w=600&q=80',
+    image: '/images/event_maldives_retreat.jpg',
     destination: 'maldives',
   },
   {
@@ -56,7 +56,7 @@ export const eventsData = [
     rating: 4.9,
     reviews: 78,
     description: 'A sophisticated black-tie gala on a stunning Dubai skyscraper rooftop with panoramic city and desert views.',
-    image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600&q=80',
+    image: '/images/event_dubai_gala.jpg',
     destination: 'dubai',
   },
   {
@@ -71,7 +71,7 @@ export const eventsData = [
     rating: 4.7,
     reviews: 102,
     description: 'A romantic candlelit engagement dinner in a private Parisian château with a personal chef and sommelier.',
-    image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&q=80',
+    image: '/images/event_paris_dinner.jpg',
     destination: 'paris',
   },
   {
@@ -86,7 +86,7 @@ export const eventsData = [
     rating: 4.8,
     reviews: 43,
     description: 'A world-class technology conference in the heart of Tokyo with keynote speakers, networking, and Japanese cultural experiences.',
-    image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=600&q=80',
+    image: '/images/event_tokyo_conf.jpg',
     destination: 'tokyo',
   },
   {
@@ -101,7 +101,7 @@ export const eventsData = [
     rating: 4.9,
     reviews: 95,
     description: 'Celebrate love amidst rolling Tuscan hills and ancient vineyards with a world-class Italian culinary experience.',
-    image: 'https://images.unsplash.com/photo-1565716875584-da13f3b26e5b?w=600&q=80',
+    image: '/images/event_tuscany_wedding.jpg',
     destination: 'tuscany',
   },
   {
@@ -116,7 +116,7 @@ export const eventsData = [
     rating: 4.8,
     reviews: 61,
     description: 'Ring in the New Year with a spectacular private island party under the stars in the crystal-clear Maldivian waters.',
-    image: 'https://images.unsplash.com/photo-1602002418082-dd4a3f7791f3?w=600&q=80',
+    image: '/images/event_maldives_party.jpg',
     destination: 'maldives',
   },
 ];
@@ -127,7 +127,7 @@ export const destinations = [
     name: 'Bali, Indonesia',
     tagline: 'Island of the Gods',
     eventsCount: 45,
-    image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=600&q=80',
+    image: '/images/dest_bali.jpg',
     dest: 'bali',
   },
   {
@@ -135,7 +135,7 @@ export const destinations = [
     name: 'Santorini, Greece',
     tagline: 'Clifftop Paradise',
     eventsCount: 32,
-    image: 'https://images.unsplash.com/photo-1570053756420-77a9018e24c0?w=600&q=80',
+    image: '/images/dest_santorini.jpg',
     dest: 'santorini',
   },
   {
@@ -143,7 +143,7 @@ export const destinations = [
     name: 'Maldives',
     tagline: 'Overwater Luxury',
     eventsCount: 28,
-    image: 'https://images.unsplash.com/photo-1573843981267-be1999ff37cd?w=600&q=80',
+    image: '/images/dest_maldives.jpg',
     dest: 'maldives',
   },
   {
@@ -151,7 +151,7 @@ export const destinations = [
     name: 'Dubai, UAE',
     tagline: 'City of Gold',
     eventsCount: 67,
-    image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600&q=80',
+    image: '/images/dest_dubai.jpg',
     dest: 'dubai',
   },
   {
@@ -159,7 +159,7 @@ export const destinations = [
     name: 'Paris, France',
     tagline: 'City of Love',
     eventsCount: 54,
-    image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&q=80',
+    image: '/images/dest_paris.jpg',
     dest: 'paris',
   },
   {
@@ -167,7 +167,7 @@ export const destinations = [
     name: 'Tokyo, Japan',
     tagline: 'Futuristic Wonder',
     eventsCount: 38,
-    image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=600&q=80',
+    image: '/images/dest_tokyo.jpg',
     dest: 'tokyo',
   },
 ];
@@ -178,7 +178,7 @@ export const testimonials = [
     name: 'Sarah & Michael Chen',
     event: 'Beach Wedding - Bali',
     text: 'Overseas Events made our dream wedding a reality. Every detail was perfect — from the floral arrangements to the sunset ceremony. We couldn\'t have asked for more.',
-    avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&q=80',
+    avatar: '/images/avatar_sarah.jpg',
     rating: 5,
   },
   {
@@ -186,7 +186,7 @@ export const testimonials = [
     name: 'James Rodriguez',
     event: 'Corporate Retreat - Maldives',
     text: 'The team handled our 200-person corporate retreat flawlessly. Our employees are still talking about it. Professional, responsive, and absolutely outstanding.',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80',
+    avatar: '/images/avatar_james.jpg',
     rating: 5,
   },
   {
@@ -194,7 +194,7 @@ export const testimonials = [
     name: 'Emma & David Park',
     event: 'Rooftop Gala - Dubai',
     text: 'If you want a luxury event with zero stress, this is the team. They exceeded every expectation. Our Dubai gala was the talk of the industry.',
-    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80',
+    avatar: '/images/avatar_emma.jpg',
     rating: 5,
   },
   {
@@ -202,7 +202,7 @@ export const testimonials = [
     name: 'Priya Sharma',
     event: 'Pareisian Dinner - Paris',
     text: 'Magical, intimate, and utterly romantic. My engagement dinner in Paris was like a fairytale. I\'m so grateful for the Overseas Events team.',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&q=80',
+    avatar: '/images/avatar_priya.jpg',
     rating: 5,
   },
 ];
