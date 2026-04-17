@@ -30,9 +30,15 @@ router.post("/send-otp", async (req, res) => {
             from: process.env.EMAIL_USER,
             to: email,
             subject: "OTP Verification",
-            html: `<h2>Welcome to MERAKI EVENT PLANNER</h2>
-                   <p>Your OTP for registration is: <strong>${otp}</strong></p>
-                   <p>This OTP will expire in 10 minutes.</p>`
+            html: `<div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
+                    <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px;">
+                        <h2 style="color: #333;">Event Planner</h2>
+                        <p style="font-size: 16px; color: #555;">Your OTP for registration</p>
+                        <h1 style="color: #8c4caf; font-size: 30px; letter-spacing: 5px;">${otp}</h1>
+                        <p style="color: #777;">This OTP will expire in <strong>10 minutes</strong>.</p>
+                        <p style="color: #777;">If you didn't request this, please ignore this email.</p>
+                    </div>
+                </div>`
         })
         res.status(200).json({ message: "OTP sent successfully" })
     } catch (err) {
@@ -174,9 +180,9 @@ router.post("/forgot-password", async (req, res) => {
             subject: "OTP for password reset",
             html: `<div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
                     <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px;">
-                        <h2 style="color: #333;">Meraki Event Planner</h2>
-                        <p style="font-size: 16px; color: #555;">Your OTP for reset passwordis:</p>
-                        <h1 style="color: #8c4caf; font-size: 30px; letter-spacing: 5px;">${otp}</h1>
+                        <h2 style="color: #333;">Event Planner</h2>
+                        <p style="font-size: 16px; color: #555;">Your OTP for reset password</p>
+                        <h1 style="color: #1fdfdfff; font-size: 30px; letter-spacing: 5px;">${otp}</h1>
                         <p style="color: #777;">This OTP will expire in <strong>10 minutes</strong>.</p>
                         <p style="color: #777;">If you didn't request this, please ignore this email.</p>
                     </div>
