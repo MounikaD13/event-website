@@ -200,7 +200,7 @@ router.post("/verify-reset-otp", async (req, res) => {
         if (user.resetOtp !== otp.toString() || user.resetOtpExpire < Date.now()) {
             return res.status(400).json({ "message": "invalid or expire  otp" })
         }
-        res.status(200).json({ "message": "OTP verified successfully" })
+        res.status(200).json({ "message": "OTP verified reset successful" })
     }
     catch (error) {
         res.status(500).json({ message: "Verification failed.Try again" });
