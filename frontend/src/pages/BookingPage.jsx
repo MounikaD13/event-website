@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import {
   Calendar, MapPin, Users, DollarSign, CheckCircle2,
   ArrowLeft, Clock, Star, Sparkles, CreditCard, Info
 } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
 import { eventsData } from '../data/events';
 import toast from 'react-hot-toast';
 
@@ -33,7 +33,7 @@ const packages = [
 ];
 
 export default function BookingPage() {
-  const { user } = useAuth();
+  const { user } = useSelector((state) => state.auth);
   const location = useLocation();
   const navigate = useNavigate();
   const eventFromState = location.state?.event;

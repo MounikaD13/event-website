@@ -1,17 +1,18 @@
 import { useNavigate } from 'react-router-dom';
 import { MapPin, Calendar, Users, Star, ArrowRight, Heart } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { useSelector } from 'react-redux';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 
 export default function EventCard({ event }) {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { user } = useSelector((state) => state.auth);
+  const isAuthenticated = !!user;
   const [liked, setLiked] = useState(false);
 
   const handleBook = () => {
     if (!isAuthenticated) {
-      toast('Please sign up to book an event', { icon: '🔐' });
+      toast('Please sign up to book an event', { id: 'auth-required', icon: '🔐' });
       navigate('/signup', { state: { from: '/booking', event: event } });
     } else {
       navigate('/booking', { state: { event } });
