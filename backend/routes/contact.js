@@ -4,7 +4,7 @@ const Contact = require("../models/Contact");
 const authMiddleware = require("../middleware/middleware");
 
 // POST /api/contact - Submit a new contact form (Logged-in users only)
-router.post("/contact", authMiddleware(["user", "admin"]), async (req, res) => {
+router.post("/contact", authMiddleware(["user"]), async (req, res) => {
     try {
         const { fullName, email, phone, eventDate, eventType, guestCount, referredBy, message } = req.body;
 
