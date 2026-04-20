@@ -100,7 +100,7 @@ router.post("/register", async (req, res) => {
 })
 //generate tokens
 const generateTokens = (user, role) => {
-    const accesssToken = jwt.sign(
+    const accessToken = jwt.sign(
         { id: user._id, email: user.email, role },
         process.env.JWT_SECRET,
         { expiresIn: "15m" }
@@ -110,7 +110,7 @@ const generateTokens = (user, role) => {
         process.env.JWT_REFRESH_SECRET,
         { expiresIn: "7d" }
     )
-    return { accesssToken, refreshToken }
+    return { accessToken, refreshToken }
 }
 
 //login
@@ -137,7 +137,7 @@ router.post("/login", async (req, res) => {
             return res.status(400).json({ message: "Invalid email or password" });
 
         //token
-        const { accesssToken, refreshToken } = generateTokens(user, role);
+        const { accessToken, refreshToken } = generateTokens(user, role);
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
             secure: false,
@@ -146,7 +146,7 @@ router.post("/login", async (req, res) => {
         });
         res.status(200).json({
             message: "User identified and login successful",
-            token: accesssToken,
+            token: accessToken,
             role,
             user: { id: user._id, name: user.name, email: user.email }
         });

@@ -68,7 +68,7 @@ export default function EventsPage() {
       <div className="relative py-24 md:py-32 overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center opacity-20"
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1511578314322-379afb476865?w=1400&q=80')" }}
+          style={{ backgroundImage: "url('/images/contact_bg.jpg')" }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-[#FAF9F6]/80 to-[#FAF9F6]" />
         <div className="relative z-10 max-w-7xl mx-auto px-4 text-center">

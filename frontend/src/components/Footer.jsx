@@ -30,24 +30,23 @@ export default function Footer() {
     <footer className="w-full bg-[#FAF9F6] border-t border-[#EBE5DA] mt-auto">
       {/* Newsletter / Top Banner */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="py-16 md:py-20 flex flex-col lg:flex-row items-center justify-between gap-10 border-b border-[#EBE5DA]">
-          <div className="text-center lg:text-left max-w-xl">
-            <h3 className="font-['Playfair_Display'] text-3xl text-[#4A4F4D] mb-3">Join our Insider List</h3>
-            <p className="text-[#667280] text-sm">Subscribe for exclusive access to hidden venues, event trends, and luxury inspiration straight to your inbox.</p>
+        <div className="py-10 md:py-14 flex flex-col lg:flex-row items-center justify-between gap-8 border-b border-[#EBE5DA]">
+          <div className="text-center lg:text-left max-w-lg">
+            <h3 className="font-['Playfair_Display'] text-2xl sm:text-3xl text-[#4A4F4D] mb-2">Join our Insider List</h3>
+            <p className="text-[#667280] text-sm leading-relaxed">Subscribe for exclusive access to hidden venues, event trends, and luxury inspiration straight to your inbox.</p>
           </div>
-          <div className="w-full lg:w-auto flex-1 max-w-md">
-            <form className="flex w-full relative" onSubmit={(e) => e.preventDefault()}>
-              <input 
-                type="email" 
-                placeholder="Enter your email address" 
-                className="w-full bg-white border border-[#EBE5DA] rounded-full py-4 pl-6 pr-16 text-sm text-[#4A4F4D] focus:outline-none focus:border-[#C1A27B] transition-colors shadow-sm"
+          <div className="w-full lg:w-auto lg:flex-1 lg:max-w-md">
+            <form className="flex flex-col sm:flex-row items-stretch gap-3 w-full" onSubmit={(e) => e.preventDefault()}>
+              <input
+                type="email"
+                placeholder="Enter your email address"
+                className="flex-1 min-w-0 bg-white border border-[#EBE5DA] rounded-full py-3.5 px-6 text-sm text-[#4A4F4D] focus:outline-none focus:border-[#C1A27B] transition-colors shadow-sm"
               />
-              <button 
-                type="submit" 
-                className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-[#C1A27B] hover:bg-[#b0916a] text-white rounded-full flex items-center justify-center transition-colors"
-                aria-label="Subscribe"
+              <button
+                type="submit"
+                className="shrink-0 flex items-center justify-center gap-2 px-6 py-3.5 bg-[#C1A27B] hover:bg-[#b0916a] text-white rounded-full text-sm font-semibold tracking-wide transition-colors whitespace-nowrap"
               >
-                <ArrowRight className="w-4 h-4" />
+                Subscribe <ArrowRight className="w-4 h-4" />
               </button>
             </form>
           </div>
@@ -55,7 +54,7 @@ export default function Footer() {
       </div>
 
       {/* Main Footer Block */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-8">
           
           {/* Brand Column */}
