@@ -6,7 +6,7 @@ const authMiddleware = require("../middleware/middleware");
 // @route   POST /api/events
 // @desc    Create an event
 // @access  Admin (Planner) only
-router.post("/", authMiddleware(["admin"]), async (req, res) => {
+router.post("/events", authMiddleware(["admin"]), async (req, res) => {
     try {
         const { title, description, date, time, location, category, price, totalTickets } = req.body;
         if (!title || !description || !date || !time || !location || !totalTickets) {
@@ -34,7 +34,7 @@ router.post("/", authMiddleware(["admin"]), async (req, res) => {
 // @route   GET /api/events
 // @desc    Get all events
 // @access  Public
-router.get("/", async (req, res) => {
+router.get("/events", async (req, res) => {
     try {
         const events = await Event.find();
         res.status(200).json({ events });
@@ -47,7 +47,7 @@ router.get("/", async (req, res) => {
 // @route   GET /api/events/:id
 // @desc    Get single event by ID
 // @access  Public
-router.get("/:id", async (req, res) => {
+router.get("/events/:id", async (req, res) => {
     try {
         const event = await Event.findById(req.params.id);
         if (!event) {
@@ -66,7 +66,7 @@ router.get("/:id", async (req, res) => {
 // @route   PUT /api/events/:id
 // @desc    Update an event
 // @access  Admin (Planner) only
-router.put("/:id", authMiddleware(["admin"]), async (req, res) => {
+router.put("/events/:id", authMiddleware(["admin"]), async (req, res) => {
     try {
         let event = await Event.findById(req.params.id);
 
@@ -93,7 +93,7 @@ router.put("/:id", authMiddleware(["admin"]), async (req, res) => {
 // @route   DELETE /api/events/:id
 // @desc    Delete an event
 // @access  Admin (Planner) only
-router.delete("/:id", authMiddleware(["admin"]), async (req, res) => {
+router.delete("/events/:id", authMiddleware(["admin"]), async (req, res) => {
     try {
         const event = await Event.findById(req.params.id);
 

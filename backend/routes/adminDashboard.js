@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const Contact = require("../models/Contact");
+const User = require("../models/Users");
 const authMiddleware = require("../middleware/middleware");
 
 const transporter = require("../utils/mail");
@@ -15,7 +15,7 @@ router.get("/admin/all-data", authMiddleware(["admin"]), async (req, res) => {
             query = { $or: [{ name: new RegExp(search, "i") }, { email: new RegExp(search, "i") }] };
         }
 
-        let users = await Contact.find(query).select("-password");
+        let users = await User.find(query).select("-password");
 
         // Simple filtering in JS if query params provided 
         if (status || eventType) {
@@ -38,7 +38,7 @@ router.get("/admin/all-data", authMiddleware(["admin"]), async (req, res) => {
 router.put("/admin/update-inquiry-status", authMiddleware(["admin"]), async (req, res) => {
     try {
         const { userId, inquiryId, newStatus } = req.body;
-        const user = await Contact.findById(userId);
+        const user = await User.findById(userId);
         
         if (!user) return res.status(404).json({ success: false, message: "User not found" });
 
@@ -84,7 +84,7 @@ router.put("/admin/update-inquiry-status", authMiddleware(["admin"]), async (req
 router.post("/admin/chat-reply", authMiddleware(["admin"]), async (req, res) => {
     try {
         const { userId, message } = req.body;
-        const user = await Contact.findById(userId);
+        const user = await User.findById(userId);
         
         user.chats.push({ sender: "Admin", message });
         await user.save();
@@ -98,7 +98,7 @@ router.post("/admin/chat-reply", authMiddleware(["admin"]), async (req, res) => 
 // 4. ADMIN USER MANAGEMENT: DELETE USER
 router.delete("/admin/user/:id", authMiddleware(["admin"]), async (req, res) => {
     try {
-        const user = await Contact.findByIdAndDelete(req.params.id);
+        const user = await User.findByIdAndDelete(req.params.id);
         if (!user) return res.status(404).json({ success: false, message: "User not found" });
         res.status(200).json({ success: true, message: "User deleted successfully" });
     } catch (err) {
