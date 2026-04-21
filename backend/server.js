@@ -5,7 +5,6 @@ const express = require("express")
 const app = express()
 const authRoutes = require("./routes/auth")
 const contactRoutes = require("./routes/contact")
-
 const userAccountRoutes = require("./routes/userAccount")
 const adminDashboardRoutes = require("./routes/adminDashboard")
 const eventRoutes = require("./routes/events")
@@ -27,6 +26,7 @@ app.use("/api", authRoutes)
 app.use("/api", contactRoutes)
 app.use("/api", userAccountRoutes)
 app.use("/api", adminDashboardRoutes)
+
 
 app.use("/api/events", eventRoutes)
 app.listen(process.env.PORT, () => { console.log("server started successfully") })
