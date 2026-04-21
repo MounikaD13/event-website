@@ -9,28 +9,6 @@ const contactSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    phone: {
-        type: String,
-        required: true
-    },
-    eventDate: {
-        type: Date,
-        required: true
-    },
-    eventType: {
-        type: String,
-        required: true,
-        enum: ["Wedding", "Birthday", "Corporate", "Graduation", "Anniversary", "Other"]
-    },
-    guestCount: {
-        type: Number,
-        required: true
-    },
-    referredBy: {
-        type: String,
-        enum: ["Instagram", "Facebook", "Google", "Friend", "Other"],
-        default: "Other"
-    },
     message: {
         type: String,
         required: true
@@ -40,6 +18,34 @@ const contactSchema = new mongoose.Schema({
         enum: ["New", "Read", "Replied"],
         default: "New"
     },
+    // Dashboard Data - Inquiries, Bookings, and Chats
+    inquiries: [{
+        eventType: String,
+        eventDate: Date,
+        guestCount: Number,
+        phone: String,
+        referredBy: String,
+        budgetRange: String,
+        location: String,
+        estimatedDuration: String,
+        specificServices: [String],
+        isFlexibleDate: { type: Boolean, default: false },
+        message: String,
+        status: { type: String, default: "Pending" },
+        createdAt: { type: Date, default: Date.now }
+    }],
+    bookings: [{
+        eventType: String,
+        eventDate: Date,
+        venue: String,
+        status: { type: String, default: "Upcoming" },
+        createdAt: { type: Date, default: Date.now }
+    }],
+    chats: [{
+        sender: { type: String, enum: ["User"] },
+        message: String,
+        timestamp: { type: Date, default: Date.now }
+    }],
     createdAt: {
         type: Date,
         default: Date.now

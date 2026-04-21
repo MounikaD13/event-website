@@ -24,6 +24,7 @@ const eventSchema = new mongoose.Schema(
         },
         category: {
             type: String,
+            enum:["weddings","birthdays","milestone","bussiness"]
         },
         price: {
             type: Number,
