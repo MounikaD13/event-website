@@ -29,13 +29,13 @@ router.post("/contact", async (req, res) => {
     }
 });
 
-router.get("/contact/all", authMiddleware(["admin"]), async (req, res) => {
-    try {
-        const contacts = await Contact.find().sort({ createdAt: -1 });
-        res.status(200).json({ success: true, contacts });
-    } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
-    }
-});
+// router.get("/contact/all", authMiddleware(["admin"]), async (req, res) => {
+//     try {
+//         const contacts = await Contact.find().sort({ createdAt: -1 });
+//         res.status(200).json({ success: true, contacts });
+//     } catch (err) {
+//         res.status(500).json({ success: false, message: err.message });
+//     }
+// });
 
 module.exports = router;

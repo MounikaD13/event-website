@@ -1,12 +1,12 @@
 const express = require("express");
 const router = express.Router();
-const User = require("../models/Users");
+const Contact = require("../models/Contact");
 const authMiddleware = require("../middleware/middleware");
 
 // 1. GET FULL DASHBOARD DATA 
 router.get("/dashboard", authMiddleware(["user"]), async (req, res) => {
     try {
-        const user = await User.findById(req.user.id).select("-password");
+        const user = await Contact.findById(req.user.id).select("-password");
         res.status(200).json({ 
             success: true, 
             dashboard: {
@@ -27,7 +27,7 @@ router.post("/dashboard/inquiry", authMiddleware(["user"]), async (req, res) => 
             budgetRange, location, estimatedDuration, specificServices, 
             isFlexibleDate, message 
         } = req.body;
-        const user = await User.findById(req.user.id);
+        const user = await Contact.findById(req.user.id);
         
         user.inquiries.push({ 
             eventType, eventDate, guestCount, phone, referredBy, 
@@ -46,7 +46,7 @@ router.post("/dashboard/inquiry", authMiddleware(["user"]), async (req, res) => 
 router.post("/dashboard/chat", authMiddleware(["user"]), async (req, res) => {
     try {
         const { message } = req.body;
-        const user = await User.findById(req.user.id);
+        const user = await Contact.findById(req.user.id);
         
         user.chats.push({ sender: "User", message });
         await user.save();
@@ -60,7 +60,7 @@ router.post("/dashboard/chat", authMiddleware(["user"]), async (req, res) => {
 // 4. CANCEL INQUIRY
 router.delete("/dashboard/inquiry/:id", authMiddleware(["user"]), async (req, res) => {
     try {
-        const user = await User.findById(req.user.id);
+        const user = await Contact.findById(req.user.id);
         
         // Remove the inquiry from the array
         user.inquiries = user.inquiries.filter(inq => inq._id.toString() !== req.params.id);
