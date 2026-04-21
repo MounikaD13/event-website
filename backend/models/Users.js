@@ -28,6 +28,7 @@ const userSchema = mongoose.Schema({
         default: false
     },
     // Dashboard Data - Inquiries, Bookings, and Chats
+
     inquiries: [{
         eventType: String,
         eventDate: Date,

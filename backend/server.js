@@ -27,4 +27,7 @@ app.use("/api", contactRoutes)
 app.use("/api", eventRoutes)
 app.use("/api", userAccountRoutes)
 app.use("/api", adminDashboardRoutes)
+
+app.use("/api/events", eventRoutes)
+
 app.listen(process.env.PORT, () => { console.log("server started successfully") })

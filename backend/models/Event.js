@@ -27,7 +27,7 @@ const eventSchema = new mongoose.Schema(
             enum:["weddings","birthdays","milestone","bussiness"]
         },
         price: {
-            type: Number,
+            type: Number, 
             default: 0,
         },
         totalTickets: {
