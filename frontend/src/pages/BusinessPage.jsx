@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, MapPin, Users, Calendar, ArrowRight, Star, Briefcase, Building, Coffee, Monitor, Zap, GlassWater } from 'lucide-react';
+import { Search, MapPin, Users, Calendar, ArrowRight, Star, Briefcase, Building, Coffee, Monitor, Zap, GlassWater, ChevronDown, Check } from 'lucide-react';
 import { businessCategories, businessEvents } from '../data/businessData';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -28,7 +28,6 @@ const BusinessCard = ({ event }) => {
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       className="group bg-white rounded-[2rem] overflow-hidden border border-gray-100 hover:border-[#C1A27B]/30 transition-all duration-500 shadow-sm hover:shadow-xl hover:shadow-[#C1A27B]/10 flex flex-col h-full ring-1 ring-black/[0.02]"
     >
-      {/* Image Section - More balanced height */}
       <div className="relative h-60 overflow-hidden">
         <img
           src={event.image}
@@ -37,37 +36,31 @@ const BusinessCard = ({ event }) => {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-60 group-hover:opacity-30 transition-opacity duration-500" />
         
-        {/* Category Badge - Smaller */}
         <div className="absolute top-4 left-4">
           <span className="px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-widest bg-white/10 backdrop-blur-md border border-white/20 text-white shadow-lg">
             {event.category}
           </span>
         </div>
 
-        {/* Rating - Smaller */}
         <div className="absolute bottom-4 left-4 flex items-center gap-1.5 px-3 py-1 bg-black/30 backdrop-blur-md rounded-full border border-white/10">
           <Star className="w-3 h-3 fill-[#C1A27B] text-[#C1A27B]" />
           <span className="text-[10px] font-bold text-white tracking-widest">{event.rating}</span>
         </div>
       </div>
 
-      {/* Content Section - Balanced internal spacing */}
       <div className="p-8 flex-1 flex flex-col">
-        <div className="mb-4">
           <div className="flex items-center gap-2 text-[#C1A27B] mb-2">
             <MapPin className="w-3.5 h-3.5" />
             <span className="text-[9px] font-bold uppercase tracking-widest leading-none">{event.location}</span>
           </div>
-          <h3 className="font-['Playfair_Display'] text-xl md:text-2xl font-bold text-[#1a1c1b] mb-2 group-hover:text-[#C1A27B] transition-colors duration-400">
+          <h3 className="font-['Playfair_Display'] text-xl md:text-2xl font-bold text-[#1a1c1b] mb-4 group-hover:text-[#C1A27B] transition-colors duration-400">
             {event.title}
           </h3>
-        </div>
 
         <p className="text-gray-400 text-xs leading-relaxed mb-6 line-clamp-3 font-medium opacity-80">
           {event.description}
         </p>
 
-        {/* Features - More compact */}
         <div className="flex flex-wrap gap-2 mb-8">
           {event.amenities.slice(0, 2).map((amenity, idx) => (
             <span key={idx} className="px-3 py-1 bg-gray-50 border border-transparent rounded-lg text-[9px] text-gray-500 font-bold uppercase tracking-tight">
@@ -79,9 +72,8 @@ const BusinessCard = ({ event }) => {
           )}
         </div>
 
-        {/* Footer info - Scaled down */}
         <div className="mt-auto pt-6 border-t border-gray-50 flex items-center justify-between gap-4">
-          <div className="flex flex-col">
+          <div>
             <span className="text-[8px] uppercase tracking-widest text-gray-300 font-black mb-1">Capacity</span>
             <div className="flex items-center gap-2 text-[#1a1c1b]">
               <Users className="w-3.5 h-3.5 text-[#C1A27B]" />
@@ -107,6 +99,67 @@ const BusinessCard = ({ event }) => {
   );
 };
 
+const CategoryDropdown = ({ selected, onSelect }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  return (
+    <div className="relative w-full lg:w-72" ref={dropdownRef}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex items-center justify-between px-6 py-4 bg-white rounded-2xl border border-gray-100 shadow-lg shadow-black/[0.03] text-[#1a1c1b] transition-all hover:border-[#C1A27B]/30"
+      >
+        <div className="flex items-center gap-3">
+          <Briefcase className="w-4 h-4 text-[#C1A27B]" />
+          <span className="text-[11px] font-black uppercase tracking-[0.2em]">
+            {selected === 'All' ? 'Showing All Categories' : selected}
+          </span>
+        </div>
+        <ChevronDown className={`w-4 h-4 text-[#C1A27B] transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+      </button>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            className="absolute top-full left-0 right-0 mt-3 p-2 bg-white rounded-2xl border border-gray-100 shadow-2xl z-[100] max-h-80 overflow-y-auto no-scrollbar"
+          >
+            {businessCategories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => {
+                  onSelect(cat);
+                  setIsOpen(false);
+                }}
+                className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl transition-all ${
+                  selected === cat 
+                    ? 'bg-[#C1A27B]/10 text-[#C1A27B]' 
+                    : 'text-gray-500 hover:bg-gray-50 hover:text-[#1a1c1b]'
+                }`}
+              >
+                <span className="text-[10px] font-bold uppercase tracking-widest">{cat}</span>
+                {selected === cat && <Check className="w-4 h-4" />}
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
 export default function BusinessPage() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
@@ -128,12 +181,12 @@ export default function BusinessPage() {
 
   return (
     <div className="min-h-screen bg-[#FAF9F6]">
-      {/* Hero Section - Scaled Down & Responsive */}
-      <section className="relative h-[70vh] md:h-[80vh] flex items-center justify-center overflow-hidden bg-[#050505]">
+      {/* Hero Section - Lightened & Visible */}
+      <section className="relative h-[65vh] md:h-[75vh] flex items-center justify-center overflow-hidden bg-[#050505]">
         <motion.div 
-          initial={{ scale: 1.1, opacity: 0 }}
+          initial={{ scale: 1.05, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 2, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
           className="absolute inset-0 z-0"
         >
           <img 
@@ -141,8 +194,9 @@ export default function BusinessPage() {
             alt="Business Venue" 
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-black/60" />
-          <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black/80" />
+          {/* Subtle Overlay to ensure text legibility while keeping the image clear */}
+          <div className="absolute inset-0 bg-black/10" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/40" />
         </motion.div>
 
         <div className="relative z-10 max-w-6xl mx-auto px-6 text-center">
@@ -150,7 +204,7 @@ export default function BusinessPage() {
             initial={{ opacity: 0, tracking: '0px' }}
             animate={{ opacity: 1, tracking: '6px' }}
             transition={{ delay: 0.3, duration: 1 }}
-            className="font-cursive text-[#C1A27B] text-3xl md:text-5xl mb-6 block"
+            className="font-cursive text-[#C1A27B] text-3xl md:text-5xl mb-6 block drop-shadow-md"
           >
             Elysium Corporate
           </motion.div>
@@ -158,7 +212,7 @@ export default function BusinessPage() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 1 }}
-            className="font-['Playfair_Display'] text-5xl md:text-7xl lg:text-8xl font-black text-white mb-6 uppercase tracking-tight"
+            className="font-['Playfair_Display'] text-5xl md:text-7xl lg:text-8xl font-black text-white mb-6 uppercase tracking-tight drop-shadow-lg"
           >
             ELITE <span className="text-[#C1A27B]">SPACES</span>
           </motion.h1>
@@ -167,42 +221,30 @@ export default function BusinessPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.9, duration: 1 }}
-            className="text-white/50 text-[10px] md:text-xs max-w-2xl mx-auto font-bold tracking-[0.3em] mb-12 uppercase"
+            className="text-white text-[10px] md:text-xs max-w-2xl mx-auto font-bold tracking-[0.3em] mb-12 uppercase drop-shadow-sm opacity-90"
           >
             Redefining the architecture of corporate excellence & global diplomacy
           </motion.p>
         </div>
       </section>
 
-      {/* Main Content - Calibrated Spacing */}
+      {/* Main Content */}
       <section className="relative z-20 pb-20 md:pb-32">
-        {/* Floating Filter Bar - Scaled Down */}
-        <div className="max-w-6xl mx-auto px-6 -mt-12 md:-mt-16">
-          <div className="bg-white rounded-[2rem] md:rounded-[3rem] p-4 md:p-6 shadow-xl border border-gray-50 flex flex-col lg:flex-row gap-6 items-center justify-between mb-16 md:mb-24">
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 lg:pb-0 no-scrollbar w-full lg:w-auto">
-              {businessCategories.map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`px-6 py-2.5 md:px-8 md:py-3.5 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all duration-300 whitespace-nowrap ${
-                    selectedCategory === cat 
-                      ? 'bg-[#1a1c1b] text-white' 
-                      : 'text-gray-300 hover:text-[#C1A27B]'
-                  }`}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
+        {/* Floating Filter Bar - Responsive Dropdown Implementation */}
+        <div className="max-w-6xl mx-auto px-6 -mt-10 md:-mt-14">
+          <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-4 md:p-5 shadow-2xl border border-white/50 flex flex-col md:flex-row gap-4 items-center justify-between mb-16 md:mb-24">
+            {/* Custom Dropdown */}
+            <CategoryDropdown selected={selectedCategory} onSelect={setSelectedCategory} />
 
-            <div className="relative w-full lg:w-[350px] group">
+            {/* Search */}
+            <div className="relative w-full md:w-[350px] group">
               <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300 group-focus-within:text-[#C1A27B] transition-colors" />
               <input
                 type="text"
-                placeholder="Search Venues..."
+                placeholder="Search Distinguished Portfolio..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-14 pr-6 py-3.5 md:py-4 bg-gray-50 border border-transparent rounded-[1.5rem] text-sm text-[#1a1c1b] placeholder:text-gray-300 focus:bg-white transition-all outline-none"
+                className="w-full pl-14 pr-6 py-4 bg-gray-50 border border-transparent rounded-2xl text-sm text-[#1a1c1b] placeholder:text-gray-300 focus:bg-white transition-all outline-none font-medium"
               />
             </div>
           </div>
@@ -210,17 +252,14 @@ export default function BusinessPage() {
 
         {/* Section Header */}
         <div className="max-w-6xl mx-auto px-6 mb-12 md:mb-16 text-center md:text-left">
-            <span className="text-[#C1A27B] font-black tracking-[0.3em] uppercase text-[9px] mb-4 block">Curated Selection</span>
+            <span className="text-[#C1A27B] font-black tracking-[0.3em] uppercase text-[9px] mb-4 block">Our Portfolio</span>
             <h2 className="font-['Playfair_Display'] text-4xl md:text-5xl font-black text-[#1a1c1b] mb-4">
-                The Portfolio
+                Available Venues
             </h2>
             <div className="w-16 h-1 bg-[#C1A27B] mb-6 mx-auto md:mx-0" />
-            <p className="text-gray-300 font-bold tracking-widest text-[10px] uppercase">
-                {filteredEvents.length} ELITE LISTINGS
-            </p>
         </div>
 
-        {/* Grid - Balanced Gaps */}
+        {/* Grid */}
         <div className="max-w-6xl mx-auto px-6 lg:px-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
                 <AnimatePresence mode="popLayout">
@@ -241,18 +280,18 @@ export default function BusinessPage() {
             <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6 border border-dashed border-gray-200">
                 <Briefcase className="w-6 h-6 text-gray-100" />
             </div>
-            <h3 className="font-['Playfair_Display'] text-2xl font-bold text-gray-300 mb-2">No matching venues</h3>
-            <p className="text-gray-300 font-bold uppercase tracking-widest text-[9px]">Adjust your search benchmarks.</p>
+            <h3 className="font-['Playfair_Display'] text-2xl font-bold text-gray-300 mb-2">No matching results</h3>
+            <p className="text-gray-300 font-bold uppercase tracking-widest text-[9px]">Please explore other curated categories.</p>
           </motion.div>
         )}
       </section>
 
-      {/* Feature Section - Scaled Down */}
+      {/* Feature Section */}
       <section className="bg-white py-20 md:py-32 border-t border-gray-50">
         <div className="max-w-6xl mx-auto px-6">
             <div className="text-center mb-16 md:mb-24">
-                <span className="font-cursive text-[#C1A27B] text-4xl mb-4 block">The Protocol</span>
-                <h3 className="font-['Playfair_Display'] text-4xl md:text-5xl font-bold text-[#1a1c1b]">Infrastructure Excellence</h3>
+                <span className="font-cursive text-[#C1A27B] text-4xl mb-4 block">The Excellence Protocol</span>
+                <h3 className="font-['Playfair_Display'] text-4xl md:text-5xl font-bold text-[#1a1c1b]">World-Class Infrastructure</h3>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12 md:gap-8">
