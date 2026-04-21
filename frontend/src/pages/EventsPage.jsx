@@ -1,31 +1,77 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import EventCard from '../components/EventCard';
-import { eventsData, destinations } from '../data/events';
-import { Search, SlidersHorizontal, X, MapPin, Grid3X3, List } from 'lucide-react';
+import { fetchEvents } from '../store/slices/eventsSlice';
+import { destinations } from '../data/events';
+import { Search, X, MapPin, Grid3X3, List, Loader2 } from 'lucide-react';
 
-const eventTypes = ['All', 'Wedding', 'Corporate', 'Party', 'Gala', 'Conference'];
-const priceRanges = ['All', 'Under $5K', '$5K–$10K', '$10K–$20K', '$20K+'];
+/* Category map: backend enum value → display label */
+const categoryMap = {
+  weddings: 'Weddings',
+  birthdays: 'Birthdays',
+  milestone: 'Milestones',
+  bussiness: 'Business & Office',
+};
+const categoryKeys = Object.keys(categoryMap);
+const categoryAliases = {
+  wedding: 'weddings',
+  weddings: 'weddings',
+  birthday: 'birthdays',
+  birthdays: 'birthdays',
+  milestone: 'milestone',
+  milestones: 'milestone',
+  corporate: 'bussiness',
+  business: 'bussiness',
+  bussiness: 'bussiness',
+  office: 'bussiness',
+  party: 'birthdays',
+  conference: 'bussiness',
+  gala: 'milestone',
+  retreat: 'bussiness',
+};
+
+const priceRanges = ['All', 'Under $1K', '$1K–$5K', '$5K–$10K', '$10K+'];
 
 export default function EventsPage() {
+  const dispatch = useDispatch();
+  const { events, loading } = useSelector((state) => state.events);
   const [searchParams] = useSearchParams();
   const [search, setSearch] = useState('');
   const [selectedType, setSelectedType] = useState('All');
   const [selectedPrice, setSelectedPrice] = useState('All');
   const [selectedDest, setSelectedDest] = useState('All');
   const [viewMode, setViewMode] = useState('grid');
-  const [showFilters, setShowFilters] = useState(false);
-  const [filtered, setFiltered] = useState(eventsData);
+  const [filtered, setFiltered] = useState([]);
+
+  useEffect(() => {
+    dispatch(fetchEvents());
+  }, [dispatch]);
 
   useEffect(() => {
     const type = searchParams.get('type');
     const dest = searchParams.get('dest');
-    if (type) setSelectedType(type.charAt(0).toUpperCase() + type.slice(1).toLowerCase());
+    if (type) {
+      const normalized = categoryAliases[type.toLowerCase()];
+      const matched = normalized || categoryKeys.find((k) => k.toLowerCase() === type.toLowerCase());
+      if (matched) setSelectedType(matched);
+    }
     if (dest) setSelectedDest(dest);
   }, [searchParams]);
 
   useEffect(() => {
-    let result = eventsData;
+    let result = events.map(e => ({
+      ...e,
+      id: e._id,
+      type: e.category,
+      price: e.price ? `$${Number(e.price).toLocaleString()}` : '$0',
+      rating: '4.9',
+      reviews: '128',
+      capacity: e.totalTickets,
+      date: e.date ? new Date(e.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '',
+      image: e.image || '/images/events_gallery_bg.png',
+    }));
+
     if (search) {
       result = result.filter(
         (e) =>
@@ -34,24 +80,24 @@ export default function EventsPage() {
       );
     }
     if (selectedType !== 'All') {
-      result = result.filter((e) => e.type.toLowerCase() === selectedType.toLowerCase());
+      result = result.filter((e) => e.type === selectedType);
     }
     if (selectedDest !== 'All') {
-      result = result.filter((e) => e.destination === selectedDest);
+      result = result.filter((e) => e.location.toLowerCase().includes(selectedDest.toLowerCase()));
     }
-    // Price filter
+    
     if (selectedPrice !== 'All') {
       result = result.filter((e) => {
-        const price = parseInt(e.price.replace(/[^0-9]/g, ''));
-        if (selectedPrice === 'Under $5K') return price < 5000;
-        if (selectedPrice === '$5K–$10K') return price >= 5000 && price <= 10000;
-        if (selectedPrice === '$10K–$20K') return price > 10000 && price <= 20000;
-        if (selectedPrice === '$20K+') return price > 20000;
+        const p = parseInt(e.price.replace(/[^0-9]/g, ''));
+        if (selectedPrice === 'Under $1K') return p < 1000;
+        if (selectedPrice === '$1K–$5K') return p >= 1000 && p <= 5000;
+        if (selectedPrice === '$5K–$10K') return p > 5000 && p <= 10000;
+        if (selectedPrice === '$10K+') return p > 10000;
         return true;
       });
     }
     setFiltered(result);
-  }, [search, selectedType, selectedPrice, selectedDest]);
+  }, [events, search, selectedType, selectedPrice, selectedDest]);
 
   const clearFilters = () => {
     setSearch('');
@@ -106,8 +152,9 @@ export default function EventsPage() {
                 onChange={(e) => setSelectedType(e.target.value)}
                 className="px-5 py-4 bg-gray-50 border border-gray-200 rounded-xl text-black text-lg focus:border-[#C1A27B] focus:ring-1 focus:ring-[#C1A27B] focus:bg-white transition-all appearance-none cursor-pointer shadow-sm min-w-[140px]"
               >
-                {eventTypes.map((t) => (
-                  <option key={t} value={t}>{t}</option>
+                <option value="All">All Types</option>
+                {categoryKeys.map((key) => (
+                  <option key={key} value={key}>{categoryMap[key]}</option>
                 ))}
               </select>
 
@@ -171,7 +218,7 @@ export default function EventsPage() {
             <div className="flex items-center gap-2 flex-wrap">
               {selectedType !== 'All' && (
                 <span className="px-3 py-1 rounded-full text-xs bg-[#C1A27B]/10 text-[#C1A27B] border border-[#C1A27B]/20">
-                  Type: {selectedType}
+                  Type: {categoryMap[selectedType] || selectedType}
                 </span>
               )}
               {selectedDest !== 'All' && (
@@ -183,8 +230,15 @@ export default function EventsPage() {
           )}
         </div>
 
+        {/* Loading State */}
+        {loading && events.length === 0 && (
+          <div className="flex items-center justify-center py-24">
+            <Loader2 className="w-8 h-8 text-[#C1A27B] animate-spin" />
+          </div>
+        )}
+
         {/* Events Grid / List */}
-        {filtered.length === 0 ? (
+        {!loading && filtered.length === 0 ? (
           <div className="text-center py-24">
             <div className="text-6xl mb-4">🌍</div>
             <h3 className="font-['Playfair_Display'] text-2xl text-[#4A4F4D] mb-2">No Events Found</h3>

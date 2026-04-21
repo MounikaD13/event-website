@@ -8,11 +8,24 @@ import EventsPage from './pages/EventsPage';
 import AuthPage from './pages/AuthPage';
 import BookingPage from './pages/BookingPage';
 import BusinessPage from './pages/BusinessPage';
+import ProfilePage from './pages/ProfilePage';
+import AdminDashboard from './pages/AdminDashboard';
+import ManageEvents from './pages/ManageEvents';
+import ContactPage from './pages/ContactPage';
+import UserDashboard from './pages/UserDashboard';
 
 const ProtectedRoute = ({ children }) => {
   const { user } = useSelector((state) => state.auth);
   if (!user) {
     return <Navigate to="/signin" replace />;
+  }
+  return children;
+};
+
+const AdminRoute = ({ children }) => {
+  const { user, role } = useSelector((state) => state.auth);
+  if (!user || role !== 'admin') {
+    return <Navigate to="/" replace />;
   }
   return children;
 };
@@ -26,6 +39,7 @@ const AppContent = () => {
           <Route path="/" element={<LandingPage />} />
           <Route path="/events" element={<EventsPage />} />
           <Route path="/business" element={<BusinessPage />} />
+          <Route path="/contact" element={<ContactPage />} />
           <Route path="/signin" element={<AuthPage />} />
           <Route path="/signup" element={<AuthPage />} />
           <Route
@@ -34,6 +48,38 @@ const AppContent = () => {
               <ProtectedRoute>
                 <BookingPage />
               </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <UserDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/dashboard"
+            element={
+              <AdminRoute>
+                <AdminDashboard />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/events"
+            element={
+              <AdminRoute>
+                <ManageEvents />
+              </AdminRoute>
             }
           />
           <Route path="*" element={<Navigate to="/" replace />} />

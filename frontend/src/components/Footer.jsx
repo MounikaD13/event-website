@@ -90,11 +90,10 @@ export default function Footer() {
           <div className="lg:col-span-2 lg:col-start-6 flex flex-col items-center sm:items-start text-center sm:text-left">
             <h4 className="font-['Playfair_Display'] text-lg font-semibold text-black mb-6">Services</h4>
             <ul className="space-y-4 text-sm text-black/70">
-              <li><Link to="/events?type=wedding" className="hover:text-[#C1A27B] transition-colors">Destination Weddings</Link></li>
-              <li><Link to="/events?type=corporate" className="hover:text-[#C1A27B] transition-colors">Corporate Retreats</Link></li>
-              <li><Link to="/events?type=party" className="hover:text-[#C1A27B] transition-colors">Private Parties</Link></li>
-              <li><Link to="/events?type=gala" className="hover:text-[#C1A27B] transition-colors">Charity Galas</Link></li>
-              <li><Link to="/events?type=conference" className="hover:text-[#C1A27B] transition-colors">Global Conferences</Link></li>
+              <li><Link to="/events?type=weddings" className="hover:text-[#C1A27B] transition-colors">Destination Weddings</Link></li>
+              <li><Link to="/events?type=birthdays" className="hover:text-[#C1A27B] transition-colors">Birthday Celebrations</Link></li>
+              <li><Link to="/events?type=milestone" className="hover:text-[#C1A27B] transition-colors">Milestone Events</Link></li>
+              <li><Link to="/events?type=bussiness" className="hover:text-[#C1A27B] transition-colors">Business Retreats</Link></li>
             </ul>
           </div>
 
@@ -102,11 +101,11 @@ export default function Footer() {
           <div className="lg:col-span-2 flex flex-col items-center sm:items-start text-center sm:text-left">
             <h4 className="font-['Playfair_Display'] text-lg font-semibold text-black mb-6">Company</h4>
             <ul className="space-y-4 text-sm text-black/70">
-              <li><Link to="/about" className="hover:text-[#C1A27B] transition-colors">Our Story</Link></li>
+              <li><Link to="/#about" className="hover:text-[#C1A27B] transition-colors">Our Story</Link></li>
               <li><Link to="/events" className="hover:text-[#C1A27B] transition-colors">Portfolio & Gallery</Link></li>
               <li><Link to="/#testimonials" className="hover:text-[#C1A27B] transition-colors">Client Reviews</Link></li>
-              <li><Link to="/careers" className="hover:text-[#C1A27B] transition-colors">Careers</Link></li>
-              <li><Link to="/booking" className="hover:text-[#C1A27B] transition-colors">Book a Consultation</Link></li>
+              <li><Link to="/contact" className="hover:text-[#C1A27B] transition-colors">Careers</Link></li>
+              <li><Link to="/contact" className="hover:text-[#C1A27B] transition-colors">Book a Consultation</Link></li>
             </ul>
           </div>
 

@@ -9,7 +9,6 @@ const instance = axios.create({
 
 instance.interceptors.request.use((config) => {
     const token = localStorage.getItem("token")
-    console.log(token)
     if (token) {
         config.headers.Authorization = `Bearer ${token}`
     }
@@ -37,7 +36,9 @@ instance.interceptors.response.use(
             } catch (err) {
                 // If refresh fails, sign out
                 localStorage.removeItem("token")
-                window.location.href = "/login"
+                localStorage.removeItem("eventUser")
+                localStorage.removeItem("eventRole")
+                window.location.href = "/signin"
                 return Promise.reject(err)
             }
         }

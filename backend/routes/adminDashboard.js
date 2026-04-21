@@ -1,9 +1,7 @@
 const express = require("express")
 const router = express.Router()
 const User = require("../models/Users")
-const User = require("../models/Users")
 const authMiddleware = require("../middleware/middleware")
-
 const transporter = require("../utils/mail")
 
 // 1. GET ALL USER DATA (With simple search/filter)
