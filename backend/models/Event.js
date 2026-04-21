@@ -26,6 +26,9 @@ const eventSchema = new mongoose.Schema(
             type: String,
             enum:["weddings","birthdays","milestone","bussiness"]
         },
+        image: {
+            type: String, // Will store the GridFS file ID or download URL
+        },
         price: {
             type: Number,
             default: 0,
