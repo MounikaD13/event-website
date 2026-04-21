@@ -5,7 +5,6 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import LandingPage from './pages/LandingPage';
 import EventsPage from './pages/EventsPage';
-import ContactPage from './pages/ContactPage';
 import AuthPage from './pages/AuthPage';
 import BookingPage from './pages/BookingPage';
 import BusinessPage from './pages/BusinessPage';
@@ -27,7 +26,6 @@ const AppContent = () => {
           <Route path="/" element={<LandingPage />} />
           <Route path="/events" element={<EventsPage />} />
           <Route path="/business" element={<BusinessPage />} />
-          <Route path="/contact" element={<ContactPage />} />
           <Route path="/signin" element={<AuthPage />} />
           <Route path="/signup" element={<AuthPage />} />
           <Route

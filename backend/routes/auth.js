@@ -100,7 +100,7 @@ router.post("/register", async (req, res) => {
 })
 //generate tokens
 const generateTokens = (user, role) => {
-    const accesssToken = jwt.sign(
+    const accessToken = jwt.sign(
         { id: user._id, email: user.email, role },
         process.env.JWT_SECRET,
         { expiresIn: "15m" }
@@ -110,7 +110,7 @@ const generateTokens = (user, role) => {
         process.env.JWT_REFRESH_SECRET,
         { expiresIn: "7d" }
     )
-    return { accesssToken, refreshToken }
+    return { accessToken, refreshToken }
 }
 
 //login
@@ -137,7 +137,7 @@ router.post("/login", async (req, res) => {
             return res.status(400).json({ message: "Invalid email or password" });
 
         //token
-        const { accesssToken, refreshToken } = generateTokens(user, role);
+        const { accessToken, refreshToken } = generateTokens(user, role);
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
             secure: false,
@@ -146,7 +146,7 @@ router.post("/login", async (req, res) => {
         });
         res.status(200).json({
             message: "User identified and login successful",
-            token: accesssToken,
+            token: accessToken,
             role,
             user: { id: user._id, name: user.name, email: user.email }
         });
@@ -255,5 +255,51 @@ router.put("/profile", authMiddleware(["user"]), async (req, res) => {
         res.status(500).json({ message: "Profile update failed", error })
     }
 })
-
+//refresh token
+router.post("/refresh-token", async (req, res) => {
+    const token = req.cookies.refreshToken
+    if (!token)
+        return res.status(401).json({ "message": "no token apperead" })
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET)
+        let user = null
+        // console.log("for checking the refresh token", decoded)
+        if (decoded.role === "user") {
+            user = await User.findById(decoded.id)
+        }
+        else if (decoded.role === "admin") {
+            user = await Admin.findById(decoded.id)
+        }
+        if (!user) {
+            return res.status(404).json({ message: "User not found" })
+        }
+        const { accessToken } = generateTokens(user, decoded.role);
+        res.json({
+            accessToken: accessToken,
+            user: { id: user._id, email: user.email, name: user.name, role: decoded.role }
+        })
+    }
+    catch (err) {
+        console.log("error from refresh token", err)
+        return res.status(401).json({ "message": "invalid refresh token" })
+    }
+})
+router.post("/admin/reg",async(req,res)=>{
+    try {
+        const { name, email, password } = req.body
+        // console.log("*******************",name,email,password)
+        if (!email || !password ||!name) {
+            return res.status(400).json({ message: "All fields are required" })
+        }
+        const hashedPassword = await bcrypt.hash(password, 10)
+        const admin= new Admin({
+            name,email, password:hashedPassword
+        })
+        await admin.save()
+        res.status(201).json({ message: "User registered successfully" })
+    } catch (err) {
+        console.log("Error in register:", err)
+        res.status(500).json({ message: "Registration failed" })
+    }
+})
 module.exports = router;

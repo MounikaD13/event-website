@@ -59,7 +59,7 @@ export const verifySignupOtp = createAsyncThunk('auth/verifySignupOtp', async ({
 
 export const sendForgotOtp = createAsyncThunk('auth/sendForgotOtp', async (email, { rejectWithValue }) => {
   try {
-    const { data } = await api.post('/send-forgot-otp', { email });
+    const { data } = await api.post('/forgot-password', { email });
     return data;
   } catch (err) {
     return rejectWithValue(err.response?.data?.message || 'Error sending OTP');
@@ -68,7 +68,7 @@ export const sendForgotOtp = createAsyncThunk('auth/sendForgotOtp', async (email
 
 export const verifyForgotOtp = createAsyncThunk('auth/verifyForgotOtp', async ({ email, otp }, { rejectWithValue }) => {
   try {
-    const { data } = await api.post('/verify-forgot-otp', { email, otp });
+    const { data } = await api.post('/verify-reset-otp', { email, otp });
     return data;
   } catch (err) {
     return rejectWithValue(err.response?.data?.message || 'Invalid OTP');

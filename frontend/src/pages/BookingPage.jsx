@@ -6,6 +6,7 @@ import {
   ArrowLeft, Clock, Star, Sparkles, CreditCard, Info
 } from 'lucide-react';
 import { eventsData } from '../data/events';
+import api from '../utils/api';
 import toast from 'react-hot-toast';
 
 const packages = [
@@ -53,10 +54,24 @@ export default function BookingPage() {
   const handleConfirm = async () => {
     if (!form.guests) { toast.error('Please enter expected guest count'); return; }
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1800));
-    setLoading(false);
-    setBooked(true);
-    toast.success('Booking confirmed! Our team will contact you shortly.');
+    try {
+      await api.post('/contact', {
+        fullName: user.name,
+        email: user.email,
+        phone: 'Not Provided', // Minimal placeholder since BookingPage lacks phone field
+        eventDate: form.date || selectedEvent.date,
+        eventType: selectedEvent.type,
+        guestCount: form.guests,
+        referredBy: 'Website Booking Flow',
+        message: form.specialRequests || `Booking request for ${selectedEvent.title} - ${selectedPackage} package.`
+      });
+      setBooked(true);
+      toast.success('Booking confirmed! Our team will contact you shortly.');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to submit booking. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (booked) {

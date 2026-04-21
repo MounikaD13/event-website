@@ -84,11 +84,11 @@ export default function LandingPage() {
                   <h1 className="font-['Playfair_Display'] text-4xl sm:text-6xl md:text-7xl lg:text-[5rem] font-medium text-white tracking-[0.12em] uppercase drop-shadow-lg -mt-2">
                     {slide.mainTitle}
                   </h1>
-                  <div className="flex flex-wrap items-center justify-center gap-6 md:gap-14 mt-12 md:mt-20">
-                    <Link to="/booking" className="btn-earthy w-[145px] md:w-[165px] h-[46px] md:h-[52px] rounded-full text-[12px] md:text-sm font-semibold tracking-[0.2em] uppercase shadow-2xl hover:scale-105 transition-transform whitespace-nowrap flex items-center justify-center leading-none">
+                  <div className="flex items-center justify-center gap-4 mt-10 md:mt-16">
+                    <Link to="/booking" className="btn-earthy px-10 py-4 rounded-full text-sm font-bold tracking-[0.2em] uppercase shadow-2xl hover:scale-105 transition-transform">
                       BOOK NOW
                     </Link>
-                    <Link to="/events" className="w-[145px] md:w-[165px] h-[46px] md:h-[52px] rounded-full border-2 border-white/40 text-white text-[12px] md:text-sm font-semibold tracking-[0.2em] uppercase hover:bg-white/10 transition-all whitespace-nowrap flex items-center justify-center leading-none">
+                    <Link to="/events" className="px-10 py-4 rounded-full border-2 border-white/40 text-white text-sm font-bold tracking-[0.2em] uppercase hover:bg-white/10 transition-all">
                       EXPLORE
                     </Link>
                   </div>
@@ -102,24 +102,18 @@ export default function LandingPage() {
       {/* ══════════════════════════════════════════════════
           2. STATS BAR
       ══════════════════════════════════════════════════ */}
-      <section ref={statsRef} className="bg-[#4A4F4D] py-10 relative z-10">
-        <div className="max-w-6xl mx-auto px-6 sm:px-10 lg:px-12">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-10 gap-x-12 justify-items-center items-center text-center">
+      <section ref={statsRef} className="bg-[#4A4F4D] py-10">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map(({ value, label, icon: Icon }, i) => (
               <div
                 key={label}
-                className={`flex flex-col items-center justify-center transition-all duration-700 ${statsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+                className={`flex flex-col items-center text-center transition-all duration-700 ${statsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
                 style={{ transitionDelay: `${i * 100}ms` }}
               >
-                <div className="mb-3">
-                  <Icon className="w-7 h-7 text-[#C1A27B] opacity-90" strokeWidth={1.5} />
-                </div>
-                <h3 className="text-3xl md:text-4xl font-['Playfair_Display'] text-white font-bold leading-none mb-1">
-                  {value}
-                </h3>
-                <p className="text-[10px] md:text-xs text-white/50 tracking-[0.2em] font-semibold uppercase">
-                  {label}
-                </p>
+                <Icon className="w-7 h-7 text-[#C1A27B] mb-3 opacity-80" />
+                <span className="font-['Playfair_Display'] text-3xl font-bold text-white">{value}</span>
+                <span className="text-xs text-white/50 uppercase tracking-[0.18em] mt-1 font-semibold">{label}</span>
               </div>
             ))}
           </div>
@@ -132,9 +126,9 @@ export default function LandingPage() {
       <section ref={catRef} className="py-20 bg-[#FAF9F6] border-b border-[#EBE5DA]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className={`text-center mb-12 transition-all duration-700 ${catVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
-            <span className="font-cursive text-[#C1A27B] text-4xl md:text-5xl block mb-2">Our Approach</span>
-            <h2 className="font-['Playfair_Display'] text-3xl md:text-4xl lg:text-5xl text-black mt-3 font-medium">
-              Your Trusted Destination Wedding Planners
+            <span className="text-[#C1A27B] text-xs uppercase tracking-[4px] font-semibold">What We Do</span>
+            <h2 className="font-['Playfair_Display'] text-3xl md:text-4xl text-[#4A4F4D] mt-3 font-medium">
+              Event Categories
             </h2>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -162,8 +156,8 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className={`flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12 transition-all duration-700 ${eventsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
             <div>
-              <span className="font-cursive text-[#C1A27B] text-4xl md:text-5xl block mb-2">Handpicked For You</span>
-              <h2 className="font-['Playfair_Display'] text-3xl md:text-4xl lg:text-5xl text-black mt-2 font-medium">
+              <span className="text-[#C1A27B] text-xs uppercase tracking-[4px] font-semibold">Handpicked For You</span>
+              <h2 className="font-['Playfair_Display'] text-3xl md:text-4xl text-[#4A4F4D] mt-2 font-medium">
                 Featured Events
               </h2>
             </div>
@@ -192,8 +186,8 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 items-center">
             <div className={`transition-all duration-700 ${aboutVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'}`}>
-              <span className="font-cursive text-[#C1A27B] text-4xl md:text-5xl block mb-4">Our Story</span>
-              <h2 className="font-['Playfair_Display'] text-3xl md:text-4xl lg:text-5xl text-black mb-6 font-medium leading-tight">
+              <span className="text-[#C1A27B] text-xs uppercase tracking-[4px] font-semibold block mb-3">Our Story</span>
+              <h2 className="font-['Playfair_Display'] text-3xl md:text-4xl lg:text-5xl text-[#4A4F4D] mb-6 font-medium leading-tight">
                 Creating Memories<br />Beyond Borders
               </h2>
               <p className="text-[#667280]/80 text-base leading-relaxed mb-4">
@@ -236,8 +230,8 @@ export default function LandingPage() {
       <section id="destinations" ref={destRef} className="py-20 bg-white border-b border-[#EBE5DA]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className={`text-center mb-14 transition-all duration-700 ${destVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
-            <span className="font-cursive text-[#C1A27B] text-4xl md:text-5xl block mb-2">Our World</span>
-            <h2 className="font-['Playfair_Display'] text-3xl md:text-4xl lg:text-5xl text-black mt-3 font-medium">
+            <span className="text-[#C1A27B] text-xs uppercase tracking-[4px] font-semibold">Our World</span>
+            <h2 className="font-['Playfair_Display'] text-3xl md:text-4xl text-[#4A4F4D] mt-3 font-medium">
               Top Event Locations
             </h2>
           </div>
@@ -283,8 +277,8 @@ export default function LandingPage() {
       <section ref={testimonialRef} className="py-20 bg-[#FAF9F6]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className={`text-center mb-14 transition-all duration-700 ${testimonialVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
-            <span className="font-cursive text-[#C1A27B] text-4xl md:text-5xl block mb-2">Kind Words</span>
-            <h2 className="font-['Playfair_Display'] text-3xl md:text-4xl lg:text-5xl text-black mt-3 font-medium">
+            <span className="text-[#C1A27B] text-xs uppercase tracking-[4px] font-semibold">Kind Words</span>
+            <h2 className="font-['Playfair_Display'] text-3xl md:text-4xl text-[#4A4F4D] mt-3 font-medium">
               Client Testimonials
             </h2>
           </div>

@@ -9,28 +9,6 @@ const contactSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    phone: {
-        type: String,
-        required: true
-    },
-    eventDate: {
-        type: Date,
-        required: true
-    },
-    eventType: {
-        type: String,
-        required: true,
-        enum: ["Wedding", "Birthday", "Corporate", "Graduation", "Anniversary", "Other"]
-    },
-    guestCount: {
-        type: Number,
-        required: true
-    },
-    referredBy: {
-        type: String,
-        enum: ["Instagram", "Facebook", "Google", "Friend", "Other"],
-        default: "Other"
-    },
     message: {
         type: String,
         required: true
