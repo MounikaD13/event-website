@@ -7,7 +7,7 @@ import {
 import {
   login, register, sendSignupOtp, verifySignupOtp,
   sendForgotOtp, verifyForgotOtp, resetPassword,
-} from '../store/slices/authSlice'; 567
+} from '../store/slices/authSlice';
 import toast from 'react-hot-toast';
 
 /* ─── Color Palette ───────────────────────────────────────────
