@@ -5,6 +5,7 @@ const express = require("express")
 const app = express()
 const authRoutes = require("./routes/auth")
 const contactRoutes = require("./routes/contact")
+const eventRoutes = require("./routes/events")
 const cookieParser = require("cookie-parser")
 
 app.use(cors({
@@ -21,4 +22,5 @@ mongoose.connect(process.env.MONGODB_URL)
 app.get("/", (req, res) => res.json({ "message": 'dummy route' }))
 app.use("/api", authRoutes)
 app.use("/api", contactRoutes)
+app.use("/api/events", eventRoutes)
 app.listen(process.env.PORT, () => { console.log("server started successfully") })
