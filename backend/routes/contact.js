@@ -1,9 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const Contact = require("../models/Contact");
+const authMiddleware = require("../middleware/middleware");
 
-// POST /api/contact - Submit a new contact form
-router.post("/contact", async (req, res) => {
+// POST /api/contact - Submit a new contact form (Logged-in users only)
+router.post("/contact", authMiddleware(["user"]), async (req, res) => {
     try {
         const { fullName, email, phone, eventDate, eventType, guestCount, referredBy, message } = req.body;
 
@@ -35,8 +36,8 @@ router.post("/contact", async (req, res) => {
     }
 });
 
-// GET /api/contact/all - Optional: View all messages (Admin only)
-router.get("/contact/all", async (req, res) => {
+// GET /api/contact/all - View all messages (Admin only)
+router.get("/contact/all", authMiddleware(["admin"]), async (req, res) => {
     try {
         const contacts = await Contact.find().sort({ createdAt: -1 });
         res.status(200).json({ success: true, contacts });

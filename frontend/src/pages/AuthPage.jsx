@@ -7,26 +7,26 @@ import {
 import {
   login, register, sendSignupOtp, verifySignupOtp,
   sendForgotOtp, verifyForgotOtp, resetPassword,
-} from '../store/slices/authSlice';
+} from '../store/slices/authSlice'; 567
 import toast from 'react-hot-toast';
 
-/* ─── Color Palette ───────────────────────────────────────────────
+/* ─── Color Palette ───────────────────────────────────────────
    Dusty Rose / Mauve — warm, elegant, clearly visible on white
-──────────────────────────────────────────────────────────────────── */
+──────────────────────────────────────────────────────────────── */
 const C = {
-  primary:      '#B5737A',   // dusty rose — buttons
+  primary: '#B5737A',   // dusty rose — buttons
   primaryHover: '#9E5E65',   // darker rose
   primaryLight: 'rgba(181,115,122,0.10)',
-  border:       'rgba(181,115,122,0.30)',
-  borderFocus:  'rgba(181,115,122,0.65)',
-  label:        '#8B5560',
-  placeholder:  '#C4A0A5',
-  inputBg:      '#FBF8F8',
-  tabBg:        '#F5EFEF',
-  text:         '#2C2828',
+  border: 'rgba(181,115,122,0.30)',
+  borderFocus: 'rgba(181,115,122,0.65)',
+  label: '#8B5560',
+  placeholder: '#C4A0A5',
+  inputBg: '#FBF8F8',
+  tabBg: '#F5EFEF',
+  text: '#2C2828',
 };
 
-/* ─── Shared style atoms ──────────────────────────────────────────── */
+/* ─── Shared style atoms ─── */
 const S = {
   label: {
     display: 'block', fontSize: '10px', fontWeight: '700',
@@ -305,7 +305,7 @@ export default function AuthPage() {
           {/* Tab switcher */}
           {authMode !== 'forgotpassword' && (
             <div style={{ display: 'flex', background: C.tabBg, borderRadius: '10px', padding: '4px', marginBottom: '16px', border: `1.5px solid ${C.border}` }}>
-              {[['signup','Sign Up'],['signin','Sign In']].map(([m, label]) => (
+              {[['signup', 'Sign Up'], ['signin', 'Sign In']].map(([m, label]) => (
                 <button key={m} type="button" onClick={() => switchMode(m)} style={{
                   flex: 1, height: '34px', borderRadius: '7px', border: 'none', cursor: 'pointer',
                   fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.2em',
@@ -321,8 +321,8 @@ export default function AuthPage() {
           )}
 
           {/* Step bar */}
-          {authMode === 'signup' && <StepBar steps={['Email','Verify','Register']} step={step} />}
-          {authMode === 'forgotpassword' && <StepBar steps={['Email','Verify','Reset']} step={step} />}
+          {authMode === 'signup' && <StepBar steps={['Email', 'Verify', 'Register']} step={step} />}
+          {authMode === 'forgotpassword' && <StepBar steps={['Email', 'Verify', 'Reset']} step={step} />}
 
           {/* ───── SIGN IN ───── */}
           {authMode === 'signin' && (

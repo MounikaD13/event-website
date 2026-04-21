@@ -63,38 +63,38 @@ export default function EventsPage() {
   const hasFilters = search || selectedType !== 'All' || selectedPrice !== 'All' || selectedDest !== 'All';
 
   return (
-    <div className="min-h-screen pt-20 bg-[#FAF9F6]">
+    <div className="min-h-screen bg-[#FAF9F6]">
       {/* Header */}
-      <div className="relative py-24 md:py-32 overflow-hidden">
+      <div className="relative min-h-[50vh] md:min-h-[60vh] flex flex-col items-center justify-center overflow-hidden bg-black pt-20 pb-20">
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-20"
-          style={{ backgroundImage: "url('/images/contact_bg.jpg')" }}
+          className="absolute inset-0 bg-cover bg-center opacity-70"
+          style={{ backgroundImage: "url('/images/events_gallery_bg.png')" }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#FAF9F6]/80 to-[#FAF9F6]" />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 text-center">
-          <span className="text-[#A3B19B] text-xs uppercase tracking-[4px] font-semibold">Our Portfolio</span>
-          <h1 className="font-['Playfair_Display'] text-5xl font-bold text-[#4A4F4D] mt-3 mb-4">
-            Explore <span className="pastel-gradient">All Events</span>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/40 to-transparent" />
+        <div className="relative z-10 max-w-7xl mx-auto px-8 flex flex-col items-center justify-center text-center w-full">
+          <span className="font-cursive text-[#C1A27B] text-4xl block mb-2">Our Portfolio</span>
+          <h1 className="font-['Playfair_Display'] text-5xl md:text-7xl font-bold text-white mt-3 mb-6">
+            Explore <span className="text-[#C1A27B]">All Events</span>
           </h1>
-          <p className="text-[#4A4F4D]/50 text-lg max-w-2xl mx-auto">
+          <p className="text-white/80 text-lg max-w-2xl mx-auto font-light leading-relaxed">
             Browse our curated collection of premium destination events across the world's most breathtaking locations.
           </p>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 mt-8 md:mt-12 relative z-20">
         {/* Search & Filter Bar */}
-        <div className="glass rounded-2xl border border-[#A3B19B]/15 p-4 md:p-5 mb-8">
+        <div className="bg-white rounded-2xl shadow-xl shadow-black/5 border border-gray-100 p-5 md:p-7 mb-10">
           <div className="flex flex-col md:flex-row gap-4">
             {/* Search */}
             <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#A3B19B]/60" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
                 type="text"
                 placeholder="Search events or destinations..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-[#FAF9F6]/60 border border-[#A3B19B]/20 rounded-xl text-[#4A4F4D] text-sm placeholder:text-[#4A4F4D]/30 focus:border-[#A3B19B] transition-all"
+                className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-200 rounded-xl text-black text-lg placeholder:text-gray-400 focus:border-[#C1A27B] focus:ring-1 focus:ring-[#C1A27B] focus:bg-white transition-all outline-none shadow-sm"
               />
             </div>
 
@@ -104,10 +104,10 @@ export default function EventsPage() {
               <select
                 value={selectedType}
                 onChange={(e) => setSelectedType(e.target.value)}
-                className="px-4 py-3 bg-[#FAF9F6]/60 border border-[#A3B19B]/20 rounded-xl text-[#4A4F4D] text-sm focus:border-[#A3B19B] transition-all appearance-none"
+                className="px-5 py-4 bg-gray-50 border border-gray-200 rounded-xl text-black text-lg focus:border-[#C1A27B] focus:ring-1 focus:ring-[#C1A27B] focus:bg-white transition-all appearance-none cursor-pointer shadow-sm min-w-[140px]"
               >
                 {eventTypes.map((t) => (
-                  <option key={t} value={t} className="bg-[#F2EFE9]">{t}</option>
+                  <option key={t} value={t}>{t}</option>
                 ))}
               </select>
 
@@ -115,10 +115,10 @@ export default function EventsPage() {
               <select
                 value={selectedPrice}
                 onChange={(e) => setSelectedPrice(e.target.value)}
-                className="px-4 py-3 bg-[#FAF9F6]/60 border border-[#A3B19B]/20 rounded-xl text-[#4A4F4D] text-sm focus:border-[#A3B19B] transition-all appearance-none"
+                className="px-5 py-4 bg-gray-50 border border-gray-200 rounded-xl text-black text-lg focus:border-[#C1A27B] focus:ring-1 focus:ring-[#C1A27B] focus:bg-white transition-all appearance-none cursor-pointer shadow-sm min-w-[140px]"
               >
                 {priceRanges.map((p) => (
-                  <option key={p} value={p} className="bg-[#F2EFE9]">{p}</option>
+                  <option key={p} value={p}>{p}</option>
                 ))}
               </select>
 
@@ -126,27 +126,27 @@ export default function EventsPage() {
               <select
                 value={selectedDest}
                 onChange={(e) => setSelectedDest(e.target.value)}
-                className="px-4 py-3 bg-[#FAF9F6]/60 border border-[#A3B19B]/20 rounded-xl text-[#4A4F4D] text-sm focus:border-[#A3B19B] transition-all appearance-none"
+                className="px-5 py-4 bg-gray-50 border border-gray-200 rounded-xl text-black text-lg focus:border-[#C1A27B] focus:ring-1 focus:ring-[#C1A27B] focus:bg-white transition-all appearance-none cursor-pointer shadow-sm min-w-[140px]"
               >
-                <option value="All" className="bg-[#F2EFE9]">All Destinations</option>
+                <option value="All">All Destinations</option>
                 {destinations.map((d) => (
-                  <option key={d.dest} value={d.dest} className="bg-[#F2EFE9]">{d.name}</option>
+                  <option key={d.dest} value={d.dest}>{d.name}</option>
                 ))}
               </select>
 
               {/* View Toggle */}
-              <div className="flex items-center gap-1 glass border border-[#A3B19B]/15 rounded-xl p-1">
+              <div className="flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-xl p-1.5 shadow-sm">
                 <button
                   onClick={() => setViewMode('grid')}
-                  className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-[#A3B19B] text-white' : 'text-[#4A4F4D]/60 hover:text-[#A3B19B]'}`}
+                  className={`p-2.5 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-[#C1A27B] text-white' : 'text-gray-400 hover:text-[#C1A27B]'}`}
                 >
-                  <Grid3X3 className="w-4 h-4" />
+                  <Grid3X3 className="w-5 h-5" />
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-[#A3B19B] text-white' : 'text-[#4A4F4D]/60 hover:text-[#A3B19B]'}`}
+                  className={`p-2.5 rounded-lg transition-all ${viewMode === 'list' ? 'bg-[#C1A27B] text-white' : 'text-gray-400 hover:text-[#C1A27B]'}`}
                 >
-                  <List className="w-4 h-4" />
+                  <List className="w-5 h-5" />
                 </button>
               </div>
 
@@ -164,18 +164,18 @@ export default function EventsPage() {
 
         {/* Results Info */}
         <div className="flex items-center justify-between mb-6">
-          <p className="text-[#4A4F4D]/50 text-sm">
-            Showing <span className="text-[#A3B19B] font-semibold">{filtered.length}</span> events
+          <p className="text-black/60 text-sm">
+            Showing <span className="text-[#C1A27B] font-bold">{filtered.length}</span> events
           </p>
           {hasFilters && (
             <div className="flex items-center gap-2 flex-wrap">
               {selectedType !== 'All' && (
-                <span className="px-3 py-1 rounded-full text-xs bg-[#A3B19B]/15 text-[#A3B19B] border border-[#A3B19B]/20">
+                <span className="px-3 py-1 rounded-full text-xs bg-[#C1A27B]/10 text-[#C1A27B] border border-[#C1A27B]/20">
                   Type: {selectedType}
                 </span>
               )}
               {selectedDest !== 'All' && (
-                <span className="px-3 py-1 rounded-full text-xs bg-[#A3B19B]/15 text-[#A3B19B] border border-[#A3B19B]/20">
+                <span className="px-3 py-1 rounded-full text-xs bg-[#C1A27B]/10 text-[#C1A27B] border border-[#C1A27B]/20">
                   <MapPin className="w-3 h-3 inline mr-1" />{selectedDest}
                 </span>
               )}
@@ -197,8 +197,8 @@ export default function EventsPage() {
           <div
             className={
               viewMode === 'grid'
-                ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5'
-                : 'flex flex-col gap-4'
+                ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 gap-y-10 md:gap-8 md:gap-y-12'
+                : 'flex flex-col gap-6'
             }
           >
             {filtered.map((event) => (

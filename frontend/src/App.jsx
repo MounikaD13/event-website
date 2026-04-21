@@ -8,6 +8,7 @@ import EventsPage from './pages/EventsPage';
 import ContactPage from './pages/ContactPage';
 import AuthPage from './pages/AuthPage';
 import BookingPage from './pages/BookingPage';
+import BusinessPage from './pages/BusinessPage';
 
 const ProtectedRoute = ({ children }) => {
   const { user } = useSelector((state) => state.auth);
@@ -25,6 +26,7 @@ const AppContent = () => {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/events" element={<EventsPage />} />
+          <Route path="/business" element={<BusinessPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/signin" element={<AuthPage />} />
           <Route path="/signup" element={<AuthPage />} />

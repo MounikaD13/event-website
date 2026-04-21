@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken")
 const User = require("../models/Users")
 const Admin = require("../models/Admin")
 const transporter = require("../utils/mail")
+const authMiddleware = require("../middleware/middleware")
 
 //send otp
 router.post("/send-otp", async (req, res) => {
@@ -232,6 +233,26 @@ router.post("/reset-password", async (req, res) => {
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: "Server error in reset password" });
+    }
+})
+
+// UPDATE PROFILE
+router.put("/profile", authMiddleware(["user"]), async (req, res) => {
+    try {
+        const { name, mobileNumber, address, gender } = req.body
+        const user = await User.findById(req.user.id)
+        if (!user) {
+            return res.status(404).json({ message: "User not found" })
+        }
+        if (name) user.name = name
+        if (mobileNumber) user.mobileNumber = mobileNumber
+        if (address) user.address = address
+        if (gender) user.gender = gender
+
+        await user.save()
+        res.status(200).json({ message: "Profile updated successfully", user })
+    } catch (error) {
+        res.status(500).json({ message: "Profile update failed", error })
     }
 })
 

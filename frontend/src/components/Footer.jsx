@@ -32,15 +32,15 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="py-10 md:py-14 flex flex-col lg:flex-row items-center justify-between gap-8 border-b border-[#EBE5DA]">
           <div className="text-center lg:text-left max-w-lg">
-            <h3 className="font-['Playfair_Display'] text-2xl sm:text-3xl text-[#4A4F4D] mb-2">Join our Insider List</h3>
-            <p className="text-[#667280] text-sm leading-relaxed">Subscribe for exclusive access to hidden venues, event trends, and luxury inspiration straight to your inbox.</p>
+            <h3 className="font-['Playfair_Display'] text-2xl sm:text-3xl text-black mb-2">Join our Insider List</h3>
+            <p className="text-black/70 text-sm leading-relaxed">Subscribe for exclusive access to hidden venues, event trends, and luxury inspiration straight to your inbox.</p>
           </div>
           <div className="w-full lg:w-auto lg:flex-1 lg:max-w-md">
             <form className="flex flex-col sm:flex-row items-stretch gap-3 w-full" onSubmit={(e) => e.preventDefault()}>
               <input
                 type="email"
                 placeholder="Enter your email address"
-                className="flex-1 min-w-0 bg-white border border-[#EBE5DA] rounded-full py-3.5 px-6 text-sm text-[#4A4F4D] focus:outline-none focus:border-[#C1A27B] transition-colors shadow-sm"
+                className="flex-1 min-w-0 bg-white border border-[#EBE5DA] rounded-full py-3.5 px-6 text-sm text-black placeholder-black/50 focus:outline-none focus:border-[#C1A27B] transition-colors shadow-sm"
               />
               <button
                 type="submit"
@@ -60,27 +60,27 @@ export default function Footer() {
           {/* Brand Column */}
           <div className="lg:col-span-4 flex flex-col items-center sm:items-start text-center sm:text-left">
             <Link to="/" className="inline-block mb-6">
-              <span className="font-['Playfair_Display'] text-3xl font-bold text-[#4A4F4D] tracking-widest uppercase block mb-1">
+              <span className="font-['Playfair_Display'] text-3xl font-bold text-black tracking-widest uppercase block mb-1">
                 OVERSEAS
               </span>
-              <span className="text-[10px] text-[#A3B19B] tracking-[0.3em] uppercase block">
+              <span className="text-[10px] text-[#C1A27B] tracking-[0.3em] uppercase block">
                 Destination Event Planners
               </span>
             </Link>
-            <p className="text-sm text-[#667280] leading-relaxed mb-8 max-w-xs">
+            <p className="text-sm text-black/70 leading-relaxed mb-8 max-w-xs">
               Curating spectacular destination weddings, exclusive corporate retreats, and unforgettable celebrations across the globe since 2010.
             </p>
             <div className="flex items-center gap-4">
-              <a href="#" className="w-10 h-10 rounded-full border border-[#EBE5DA] bg-white flex items-center justify-center text-[#A3B19B] hover:bg-[#A3B19B] hover:text-white hover:border-[#A3B19B] transition-all duration-300">
+              <a href="#" className="w-10 h-10 rounded-full border border-[#EBE5DA] bg-white flex items-center justify-center text-[#C1A27B] hover:bg-[#C1A27B] hover:text-white hover:border-[#C1A27B] transition-all duration-300">
                 <InstagramIcon className="w-4 h-4" />
               </a>
-              <a href="#" className="w-10 h-10 rounded-full border border-[#EBE5DA] bg-white flex items-center justify-center text-[#A3B19B] hover:bg-[#A3B19B] hover:text-white hover:border-[#A3B19B] transition-all duration-300">
+              <a href="#" className="w-10 h-10 rounded-full border border-[#EBE5DA] bg-white flex items-center justify-center text-[#C1A27B] hover:bg-[#C1A27B] hover:text-white hover:border-[#C1A27B] transition-all duration-300">
                 <FacebookIcon className="w-4 h-4" />
               </a>
-              <a href="#" className="w-10 h-10 rounded-full border border-[#EBE5DA] bg-white flex items-center justify-center text-[#A3B19B] hover:bg-[#A3B19B] hover:text-white hover:border-[#A3B19B] transition-all duration-300">
+              <a href="#" className="w-10 h-10 rounded-full border border-[#EBE5DA] bg-white flex items-center justify-center text-[#C1A27B] hover:bg-[#C1A27B] hover:text-white hover:border-[#C1A27B] transition-all duration-300">
                 <TwitterIcon className="w-4 h-4" />
               </a>
-              <a href="#" className="w-10 h-10 rounded-full border border-[#EBE5DA] bg-white flex items-center justify-center text-[#A3B19B] hover:bg-[#A3B19B] hover:text-white hover:border-[#A3B19B] transition-all duration-300">
+              <a href="#" className="w-10 h-10 rounded-full border border-[#EBE5DA] bg-white flex items-center justify-center text-[#C1A27B] hover:bg-[#C1A27B] hover:text-white hover:border-[#C1A27B] transition-all duration-300">
                 <LinkedinIcon className="w-4 h-4" />
               </a>
             </div>
@@ -88,8 +88,8 @@ export default function Footer() {
 
           {/* Links Column 1 - Services */}
           <div className="lg:col-span-2 lg:col-start-6 flex flex-col items-center sm:items-start text-center sm:text-left">
-            <h4 className="font-['Playfair_Display'] text-lg font-semibold text-[#4A4F4D] mb-6">Services</h4>
-            <ul className="space-y-4 text-sm text-[#667280]">
+            <h4 className="font-['Playfair_Display'] text-lg font-semibold text-black mb-6">Services</h4>
+            <ul className="space-y-4 text-sm text-black/70">
               <li><Link to="/events?type=wedding" className="hover:text-[#C1A27B] transition-colors">Destination Weddings</Link></li>
               <li><Link to="/events?type=corporate" className="hover:text-[#C1A27B] transition-colors">Corporate Retreats</Link></li>
               <li><Link to="/events?type=party" className="hover:text-[#C1A27B] transition-colors">Private Parties</Link></li>
@@ -100,8 +100,8 @@ export default function Footer() {
 
           {/* Links Column 2 - Company */}
           <div className="lg:col-span-2 flex flex-col items-center sm:items-start text-center sm:text-left">
-            <h4 className="font-['Playfair_Display'] text-lg font-semibold text-[#4A4F4D] mb-6">Company</h4>
-            <ul className="space-y-4 text-sm text-[#667280]">
+            <h4 className="font-['Playfair_Display'] text-lg font-semibold text-black mb-6">Company</h4>
+            <ul className="space-y-4 text-sm text-black/70">
               <li><Link to="/about" className="hover:text-[#C1A27B] transition-colors">Our Story</Link></li>
               <li><Link to="/events" className="hover:text-[#C1A27B] transition-colors">Portfolio & Gallery</Link></li>
               <li><Link to="/#testimonials" className="hover:text-[#C1A27B] transition-colors">Client Reviews</Link></li>
@@ -112,8 +112,8 @@ export default function Footer() {
 
           {/* Contact Info Column */}
           <div className="lg:col-span-3 flex flex-col items-center sm:items-start text-center sm:text-left">
-            <h4 className="font-['Playfair_Display'] text-lg font-semibold text-[#4A4F4D] mb-6">Get in Touch</h4>
-            <ul className="space-y-5 text-sm text-[#667280]">
+            <h4 className="font-['Playfair_Display'] text-lg font-semibold text-black mb-6">Get in Touch</h4>
+            <ul className="space-y-5 text-sm text-black/70">
               <li className="flex flex-col sm:flex-row items-center sm:items-start gap-3">
                 <MapPin className="w-4 h-4 text-[#C1A27B] mt-0.5" />
                 <span>123 Elite Horizon Blvd,<br />Suite 400, New York, NY 10001</span>
@@ -133,12 +133,12 @@ export default function Footer() {
       </div>
 
       {/* Bottom Bar */}
-      <div className="bg-white border-t border-[#EBE5DA] py-6 w-full">
+      <div className="bg-[#FAF9F6] border-t border-[#EBE5DA] py-6 w-full">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-[#667280] text-xs">
+          <p className="text-black/60 text-xs">
             © {new Date().getFullYear()} Overseas Events LLC. All Rights Reserved.
           </p>
-          <div className="flex items-center gap-6 text-xs text-[#667280]">
+          <div className="flex items-center gap-6 text-xs text-black/60">
             <Link to="/#privacy" className="hover:text-[#C1A27B] transition-colors">Privacy Policy</Link>
             <Link to="/#terms" className="hover:text-[#C1A27B] transition-colors">Terms of Service</Link>
             <Link to="/#faq" className="hover:text-[#C1A27B] transition-colors">FAQ</Link>

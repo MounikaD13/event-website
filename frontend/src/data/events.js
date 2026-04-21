@@ -210,8 +210,8 @@ export const testimonials = [
 export const heroSlides = [
   {
     id: 1,
-    cursiveTitle: 'your dream',
-    mainTitle: 'WEDDING',
+    cursiveTitle: 'Make Your Dream',
+    mainTitle: 'WEDDING A REALITY',
     image: '/images/hero_wedding_aesthetic.png',
     cta: 'Plan Your Wedding',
     ctaPath: '/events?type=wedding',
