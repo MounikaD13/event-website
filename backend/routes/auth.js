@@ -255,7 +255,6 @@ router.put("/profile", authMiddleware(["user"]), async (req, res) => {
         res.status(500).json({ message: "Profile update failed", error })
     }
 })
-//refresh token
 router.post("/refresh-token", async (req, res) => {
     const token = req.cookies.refreshToken
     if (!token)
@@ -302,4 +301,5 @@ router.post("/admin/reg",async(req,res)=>{
         res.status(500).json({ message: "Registration failed" })
     }
 })
+
 module.exports = router;

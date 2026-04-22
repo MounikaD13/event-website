@@ -2,10 +2,11 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/Users");
 const authMiddleware = require("../middleware/middleware");
+const transporter = require("../utils/mail");
 
 // 1. GET FULL DASHBOARD DATA 
 router.get("/dashboard", authMiddleware(["user"]), async (req, res) => {
-    try {
+    try { 
         const user = await User.findById(req.user.id).select("-password");
         res.status(200).json({
             success: true,
@@ -39,6 +40,28 @@ router.post("/dashboard/inquiry", authMiddleware(["user"]), async (req, res) => 
         res.status(201).json({ success: true, message: "Inquiry added to dashboard", inquiries: user.inquiries });
     } catch (err) {
         res.status(500).json({ success: false, message: "Error submitting inquiry" });
+    }
+});
+
+// 2.5 DIRECT BOOKING (Simplified)
+router.post("/dashboard/book-event", authMiddleware(["user"]), async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        
+        user.bookings.push(req.body); // Pushes eventType, eventDate, venue
+        await user.save();
+
+        // Simple text email
+        await transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: user.email,
+            subject: "Booking Confirmed",
+            text: `Hi ${user.name}, your booking for ${req.body.eventType} is confirmed!`
+        });
+
+        res.status(201).json({ success: true, message: "Event booked successfully" });
+    } catch (err) {
+        res.status(500).json({ success: false, message: "Booking failed" });
     }
 });
 
