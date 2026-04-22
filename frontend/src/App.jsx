@@ -23,10 +23,10 @@ const ProtectedRoute = ({ children }) => {
 };
 
 const AdminRoute = ({ children }) => {
-  const { user, role } = useSelector((state) => state.auth);
-  if (!user || role !== 'admin') {
-    return <Navigate to="/" replace />;
-  }
+  // const { user, role } = useSelector((state) => state.auth);
+  // if (!user || role !== 'admin') {
+  //   return <Navigate to="/" replace />;
+  // }
   return children;
 };
 

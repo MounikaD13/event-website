@@ -5,7 +5,7 @@ import {
   Calendar, MapPin, Users, DollarSign, CheckCircle2,
   ArrowLeft, Clock, Star, Sparkles, CreditCard, Info
 } from 'lucide-react';
-import { submitInquiry } from '../store/slices/userAccountSlice';
+import { submitInquiry, bookEvent } from '../store/slices/userAccountSlice';
 import toast from 'react-hot-toast';
 
 const packages = [
@@ -68,20 +68,35 @@ export default function BookingPage() {
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleConfirm = async () => {
-    if (!form.guests) { toast.error('Please enter expected guest count'); return; }
+    // If it's a business event (no source), require guests
+    if (!selectedEvent.source && !form.guests) { 
+      toast.error('Please enter expected guest count'); 
+      return; 
+    }
+    
     try {
-      await dispatch(submitInquiry({
-        eventType: selectedEvent.type || selectedEvent.category || 'Event',
-        eventDate: form.date || selectedEvent.date,
-        guestCount: parseInt(form.guests),
-        phone: form.phone || 'Not Provided',
-        referredBy: 'Website Booking Flow',
-        budgetRange: selectedEvent.price || 'To be discussed',
-        location: selectedEvent.location,
-        message: form.specialRequests || `Booking request for ${selectedEvent.title} - ${selectedPackage} package.`,
-      })).unwrap();
+      if (selectedEvent.source) {
+        // Direct booking for normal events
+        await dispatch(bookEvent({
+          eventType: selectedEvent.title,
+          eventDate: form.date || selectedEvent.date,
+          venue: selectedEvent.location
+        })).unwrap();
+      } else {
+        // Inquiry for business events
+        await dispatch(submitInquiry({
+          eventType: selectedEvent.type || selectedEvent.category || 'Event',
+          eventDate: form.date || selectedEvent.date,
+          guestCount: parseInt(form.guests),
+          phone: form.phone || 'Not Provided',
+          referredBy: 'Website Booking Flow',
+          budgetRange: selectedEvent.price || 'To be discussed',
+          location: selectedEvent.location,
+          message: form.specialRequests || `Booking request for ${selectedEvent.title} - ${selectedPackage} package.`,
+        })).unwrap();
+      }
       setBooked(true);
-      toast.success('Booking confirmed! Our team will contact you shortly.');
+      toast.success(selectedEvent.source ? 'Event booked successfully!' : 'Booking confirmed! Our team will contact you shortly.');
     } catch (err) {
       toast.error(err || 'Failed to submit booking. Please try again.');
     }

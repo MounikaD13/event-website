@@ -102,6 +102,62 @@ const UserDashboard = () => {
               </div>
             </div>
 
+            {/* Bookings Section */}
+            <div className="mb-10">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-serif font-bold text-[#C1A27B] flex items-center gap-2">
+                  <Package className="w-5 h-5" /> Your Confirmed Bookings
+                </h2>
+              </div>
+              
+              <div className="space-y-4">
+                {bookings.length > 0 ? bookings.map((booking, idx) => (
+                  <div key={booking._id || idx} className="bg-white rounded-2xl border border-[#E8E1D5] overflow-hidden transition-all hover:border-[#C1A27B]/30">
+                    <div className="p-6">
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-xl bg-[#C1A27B]/10 flex items-center justify-center">
+                            <Package className="w-6 h-6 text-[#C1A27B]" />
+                          </div>
+                          <div>
+                            <h3 className="font-serif font-bold text-lg">{booking.eventType}</h3>
+                            <p className="text-sm text-[#667280] italic">Scheduled for {new Date(booking.eventDate).toLocaleDateString()}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className={`px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${
+                            booking.status === 'Confirmed' ? 'border-green-500/30 text-green-500 bg-green-500/5' : 'border-[#C1A27B]/30 text-[#C1A27B] bg-[#C1A27B]/5'
+                          }`}>
+                            {booking.status || 'Upcoming'}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-4 border-t border-[#EFE8DC]">
+                        <div>
+                          <p className="text-[10px] text-[#667280] uppercase tracking-widest mb-1">Venue</p>
+                          <p className="text-sm font-medium flex items-center gap-1.5 truncate">
+                            <MapPin className="w-3 h-3 text-[#C1A27B]" /> {booking.venue || 'TBD'}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-[#667280] uppercase tracking-widest mb-1">Booked On</p>
+                          <p className="text-sm font-medium">{new Date(booking.createdAt).toLocaleDateString()}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )) : (
+                  <div className="bg-white rounded-2xl border border-dashed border-[#E8E1D5] p-12 text-center">
+                    <Package className="w-12 h-12 text-[#C1A27B]/40 mx-auto mb-4" />
+                    <h3 className="text-lg font-serif font-bold text-[#4A4F4D] mb-2">No confirmed bookings</h3>
+                    <p className="text-sm text-[#667280] max-w-xs mx-auto mb-6">You don't have any standard event bookings yet.</p>
+                    <Link to="/events" className="btn-earthy px-6 py-2 rounded font-bold uppercase text-xs tracking-widest">Browse Events</Link>
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* Inquiries Section */}
             <div>
               <div className="flex items-center justify-between mb-6">
