@@ -3,6 +3,11 @@ const router = express.Router()
 const User = require("../models/Users")
 const authMiddleware = require("../middleware/middleware")
 const transporter = require("../utils/mail")
+const express = require("express");
+const router = express.Router();
+const User = require("../models/Users");
+const authMiddleware = require("../middleware/middleware");
+const transporter = require("../utils/mail");
 
 // 1. GET ALL USER DATA (With simple search/filter)
 router.get("/admin/all-data", authMiddleware(["admin"]), async (req, res) => {
@@ -90,7 +95,8 @@ router.post("/admin/chat-reply", authMiddleware(["admin"]), async (req, res) => 
 
         res.status(200).json({ success: true, message: "Reply sent", chats: user.chats });
     } catch (err) {
-        res.status(500).json({ success: false, message: "Error sending reply" });
+        res.status(500).json({ success: false, message: "Error sending reply chatttt" });
+        // console.log(err.message)
     }
 });
 

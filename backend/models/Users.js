@@ -41,7 +41,11 @@ const userSchema = mongoose.Schema({
         specificServices: [String],
         isFlexibleDate: { type: Boolean, default: false },
         message: String,
-        status: { type: String, default: "Pending" },
+        status: {
+            type: String,
+            enum: ["Pending", "Checked", "Confirmed", "Rejected"],
+            default: "Pending"
+        },
         createdAt: { type: Date, default: Date.now }
     }],
     bookings: [{
@@ -52,7 +56,7 @@ const userSchema = mongoose.Schema({
         createdAt: { type: Date, default: Date.now }
     }],
     chats: [{
-        sender: { type: String, enum: ["User"] },
+        sender: { type: String, enum: ["User", "Admin"] },
         message: String,
         timestamp: { type: Date, default: Date.now }
     }],

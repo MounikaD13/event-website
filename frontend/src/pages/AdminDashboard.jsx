@@ -57,7 +57,7 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="pt-32 lg:pt-40 pb-16 min-h-screen bg-[#0f0e17] text-[#f8f5f0]">
+    <div className="pt-24 pb-16 min-h-screen bg-[#0f0e17] text-[#f8f5f0]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
