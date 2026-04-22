@@ -15,8 +15,8 @@ const contactSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ["New", "Read", "Replied"],
-        default: "New"
+        enum: ["Pending", "Checked", "Confirmed", "Rejected"],
+        default: "Pending"
     },
     createdAt: {
         type: Date,

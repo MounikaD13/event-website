@@ -3,7 +3,7 @@ const router = express.Router();
 const Event = require("../models/Event");
 const authMiddleware = require("../middleware/middleware");
 const multer = require("multer");
-const { uploadImageStream } = require("../utils/GridFs");
+const { uploadImageStream, deleteImage } = require("../utils/GridFs");
 
 // Set up Multer for memory storage
 const storage = multer.memoryStorage();
@@ -12,33 +12,31 @@ const upload = multer({ storage });
 // @route   POST /api/events
 // @desc    Create an event
 // @access  Admin (Planner) only
-router.post("/events", authMiddleware(["admin"]), upload.single("image"), async (req, res) => {
+router.post("/events", authMiddleware(["admin"]), upload.array("images", 10), async (req, res) => {
     try {
-        const { title, description, date, time, location, category, price, totalTickets } = req.body;
-        if (!title || !description || !date || !time || !location || !totalTickets) {
+        const { title, description, category, price, totalTickets } = req.body;
+        if (!title || !description || !category || !price || !totalTickets) {
             return res.status(400).json({ message: "Please provide all required fields" });
         }
 
-        let imageUrl = null;
-        if (req.file) {
+        const imageUrls = [];
+        if (req.files && req.files.length > 0) {
             try {
-                const uploadedFile = await uploadImageStream(req.file.buffer, req.file.originalname, req.file.mimetype);
-                // Creating a URL that the frontend can fetch
-                imageUrl = `/api/images/${uploadedFile.id}`;
+                for (const file of req.files) {
+                    const uploadedFile = await uploadImageStream(file.buffer, file.originalname, file.mimetype);
+                    imageUrls.push(`/api/images/${uploadedFile.id}`);
+                }
             } catch (err) {
                 console.error("GridFS Image Upload Error:", err);
-                return res.status(500).json({ message: "Failed to upload image" });
+                return res.status(500).json({ message: "Failed to upload one or more images" });
             }
         }
 
         const newEvent = new Event({
             title,
             description,
-            date,
-            time,
-            location,
             category,
-            image: imageUrl,
+            images: imageUrls,
             price: price || 0,
             totalTickets,
         });
@@ -86,7 +84,7 @@ router.get("/events/:id", async (req, res) => {
 // @route   PUT /api/events/:id
 // @desc    Update an event
 // @access  Admin (Planner) only
-router.put("/events/:id", authMiddleware(["admin"]), upload.single("image"), async (req, res) => {
+router.put("/events/:id", authMiddleware(["admin"]), upload.array("images", 10), async (req, res) => {
     try {
         let event = await Event.findById(req.params.id);
 
@@ -96,15 +94,44 @@ router.put("/events/:id", authMiddleware(["admin"]), upload.single("image"), asy
 
         const updateData = { ...req.body };
 
-        if (req.file) {
-            try {
-                const uploadedFile = await uploadImageStream(req.file.buffer, req.file.originalname, req.file.mimetype);
-                updateData.image = `/api/images/${uploadedFile.id}`;
-            } catch (err) {
-                console.error("GridFS Image Upload Error:", err);
-                return res.status(500).json({ message: "Failed to upload new image" });
+        // Handle image deletions
+        let currentImages = event.images || [];
+        if (req.body.deletedImages) {
+            let deletedImages = req.body.deletedImages;
+            if (typeof deletedImages === "string") {
+                deletedImages = [deletedImages]; // Handle single item
+            }
+
+            for (const imageUrl of deletedImages) {
+                // Extract ID from URL /api/images/:id
+                const idMatch = imageUrl.match(/\/api\/images\/([a-f\d]{24})/i);
+                if (idMatch) {
+                    const imageId = idMatch[1];
+                    try {
+                        await deleteImage(imageId);
+                    } catch (err) {
+                        console.error(`Failed to delete image ${imageId} from GridFS:`, err);
+                        // Continue even if physical deletion fails
+                    }
+                }
+                currentImages = currentImages.filter(img => img !== imageUrl);
             }
         }
+
+        // Handle new image uploads
+        if (req.files && req.files.length > 0) {
+            try {
+                for (const file of req.files) {
+                    const uploadedFile = await uploadImageStream(file.buffer, file.originalname, file.mimetype);
+                    currentImages.push(`/api/images/${uploadedFile.id}`);
+                }
+            } catch (err) {
+                console.error("GridFS Image Upload Error:", err);
+                return res.status(500).json({ message: "Failed to upload new images" });
+            }
+        }
+
+        updateData.images = currentImages;
 
         event = await Event.findByIdAndUpdate(
             req.params.id,
