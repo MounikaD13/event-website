@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import {
-  ArrowRight, Star, MapPin, Award, Users, Globe, Sparkles,
-  Heart, Briefcase, PartyPopper, Sun, Calendar, ChevronRight,
+  ArrowRight, Star, Award, Users, Globe, Sparkles,
+  Heart, Briefcase, PartyPopper, ChevronRight,
 } from 'lucide-react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination, EffectFade } from 'swiper/modules';
@@ -10,7 +11,8 @@ import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/effect-fade';
 import EventCard from '../components/EventCard';
-import { eventsData, destinations, testimonials, heroSlides } from '../data/events';
+import { destinations, testimonials, heroSlides } from '../data/events';
+import { fetchEvents } from '../store/slices/eventsSlice';
 
 /* ── Scroll reveal hook ──────────────────────────────────────────── */
 function useReveal() {
@@ -35,23 +37,43 @@ const stats = [
 ];
 
 const categories = [
-  { name: 'Weddings',       icon: Heart,       color: '#c084fc', type: 'wedding' },
-  { name: 'Corporate',      icon: Briefcase,   color: '#667280', type: 'corporate' },
-  { name: 'Private Parties',icon: PartyPopper, color: '#f472b6', type: 'party' },
-  { name: 'Conferences',    icon: Globe,       color: '#60a5fa', type: 'conference' },
-  { name: 'Galas',          icon: Sparkles,    color: '#fb923c', type: 'gala' },
-  { name: 'Retreats',       icon: Sun,         color: '#4ade80', type: 'retreat' },
+  { name: 'Weddings', icon: Heart, color: '#c084fc', type: 'weddings' },
+  { name: 'Birthdays', icon: PartyPopper, color: '#f472b6', type: 'birthdays' },
+  { name: 'Milestones', icon: Sparkles, color: '#fb923c', type: 'milestone' },
+  { name: 'Business', icon: Briefcase, color: '#667280', type: 'bussiness' },
 ];
 
+const mapEventToCard = (event) => ({
+  ...event,
+  id: event._id,
+  type: event.category,
+  price: event.price ? `$${Number(event.price).toLocaleString()}` : '$0',
+  rating: '4.9',
+  reviews: '128',
+  capacity: event.totalTickets,
+  date: event.date
+    ? new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    : '',
+  image: '/images/events_gallery_bg.png',
+});
+
 export default function LandingPage() {
-  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { events, loading } = useSelector((state) => state.events);
   const [activeSlide, setActiveSlide] = useState(0);
-  const [statsRef, statsVisible]           = useReveal();
-  const [catRef,   catVisible]             = useReveal();
-  const [eventsRef, eventsVisible]         = useReveal();
-  const [destRef, destVisible]             = useReveal();
+  const [statsRef, statsVisible] = useReveal();
+  const [catRef, catVisible] = useReveal();
+  const [eventsRef, eventsVisible] = useReveal();
+  const [destRef, destVisible] = useReveal();
   const [testimonialRef, testimonialVisible] = useReveal();
-  const [aboutRef, aboutVisible]           = useReveal();
+  const [aboutRef, aboutVisible] = useReveal();
+  const featuredEvents = events.slice(0, 4).map(mapEventToCard);
+
+  useEffect(() => {
+    if (!events.length) {
+      dispatch(fetchEvents());
+    }
+  }, [dispatch, events.length]);
 
   return (
     <div className="bg-[#FAF9F6]">
@@ -85,7 +107,7 @@ export default function LandingPage() {
                     {slide.mainTitle}
                   </h1>
                   <div className="flex items-center justify-center gap-4 mt-10 md:mt-16">
-                    <Link to="/booking" className="btn-earthy px-10 py-4 rounded-full text-sm font-bold tracking-[0.2em] uppercase shadow-2xl hover:scale-105 transition-transform">
+                    <Link to="/contact" className="btn-earthy px-10 py-4 rounded-full text-sm font-bold tracking-[0.2em] uppercase shadow-2xl hover:scale-105 transition-transform">
                       BOOK NOW
                     </Link>
                     <Link to="/events" className="px-10 py-4 rounded-full border-2 border-white/40 text-white text-sm font-bold tracking-[0.2em] uppercase hover:bg-white/10 transition-all">
@@ -105,15 +127,15 @@ export default function LandingPage() {
       <section ref={statsRef} className="bg-[#4A4F4D] py-10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map(({ value, label, icon: Icon }, i) => (
+            {stats.map((stat, i) => (
               <div
-                key={label}
+                key={stat.label}
                 className={`flex flex-col items-center text-center transition-all duration-700 ${statsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
                 style={{ transitionDelay: `${i * 100}ms` }}
               >
-                <Icon className="w-7 h-7 text-[#C1A27B] mb-3 opacity-80" />
-                <span className="font-['Playfair_Display'] text-3xl font-bold text-white">{value}</span>
-                <span className="text-xs text-white/50 uppercase tracking-[0.18em] mt-1 font-semibold">{label}</span>
+                <stat.icon className="w-7 h-7 text-[#C1A27B] mb-3 opacity-80" />
+                <span className="font-['Playfair_Display'] text-3xl font-bold text-white">{stat.value}</span>
+                <span className="text-xs text-white/50 uppercase tracking-[0.18em] mt-1 font-semibold">{stat.label}</span>
               </div>
             ))}
           </div>
@@ -131,7 +153,7 @@ export default function LandingPage() {
               Event Categories
             </h2>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {categories.map((cat, i) => (
               <Link
                 key={cat.name}
@@ -165,17 +187,27 @@ export default function LandingPage() {
               View All Events <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {eventsData.slice(0, 4).map((event, i) => (
+          {loading && featuredEvents.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-[#EBE5DA] p-8 text-center text-sm text-[#667280]">
+              Loading featured events...
+            </div>
+          ) : featuredEvents.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-[#EBE5DA] p-8 text-center text-sm text-[#667280]">
+              No events available right now.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {featuredEvents.map((event, i) => (
               <div
-                key={event.id}
+                key={event.id || i}
                 className={`transition-all duration-700 ${eventsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
                 style={{ transitionDelay: `${i * 100}ms` }}
               >
                 <EventCard event={event} />
               </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -320,7 +352,7 @@ export default function LandingPage() {
             Let our team of expert planners turn your vision into an unforgettable experience. We handle every detail so you can enjoy every moment.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link to="/booking" className="btn-earthy px-10 py-4 rounded-full font-bold tracking-widest uppercase text-sm shadow-lg hover:scale-105 transition-transform w-full sm:w-auto text-center">
+            <Link to="/contact" className="btn-earthy px-10 py-4 rounded-full font-bold tracking-widest uppercase text-sm shadow-lg hover:scale-105 transition-transform w-full sm:w-auto text-center">
               Start Planning
             </Link>
             <Link to="/contact" className="px-10 py-4 rounded-full border-2 border-white/30 text-white font-bold tracking-widest uppercase text-sm hover:bg-white/10 transition-all w-full sm:w-auto text-center">

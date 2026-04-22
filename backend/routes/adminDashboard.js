@@ -1,16 +1,15 @@
-const express = require("express");
-const router = express.Router();
+const express = require("express")
+const router = express.Router()
 const User = require("../models/Users")
-const authMiddleware = require("../middleware/middleware");
-
-const transporter = require("../utils/mail");
+const authMiddleware = require("../middleware/middleware")
+const transporter = require("../utils/mail")
 
 // 1. GET ALL USER DATA (With simple search/filter)
 router.get("/admin/all-data", authMiddleware(["admin"]), async (req, res) => {
     try {
         const { status, eventType, search } = req.query;
         let query = {};
-        
+
         if (search) {
             query = { $or: [{ name: new RegExp(search, "i") }, { email: new RegExp(search, "i") }] };
         }
@@ -20,8 +19,8 @@ router.get("/admin/all-data", authMiddleware(["admin"]), async (req, res) => {
         // Simple filtering in JS if query params provided 
         if (status || eventType) {
             users = users.filter(user => {
-                const hasMatchingInquiry = user.inquiries.some(inq => 
-                    (!status || inq.status === status) && 
+                const hasMatchingInquiry = user.inquiries.some(inq =>
+                    (!status || inq.status === status) &&
                     (!eventType || inq.eventType === eventType)
                 );
                 return hasMatchingInquiry;
@@ -39,7 +38,7 @@ router.put("/admin/update-inquiry-status", authMiddleware(["admin"]), async (req
     try {
         const { userId, inquiryId, newStatus } = req.body;
         const user = await User.findById(userId);
-        
+
         if (!user) return res.status(404).json({ success: false, message: "User not found" });
 
         const inquiry = user.inquiries.id(inquiryId);
@@ -85,7 +84,7 @@ router.post("/admin/chat-reply", authMiddleware(["admin"]), async (req, res) => 
     try {
         const { userId, message } = req.body;
         const user = await User.findById(userId);
-        
+
         user.chats.push({ sender: "Admin", message });
         await user.save();
 

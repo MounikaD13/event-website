@@ -27,7 +27,8 @@ const userSchema = mongoose.Schema({
         type: Boolean,
         default: false
     },
-     // Dashboard Data - Inquiries, Bookings, and Chats
+    // Dashboard Data - Inquiries, Bookings, and Chats
+
     inquiries: [{
         eventType: String,
         eventDate: Date,
@@ -60,6 +61,7 @@ const userSchema = mongoose.Schema({
         default: Date.now
     }
 })
+
 module.exports = mongoose.model("User", userSchema)
 
 

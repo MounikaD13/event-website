@@ -8,8 +8,8 @@ const transporter = require("../utils/mail");
 router.get("/dashboard", authMiddleware(["user"]), async (req, res) => {
     try { 
         const user = await User.findById(req.user.id).select("-password");
-        res.status(200).json({ 
-            success: true, 
+        res.status(200).json({
+            success: true,
             dashboard: {
                 inquiries: user.inquiries,
                 bookings: user.bookings,
@@ -23,18 +23,18 @@ router.get("/dashboard", authMiddleware(["user"]), async (req, res) => {
 
 router.post("/dashboard/inquiry", authMiddleware(["user"]), async (req, res) => {
     try {
-        const { 
-            eventType, eventDate, guestCount, phone, referredBy, 
-            budgetRange, location, estimatedDuration, specificServices, 
+        const {
+            eventType, eventDate, guestCount, phone, referredBy,
+            budgetRange, location, estimatedDuration, specificServices,
             isFlexibleDate, message
         } = req.body;
         const user = await User.findById(req.user.id);
-        
-        user.inquiries.push({  
-            eventType, eventDate, guestCount, phone, referredBy, 
-            budgetRange, location, estimatedDuration, specificServices, 
-            isFlexibleDate, message  
-        }); 
+
+        user.inquiries.push({
+            eventType, eventDate, guestCount, phone, referredBy,
+            budgetRange, location, estimatedDuration, specificServices,
+            isFlexibleDate, message
+        });
         await user.save();
 
         res.status(201).json({ success: true, message: "Inquiry added to dashboard", inquiries: user.inquiries });
@@ -70,9 +70,9 @@ router.post("/dashboard/chat", authMiddleware(["user"]), async (req, res) => {
     try {
         const { message } = req.body;
         const user = await User.findById(req.user.id);
-        
+
         user.chats.push({ sender: "User", message });
-        await user.save();          
+        await user.save();
 
         res.status(200).json({ success: true, chats: user.chats });
     } catch (err) {
@@ -84,7 +84,7 @@ router.post("/dashboard/chat", authMiddleware(["user"]), async (req, res) => {
 router.delete("/dashboard/inquiry/:id", authMiddleware(["user"]), async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
-        
+
         // Remove the inquiry from the array
         user.inquiries = user.inquiries.filter(inq => inq._id.toString() !== req.params.id);
         await user.save();

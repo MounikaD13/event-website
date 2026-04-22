@@ -210,11 +210,11 @@ export const testimonials = [
 export const heroSlides = [
   {
     id: 1,
-    cursiveTitle: 'your dream',
-    mainTitle: 'WEDDING',
+    cursiveTitle: 'Make Your Dream',
+    mainTitle: 'WEDDING A REALITY',
     image: '/images/hero_wedding_aesthetic.png',
     cta: 'Plan Your Wedding',
-    ctaPath: '/events?type=wedding',
+    ctaPath: '/events?type=weddings',
   },
   {
     id: 2,
@@ -222,7 +222,7 @@ export const heroSlides = [
     mainTitle: 'EXCELLENCE',
     image: '/images/hero_corporate_aesthetic.png',
     cta: 'Book a Retreat',
-    ctaPath: '/events?type=corporate',
+    ctaPath: '/events?type=bussiness',
   },
   {
     id: 3,
@@ -230,7 +230,7 @@ export const heroSlides = [
     mainTitle: 'INDIAN WEDDING',
     image: '/images/hero_indian_wedding.png',
     cta: 'Plan Your Shaadi',
-    ctaPath: '/events?type=wedding',
+    ctaPath: '/events?type=weddings',
   },
   {
     id: 4,
@@ -238,6 +238,6 @@ export const heroSlides = [
     mainTitle: 'BIRTHDAY PARTY',
     image: '/images/hero_birthday_party.png',
     cta: 'Celebrate With Us',
-    ctaPath: '/events?type=party',
+    ctaPath: '/events?type=birthdays',
   },
 ];
