@@ -42,6 +42,7 @@ const ContactPage = () => {
   const handleContactSubmit = async (e) => {
     e.preventDefault();
     if (!contactForm.fullName || !contactForm.email || !contactForm.message) { toast.error('Please fill in all fields'); return; }
+    if (!/\S+@\S+\.\S+/.test(contactForm.email)) { toast.error('Please enter a valid email address'); return; }
     setContactLoading(true);
     try {
       await api.post('/contact', contactForm);
@@ -58,7 +59,7 @@ const ContactPage = () => {
     <div className="min-h-screen bg-[#FAF9F6]">
       {/* Hero */}
       <div className="relative min-h-[45vh] md:min-h-[50vh] flex items-center justify-center overflow-hidden bg-black pt-20 pb-12">
-        <div className="absolute inset-0 bg-cover bg-center opacity-60" style={{ backgroundImage: "url('/images/events_gallery_bg.png')" }} />
+        <div className="absolute inset-0 bg-cover bg-center opacity-60" style={{ backgroundImage: "url('/images/contact_bg.jpg')" }} />
         <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/70" />
         <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
           <span className="font-cursive text-[#C1A27B] text-3xl md:text-4xl block mb-3">Get in Touch</span>
