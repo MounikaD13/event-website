@@ -2,16 +2,35 @@ const express = require("express");
 const router = express.Router();
 const Event = require("../models/Event");
 const authMiddleware = require("../middleware/middleware");
+const multer = require("multer");
+const { uploadImageStream } = require("../utils/GridFs");
+
+// Set up Multer for memory storage
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
 // @route   POST /api/events
 // @desc    Create an event
 // @access  Admin (Planner) only
-router.post("/events", authMiddleware(["admin"]), async (req, res) => {
+router.post("/events", authMiddleware(["admin"]), upload.single("image"), async (req, res) => {
     try {
         const { title, description, date, time, location, category, price, totalTickets } = req.body;
         if (!title || !description || !date || !time || !location || !totalTickets) {
             return res.status(400).json({ message: "Please provide all required fields" });
         }
+
+        let imageUrl = null;
+        if (req.file) {
+            try {
+                const uploadedFile = await uploadImageStream(req.file.buffer, req.file.originalname, req.file.mimetype);
+                // Creating a URL that the frontend can fetch
+                imageUrl = `/api/images/${uploadedFile.id}`;
+            } catch (err) {
+                console.error("GridFS Image Upload Error:", err);
+                return res.status(500).json({ message: "Failed to upload image" });
+            }
+        }
+
         const newEvent = new Event({
             title,
             description,
@@ -19,6 +38,7 @@ router.post("/events", authMiddleware(["admin"]), async (req, res) => {
             time,
             location,
             category,
+            image: imageUrl,
             price: price || 0,
             totalTickets,
         });
@@ -66,7 +86,7 @@ router.get("/events/:id", async (req, res) => {
 // @route   PUT /api/events/:id
 // @desc    Update an event
 // @access  Admin (Planner) only
-router.put("/events/:id", authMiddleware(["admin"]), async (req, res) => {
+router.put("/events/:id", authMiddleware(["admin"]), upload.single("image"), async (req, res) => {
     try {
         let event = await Event.findById(req.params.id);
 
@@ -74,9 +94,21 @@ router.put("/events/:id", authMiddleware(["admin"]), async (req, res) => {
             return res.status(404).json({ message: "Event not found" });
         }
 
+        const updateData = { ...req.body };
+
+        if (req.file) {
+            try {
+                const uploadedFile = await uploadImageStream(req.file.buffer, req.file.originalname, req.file.mimetype);
+                updateData.image = `/api/images/${uploadedFile.id}`;
+            } catch (err) {
+                console.error("GridFS Image Upload Error:", err);
+                return res.status(500).json({ message: "Failed to upload new image" });
+            }
+        }
+
         event = await Event.findByIdAndUpdate(
             req.params.id,
-            { $set: req.body },
+            { $set: updateData },
             { new: true } // Return updated document
         );
 

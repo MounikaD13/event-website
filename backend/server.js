@@ -1,4 +1,5 @@
-require("dotenv").config()
+require("dotenv").config();
+const { initGridFS } = require("./utils/GridFs");
 const mongoose = require("mongoose")
 const cors = require("cors")
 const express = require("express")
@@ -8,6 +9,7 @@ const contactRoutes = require("./routes/contact")
 const eventRoutes = require("./routes/events")
 const userAccountRoutes = require("./routes/userAccount")
 const adminDashboardRoutes = require("./routes/adminDashboard")
+const imageRoutes = require("./routes/images")
 const cookieParser = require("cookie-parser")
 
 app.use(cors({
@@ -19,15 +21,16 @@ app.use(express.json())
 app.use(cookieParser())
 
 mongoose.connect(process.env.MONGODB_URL)
-    .then(() => console.log("DB connected successfully"))
-    .catch(err => console.log(err))
+    .then(() => {
+        console.log("DB connected successfully");
+        initGridFS(mongoose.connection.db);
+    })
+    .catch(err => console.log(err));
 app.get("/", (req, res) => res.json({ "message": 'dummy route' }))
 app.use("/api", authRoutes)
 app.use("/api", contactRoutes)
 app.use("/api", eventRoutes)
 app.use("/api", userAccountRoutes)
 app.use("/api", adminDashboardRoutes)
-
-app.use("/api/events", eventRoutes)
-
+app.use("/api", imageRoutes)
 app.listen(process.env.PORT, () => { console.log("server started successfully") })
