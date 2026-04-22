@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { businessCategories, businessEvents } from '../data/businessData';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
 
 /*
@@ -23,10 +24,15 @@ import toast from 'react-hot-toast';
 */
 
 /* ─── BUSINESS CARD ─────────────────────────────────────────────────────── */
-const BusinessCard = ({ event, index }) => {
+const BusinessCard = ({ event, index, isAuthenticated }) => {
   const navigate = useNavigate();
 
   const handleBook = () => {
+    if (!isAuthenticated) {
+      toast('Please sign in to reserve this venue', { id: 'signin-business' });
+      navigate('/signin');
+      return;
+    }
     toast.success(`Interest in ${event.title} registered!`, {
       style: { background: '#1a1c1b', color: '#f8f5f0', border: '1px solid rgba(193,162,123,0.3)' },
     });
@@ -208,6 +214,8 @@ const CategoryDropdown = ({ selected, onSelect }) => {
 
 /* ─── PAGE ─────────────────────────────────────────────────────────────── */
 export default function BusinessPage() {
+  const { user } = useSelector((state) => state.auth);
+  const isAuthenticated = Boolean(user);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredEvents, setFilteredEvents] = useState(businessEvents);
@@ -353,6 +361,23 @@ export default function BusinessPage() {
         </div>
       </div>
 
+      {/* SaaS KPI row */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {[
+            { label: 'Enterprise Venues', value: '140+' },
+            { label: 'Avg Setup SLA', value: '4.2 hrs' },
+            { label: 'Uptime Ready AV', value: '99.9%' },
+            { label: 'Dedicated Managers', value: '24/7' },
+          ].map((kpi) => (
+            <div key={kpi.label} className="rounded-2xl border border-[#E7DDCF] bg-white p-4 text-center shadow-sm">
+              <p className="text-2xl font-black text-[#1a1c1b]" style={{ fontFamily: "'Playfair Display', serif" }}>{kpi.value}</p>
+              <p className="text-[10px] uppercase tracking-[0.16em] text-[#667280] mt-1">{kpi.label}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* ══════════════════════════════════════
           SECTION HEADER
           Hierarchy: TIER 6 label → TIER 2 title → TIER 6 count
@@ -390,7 +415,7 @@ export default function BusinessPage() {
           {filteredEvents.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-7">
               {filteredEvents.map((event, i) => (
-                <BusinessCard key={event.id} event={event} index={i} />
+                <BusinessCard key={event.id} event={event} index={i} isAuthenticated={isAuthenticated} />
               ))}
             </div>
           ) : (

@@ -26,7 +26,7 @@ export const eventsData = [
     rating: 5.0,
     reviews: 89,
     description: 'Exchange vows on a breathtaking clifftop overlooking the Aegean Sea with iconic white-and-blue architecture all around.',
-    image: '/images/event_santorini_wedding.jpg',
+    image: '/images/event_tuscany_wedding.jpg',
     destination: 'santorini',
   },
   {
@@ -116,7 +116,7 @@ export const eventsData = [
     rating: 4.8,
     reviews: 61,
     description: 'Ring in the New Year with a spectacular private island party under the stars in the crystal-clear Maldivian waters.',
-    image: '/images/event_maldives_party.jpg',
+    image: '/images/event_maldives_retreat.jpg',
     destination: 'maldives',
   },
 ];
@@ -135,7 +135,7 @@ export const destinations = [
     name: 'Santorini, Greece',
     tagline: 'Clifftop Paradise',
     eventsCount: 32,
-    image: '/images/dest_santorini.jpg',
+    image: '/images/dest_paris.jpg',
     dest: 'santorini',
   },
   {
@@ -178,7 +178,7 @@ export const testimonials = [
     name: 'Sarah & Michael Chen',
     event: 'Beach Wedding - Bali',
     text: 'Overseas Events made our dream wedding a reality. Every detail was perfect — from the floral arrangements to the sunset ceremony. We couldn\'t have asked for more.',
-    avatar: '/images/avatar_sarah.jpg',
+    avatar: '/images/avatar_emma.jpg',
     rating: 5,
   },
   {
