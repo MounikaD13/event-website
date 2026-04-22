@@ -61,7 +61,7 @@ export default function Footer() {
           <div className="lg:col-span-4 flex flex-col items-center sm:items-start text-center sm:text-left">
             <Link to="/" className="inline-block mb-6">
               <span className="font-['Playfair_Display'] text-3xl font-bold text-black tracking-widest uppercase block mb-1">
-                OVERSEAS
+                ELYSIUM
               </span>
               <span className="text-[10px] text-[#C1A27B] tracking-[0.3em] uppercase block">
                 Destination Event Planners
@@ -135,7 +135,7 @@ export default function Footer() {
       <div className="bg-[#FAF9F6] border-t border-[#EBE5DA] py-6 w-full">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-black/60 text-xs">
-            © {new Date().getFullYear()} Overseas Events LLC. All Rights Reserved.
+            © {new Date().getFullYear()} Elysium Events LLC. All Rights Reserved.
           </p>
           <div className="flex items-center gap-6 text-xs text-black/60">
             <Link to="/#privacy" className="hover:text-[#C1A27B] transition-colors">Privacy Policy</Link>

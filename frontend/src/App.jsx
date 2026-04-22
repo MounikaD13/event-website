@@ -97,12 +97,13 @@ export default function App() {
         position="top-right"
         toastOptions={{
           style: {
-            background: '#1a1a2e',
-            color: '#f8f5f0',
-            border: '1px solid rgba(201, 168, 76, 0.3)',
+            background: '#fff',
+            color: '#222531',
+            border: '1px solid #e7ddcf',
+            boxShadow: '0 14px 28px rgba(34, 37, 49, 0.12)',
           },
-          success: { iconTheme: { primary: '#C9A84C', secondary: '#0f0e17' } },
-          error: { iconTheme: { primary: '#ef4444', secondary: '#0f0e17' } },
+          success: { iconTheme: { primary: '#2c7a6c', secondary: '#ffffff' } },
+          error: { iconTheme: { primary: '#dc2626', secondary: '#ffffff' } },
         }}
       />
       <AppContent />

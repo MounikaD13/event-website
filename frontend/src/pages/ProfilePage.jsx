@@ -71,45 +71,45 @@ const ProfilePage = () => {
     : 'N/A';
 
   return (
-    <div className="pt-24 pb-16 min-h-screen bg-[#0f0e17] text-[#f8f5f0]">
+    <div className="pt-24 pb-16 min-h-screen bg-[#FAF9F6] text-[#1f2322]">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
-            <h1 className="text-4xl font-serif font-bold text-[#C9A84C] mb-2">Member Profile</h1>
-            <p className="text-gray-400">Manage your account details and preferences.</p>
+            <h1 className="text-4xl font-serif font-bold text-[#C1A27B] mb-2">Member Profile</h1>
+            <p className="text-[#667280]">Manage your account details and preferences.</p>
           </div>
-          <div className="flex items-center gap-2 bg-[#C9A84C]/10 px-4 py-2 rounded-full border border-[#C9A84C]/20">
-            <Shield className="w-4 h-4 text-[#C9A84C]" />
-            <span className="text-xs font-bold uppercase tracking-wider text-[#C9A84C]">Verified Member</span>
+          <div className="flex items-center gap-2 bg-[#C1A27B]/10 px-4 py-2 rounded-full border border-[#C1A27B]/20">
+            <Shield className="w-4 h-4 text-[#C1A27B]" />
+            <span className="text-xs font-bold uppercase tracking-wider text-[#C1A27B]">Verified Member</span>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Sidebar / Photo */}
           <div className="lg:col-span-1">
-            <div className="bg-[#1a1a2e] p-8 rounded-2xl border border-white/5 text-center">
+            <div className="bg-white p-8 rounded-2xl border border-[#E8E1D5] text-center">
               <div className="relative inline-block mb-6">
-                <div className="w-32 h-32 rounded-full border-4 border-[#C9A84C]/30 flex items-center justify-center bg-[#0f0e17] overflow-hidden">
-                  <User className="w-16 h-16 text-gray-700" />
+                <div className="w-32 h-32 rounded-full border-4 border-[#C1A27B]/30 flex items-center justify-center bg-[#FAF9F6] overflow-hidden">
+                  <User className="w-16 h-16 text-[#C1A27B]/50" />
                 </div>
-                <button className="absolute bottom-0 right-0 p-2 bg-[#C9A84C] text-[#0f0e17] rounded-full hover:bg-[#B69640] transition-colors shadow-lg">
+                <button className="absolute bottom-0 right-0 p-2 bg-[#C1A27B] text-white rounded-full hover:bg-[#AA8960] transition-colors shadow-lg">
                   <Camera className="w-4 h-4" />
                 </button>
               </div>
               <h2 className="text-xl font-serif font-bold mb-1">{user?.name}</h2>
-              <p className="text-sm text-gray-500 mb-6 uppercase tracking-widest">Valued Member</p>
+              <p className="text-sm text-[#667280] mb-6 uppercase tracking-widest">Valued Member</p>
               
-              <div className="pt-6 border-t border-white/5 space-y-4">
+              <div className="pt-6 border-t border-[#EFE8DC] space-y-4">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-500 italic">Member Since</span>
+                  <span className="text-[#667280] italic">Member Since</span>
                   <span className="font-medium">{memberSince}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-500 italic">Total Bookings</span>
+                  <span className="text-[#667280] italic">Total Bookings</span>
                   <span className="font-medium">{dashboard?.bookings?.length || 0}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-500 italic">Active Inquiries</span>
+                  <span className="text-[#667280] italic">Active Inquiries</span>
                   <span className="font-medium">{dashboard?.inquiries?.length || 0}</span>
                 </div>
               </div>
@@ -118,69 +118,69 @@ const ProfilePage = () => {
 
           {/* Form Area */}
           <div className="lg:col-span-2">
-            <form onSubmit={handleSubmit} className="bg-[#1a1a2e] p-8 rounded-2xl border border-white/5 shadow-xl">
+            <form onSubmit={handleSubmit} className="bg-white p-8 rounded-2xl border border-[#E8E1D5] shadow-sm">
               <div className="space-y-6">
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2">
-                    <UserCheck className="w-3 h-3 text-[#C9A84C]" /> Full Name
+                  <label className="block text-xs font-bold text-[#667280] uppercase tracking-widest mb-2 flex items-center gap-2">
+                    <UserCheck className="w-3 h-3 text-[#C1A27B]" /> Full Name
                   </label>
                   <div className="relative">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#667280]" />
                     <input 
                       type="text" 
                       name="name"
                       value={form.name}
                       onChange={handleChange}
-                      className="w-full bg-[#0f0e17] border border-white/10 rounded-lg pl-12 pr-4 py-3 focus:outline-none focus:border-[#C9A84C] transition-colors"
+                      className="w-full bg-[#FAF9F6] border border-[#E8E1D5] rounded-lg pl-12 pr-4 py-3 focus:outline-none focus:border-[#C1A27B] transition-colors"
                       placeholder="Your Full Name"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2">
-                    <Mail className="w-3 h-3 text-[#C9A84C]" /> Email Address
+                  <label className="block text-xs font-bold text-[#667280] uppercase tracking-widest mb-2 flex items-center gap-2">
+                    <Mail className="w-3 h-3 text-[#C1A27B]" /> Email Address
                   </label>
                   <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#667280]" />
                     <input 
                       type="email" 
                       name="email"
                       value={form.email}
                       disabled
-                      className="w-full bg-[#0f0e17]/50 border border-white/5 rounded-lg pl-12 pr-4 py-3 opacity-60 cursor-not-allowed"
+                      className="w-full bg-[#F7F3EC] border border-[#E8E1D5] rounded-lg pl-12 pr-4 py-3 opacity-70 cursor-not-allowed"
                       placeholder="email@example.com"
                     />
                   </div>
-                  <p className="mt-1 text-[10px] text-gray-600 italic">* Email cannot be changed for security reasons.</p>
+                  <p className="mt-1 text-[10px] text-[#667280] italic">* Email cannot be changed for security reasons.</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2">
-                      <Phone className="w-3 h-3 text-[#C9A84C]" /> Mobile Number
+                    <label className="block text-xs font-bold text-[#667280] uppercase tracking-widest mb-2 flex items-center gap-2">
+                      <Phone className="w-3 h-3 text-[#C1A27B]" /> Mobile Number
                     </label>
                     <div className="relative">
-                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
+                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#667280]" />
                       <input 
                         type="tel" 
                         name="mobileNumber"
                         value={form.mobileNumber}
                         onChange={handleChange}
-                        className="w-full bg-[#0f0e17] border border-white/10 rounded-lg pl-12 pr-4 py-3 focus:outline-none focus:border-[#C9A84C] transition-colors"
+                        className="w-full bg-[#FAF9F6] border border-[#E8E1D5] rounded-lg pl-12 pr-4 py-3 focus:outline-none focus:border-[#C1A27B] transition-colors"
                         placeholder="+1 (555) 000-0000"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                    <label className="block text-xs font-bold text-[#667280] uppercase tracking-widest mb-2 flex items-center gap-2">
                       Gender Identity
                     </label>
                     <select 
                       name="gender"
                       value={form.gender}
                       onChange={handleChange}
-                      className="w-full bg-[#0f0e17] border border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-[#C9A84C] transition-colors"
+                      className="w-full bg-[#FAF9F6] border border-[#E8E1D5] rounded-lg px-4 py-3 focus:outline-none focus:border-[#C1A27B] transition-colors"
                     >
                       <option value="">Select Identity</option>
                       <option value="Male">Male</option>
@@ -191,17 +191,17 @@ const ProfilePage = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2">
-                    <MapPin className="w-3 h-3 text-[#C9A84C]" /> Primary Address
+                  <label className="block text-xs font-bold text-[#667280] uppercase tracking-widest mb-2 flex items-center gap-2">
+                    <MapPin className="w-3 h-3 text-[#C1A27B]" /> Primary Address
                   </label>
                   <div className="relative">
-                    <MapPin className="absolute left-4 top-4 w-4 h-4 text-gray-600" />
+                    <MapPin className="absolute left-4 top-4 w-4 h-4 text-[#667280]" />
                     <textarea 
                       name="address"
                       value={form.address}
                       onChange={handleChange}
                       rows={3}
-                      className="w-full bg-[#0f0e17] border border-white/10 rounded-lg pl-12 pr-4 py-3 focus:outline-none focus:border-[#C9A84C] transition-colors resize-none"
+                      className="w-full bg-[#FAF9F6] border border-[#E8E1D5] rounded-lg pl-12 pr-4 py-3 focus:outline-none focus:border-[#C1A27B] transition-colors resize-none"
                       placeholder="Enter your mailing address..."
                     ></textarea>
                   </div>
@@ -211,7 +211,7 @@ const ProfilePage = () => {
                   <button 
                     type="submit"
                     disabled={loading}
-                    className="flex-grow md:flex-none md:min-w-[180px] bg-[#C9A84C] hover:bg-[#B69640] text-[#0f0e17] font-bold uppercase tracking-widest py-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50"
+                    className="flex-grow md:flex-none md:min-w-[180px] bg-[#C1A27B] hover:bg-[#AA8960] text-white font-bold uppercase tracking-widest py-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50"
                   >
                     {loading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                     Save Changes
@@ -219,7 +219,7 @@ const ProfilePage = () => {
                   <button 
                     type="button"
                     onClick={handleReset}
-                    className="text-gray-500 hover:text-white transition-colors text-xs font-bold uppercase tracking-widest"
+                    className="text-[#667280] hover:text-[#1f2322] transition-colors text-xs font-bold uppercase tracking-widest"
                   >
                     Reset Changes
                   </button>

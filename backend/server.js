@@ -33,12 +33,16 @@ app.use("/api", eventRoutes)
 app.use("/api", userAccountRoutes)
 app.use("/api", adminDashboardRoutes)
 
+
 app.use("/api/events", eventRoutes)
 
 app.use("/api", imageRoutes)
 
 
 app.use("/api/events", eventRoutes)
+
+
+app.use("/api", imageRoutes)
 
 
 app.use("/api", imageRoutes)

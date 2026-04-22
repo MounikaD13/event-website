@@ -14,6 +14,8 @@ import EventCard from '../components/EventCard';
 import { destinations, testimonials, heroSlides } from '../data/events';
 import { fetchEvents } from '../store/slices/eventsSlice';
 
+const API_ORIGIN = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '');
+
 /* ── Scroll reveal hook ──────────────────────────────────────────── */
 function useReveal() {
   const ref = useRef(null);
@@ -54,7 +56,11 @@ const mapEventToCard = (event) => ({
   date: event.date
     ? new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
     : '',
-  image: '/images/events_gallery_bg.png',
+  image: event.image?.startsWith('http')
+    ? event.image
+    : event.image
+      ? `${API_ORIGIN}${event.image}`
+      : '/images/events_gallery_bg.png',
 });
 
 export default function LandingPage() {
@@ -121,10 +127,29 @@ export default function LandingPage() {
         </Swiper>
       </section>
 
+      {/* SaaS trust strip */}
+      <section className="relative z-20 -mt-10 px-4 sm:px-6">
+        <div className="max-w-6xl mx-auto rounded-3xl border border-[#E7DDCF] bg-white/95 backdrop-blur-md shadow-[0_22px_40px_rgba(34,37,49,0.12)] p-5 md:p-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              { label: 'Client Satisfaction', value: '98.7%' },
+              { label: 'Avg Planning Cycle', value: '11 Days' },
+              { label: 'Global Vendor Partners', value: '1,200+' },
+              { label: 'Event Success Score', value: '4.9/5' },
+            ].map((item) => (
+              <div key={item.label} className="text-center">
+                <p className="text-2xl md:text-3xl font-bold text-[#222531]">{item.value}</p>
+                <p className="text-[10px] uppercase tracking-[0.18em] text-[#667280] mt-1">{item.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ══════════════════════════════════════════════════
           2. STATS BAR
       ══════════════════════════════════════════════════ */}
-      <section ref={statsRef} className="bg-[#4A4F4D] py-10">
+      <section ref={statsRef} className="bg-[#3F4A50] py-16 mt-10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, i) => (
