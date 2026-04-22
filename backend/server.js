@@ -36,4 +36,11 @@ app.use("/api", adminDashboardRoutes)
 app.use("/api/events", eventRoutes)
 
 app.use("/api", imageRoutes)
+
+
+app.use("/api/events", eventRoutes)
+
+
+app.use("/api", imageRoutes)
+
 app.listen(process.env.PORT, () => { console.log("server started successfully") })

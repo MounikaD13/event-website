@@ -237,24 +237,24 @@ router.post("/reset-password", async (req, res) => {
 })
 
 // UPDATE PROFILE
-router.put("/profile", authMiddleware(["user"]), async (req, res) => {
-    try {
-        const { name, mobileNumber, address, gender } = req.body
-        const user = await User.findById(req.user.id)
-        if (!user) {
-            return res.status(404).json({ message: "User not found" })
-        }
-        if (name) user.name = name
-        if (mobileNumber) user.mobileNumber = mobileNumber
-        if (address) user.address = address
-        if (gender) user.gender = gender
+// router.put("/profile", authMiddleware(["user"]), async (req, res) => {
+//     try {
+//         const { name, mobileNumber, address, gender } = req.body
+//         const user = await User.findById(req.user.id)
+//         if (!user) {
+//             return res.status(404).json({ message: "User not found" })
+//         }
+//         if (name) user.name = name
+//         if (mobileNumber) user.mobileNumber = mobileNumber
+//         if (address) user.address = address
+//         if (gender) user.gender = gender
 
-        await user.save()
-        res.status(200).json({ message: "Profile updated successfully", user })
-    } catch (error) {
-        res.status(500).json({ message: "Profile update failed", error })
-    }
-})
+//         await user.save()
+//         res.status(200).json({ message: "Profile updated successfully", user })
+//     } catch (error) {
+//         res.status(500).json({ message: "Profile update failed", error })
+//     }
+// })
 //refresh token
 router.post("/refresh-token", async (req, res) => {
     const token = req.cookies.refreshToken
@@ -302,4 +302,5 @@ router.post("/admin/reg",async(req,res)=>{
         res.status(500).json({ message: "Registration failed" })
     }
 })
+
 module.exports = router;
