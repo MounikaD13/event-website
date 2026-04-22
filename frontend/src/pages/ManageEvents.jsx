@@ -1,270 +1,371 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  Plus, Search, Edit2, Trash2, Calendar, MapPin,
-  Clock, DollarSign, Users, X, Save,
-  AlertCircle, LayoutGrid, List, RefreshCw
-} from 'lucide-react';
-import { fetchEvents, createEvent, updateEvent, deleteEvent } from '../store/slices/eventsSlice';
+import { Edit2, Trash2, Users, Upload, RefreshCw, Image as ImageIcon, X, CheckCircle, PlusCircle } from 'lucide-react';
+import { fetchEvents, deleteEvent } from '../store/slices/eventsSlice';
+import api from '../utils/api';
 import toast from 'react-hot-toast';
 
-const AVAILABLE_IMAGES = [
-  '/images/event_beach_wedding.jpg',
-  '/images/event_dubai_gala.jpg',
-  '/images/event_maldives_retreat.jpg',
-  '/images/event_paris_dinner.jpg',
-  '/images/event_tokyo_conf.jpg',
-  '/images/event_tuscany_wedding.jpg',
-  '/images/events/hero.jpg',
-  '/images/events/wedding.jpg',
-  '/images/events/decor.jpg',
-  '/images/events/stage.jpg',
-  '/images/events/conference.jpg',
-  '/images/hero_birthday_party.png',
-  '/images/hero_corporate_aesthetic.png',
-  '/images/hero_event_aesthetic.png',
-  '/images/hero_indian_wedding.png',
-  '/images/hero_wedding_aesthetic.png',
-  '/images/events_gallery_bg.png',
+const CATEGORIES = [
+  { value: 'weddings', label: 'Weddings' },
+  { value: 'birthdays', label: 'Birthdays' },
+  { value: 'milestone', label: 'Milestones' },
+  { value: 'bussiness', label: 'Business & Office' },
 ];
+
+const EMPTY_FORM = {
+  title: '',
+  description: '',
+  category: 'weddings',
+  price: '',
+  totalTickets: '',
+  imageFiles: [],
+  existingImages: [],
+  deletedImages: [],
+};
+
+/* Custom toast-based confirm — returns a Promise<boolean> */
+const toastConfirm = (message) =>
+  new Promise((resolve) => {
+    toast(
+      (t) => (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <span style={{ fontWeight: '600', color: '#1f2322' }}>{message}</span>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button
+              onClick={() => { toast.dismiss(t.id); resolve(true); }}
+              style={{
+                flex: 1, background: '#ef4444', color: '#fff', border: 'none',
+                borderRadius: '8px', padding: '0.4rem 0.8rem', fontWeight: '700',
+                cursor: 'pointer', fontSize: '0.82rem',
+              }}
+            >
+              Yes, Delete
+            </button>
+            <button
+              onClick={() => { toast.dismiss(t.id); resolve(false); }}
+              style={{
+                flex: 1, background: '#f3f4f6', color: '#374151', border: 'none',
+                borderRadius: '8px', padding: '0.4rem 0.8rem', fontWeight: '700',
+                cursor: 'pointer', fontSize: '0.82rem',
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ),
+      { duration: Infinity, style: { padding: '1rem', maxWidth: '320px' } }
+    );
+  });
 
 const ManageEvents = () => {
   const dispatch = useDispatch();
   const { events, loading } = useSelector((state) => state.events);
-  const [view, setView] = useState('grid');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [imagePreviews, setImagePreviews] = useState([]);
+  const [submitting, setSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
+  const formRef = useRef(null);
+  const fileInputRef = useRef(null);
 
-  const [form, setForm] = useState({
-    title: '',
-    description: '',
-    date: '',
-    time: '',
-    location: '',
-    category: 'weddings',
-    price: '',
-    totalTickets: '',
-    image: AVAILABLE_IMAGES[0],
-  });
+  useEffect(() => { dispatch(fetchEvents()); }, [dispatch]);
 
   useEffect(() => {
-    dispatch(fetchEvents());
-  }, [dispatch]);
+    return () => { imagePreviews.forEach((p) => URL.revokeObjectURL(p.url)); };
+  }, [imagePreviews]);
 
-  const handleOpenModal = (event = null) => {
-    if (event) {
-      setEditingEvent(event);
-      setForm({
-        title: event.title,
-        description: event.description,
-        date: event.date.split('T')[0],
-        time: event.time,
-        location: event.location,
-        category: event.category,
-        price: event.price,
-        totalTickets: event.totalTickets,
-        image: event.image || AVAILABLE_IMAGES[0],
-      });
-    } else {
-      setEditingEvent(null);
-      setForm({
-        title: '',
-        description: '',
-        date: '',
-        time: '',
-        location: '',
-        category: 'weddings',
-        price: '',
-        totalTickets: '',
-        image: AVAILABLE_IMAGES[0],
-      });
-    }
-    setIsModalOpen(true);
+  const scrollToForm = () => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  const handleEdit = (event) => {
+    setEditingEvent(event);
+    setForm({
+      title: event.title || '',
+      description: event.description || '',
+      category: event.category || 'weddings',
+      price: event.price || '',
+      totalTickets: event.totalTickets || '',
+      imageFiles: [],
+      existingImages: event.images || [],
+      deletedImages: [],
+    });
+    setImagePreviews([]);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+    scrollToForm();
   };
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
+  const handleCancelEdit = () => {
     setEditingEvent(null);
+    setForm(EMPTY_FORM);
+    setImagePreviews([]);
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+
+  const handleImageChange = (e) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const files = Array.from(e.target.files);
+    setForm((prev) => ({ ...prev, imageFiles: [...prev.imageFiles, ...files] }));
+    const newPreviews = files.map((file) => ({ file, url: URL.createObjectURL(file) }));
+    setImagePreviews((prev) => [...prev, ...newPreviews]);
+    // Reset input so same files can be re-selected if removed
+    e.target.value = '';
+  };
+
+  const removeNewImage = (index) => {
+    setForm((prev) => {
+      const updated = [...prev.imageFiles];
+      updated.splice(index, 1);
+      return { ...prev, imageFiles: updated };
+    });
+    setImagePreviews((prev) => {
+      const updated = [...prev];
+      URL.revokeObjectURL(updated[index].url);
+      updated.splice(index, 1);
+      return updated;
+    });
+  };
+
+  const removeExistingImage = (imgUrl) => {
+    setForm((prev) => ({
+      ...prev,
+      existingImages: prev.existingImages.filter((img) => img !== imgUrl),
+      deletedImages: [...prev.deletedImages, imgUrl],
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitting(true);
+
+    const fd = new FormData();
+    fd.append('title', form.title);
+    fd.append('description', form.description);
+    fd.append('category', form.category);
+    fd.append('price', form.price);
+    fd.append('totalTickets', form.totalTickets);
+    form.imageFiles.forEach((file) => fd.append('images', file));
+    if (editingEvent && form.deletedImages.length > 0) {
+      form.deletedImages.forEach((url) => fd.append('deletedImages', url));
+    }
+
     try {
       if (editingEvent) {
-        await dispatch(updateEvent({ id: editingEvent._id, eventData: form })).unwrap();
-        toast.success('Event updated successfully');
+        await api.put(`/events/${editingEvent._id}`, fd);
+        toast.success('Event updated successfully!');
       } else {
-        await dispatch(createEvent(form)).unwrap();
-        toast.success('Event created successfully');
+        await api.post('/events', fd);
+        toast.success('Event created successfully!');
       }
-      handleCloseModal();
+      dispatch(fetchEvents());
+      handleCancelEdit();
     } catch (err) {
-      toast.error(err || 'Operation failed');
+      const msg = err.response?.data?.message || err.message || 'Operation failed';
+      toast.error(msg);
+    } finally {
+      setSubmitting(false);
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this event? This action cannot be undone.')) {
-      try {
-        await dispatch(deleteEvent(id)).unwrap();
-        toast.success('Event deleted successfully');
-      } catch (err) {
-        toast.error(err || 'Delete failed');
-      }
+    const confirmed = await toastConfirm('Delete this event? This cannot be undone.');
+    if (!confirmed) return;
+    setDeletingId(id);
+    try {
+      await dispatch(deleteEvent(id)).unwrap();
+      toast.success('Event deleted successfully');
+    } catch (err) {
+      toast.error(typeof err === 'string' ? err : 'Delete failed');
+    } finally {
+      setDeletingId(null);
     }
   };
 
-  const filteredEvents = (events || []).filter((e) =>
-    (e.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (e.location || '').toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
   return (
-    <div className="pt-32 lg:pt-40 pb-16 min-h-screen bg-[#FAF9F6] text-[#1f2322]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen pt-28 pb-16" style={{ background: '#FAF9F6' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 1.5rem' }}>
 
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
-          <div>
-            <h1 className="text-4xl font-serif font-bold text-[#C1A27B] mb-2">Manage Events</h1>
-            <p className="text-[#667280]">Create and curate your selection of luxury experiences.</p>
-          </div>
-          <button
-            onClick={() => handleOpenModal()}
-            className="bg-[#C1A27B] hover:bg-[#AA8960] text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 flex items-center gap-2 shadow-lg shadow-[#C1A27B]/10"
-          >
-            <Plus className="w-5 h-5" />
-            Create Event
-          </button>
+        {/* Page Title */}
+        <div style={{ marginBottom: '2rem' }}>
+          <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(1.8rem,4vw,2.5rem)', fontWeight: '700', color: '#C1A27B', marginBottom: '0.25rem' }}>
+            Manage Events
+          </h1>
+          <p style={{ color: '#667280', fontSize: '0.9rem' }}>Create, edit and manage your luxury event experiences.</p>
         </div>
 
-        {/* Controls Section */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8 bg-white p-4 rounded-xl border border-[#E8E1D5]">
-          <div className="relative w-full md:w-96">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#667280]" />
-            <input
-              type="text"
-              placeholder="Search by title or location..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-[#FAF9F6] border border-[#E8E1D5] rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:border-[#C1A27B] transition-colors text-sm"
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setView('grid')}
-              className={`p-2 rounded-lg transition-colors ${view === 'grid' ? 'bg-[#C1A27B] text-white' : 'text-[#667280] hover:text-[#1f2322]'}`}
-            >
-              <LayoutGrid className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => setView('list')}
-              className={`p-2 rounded-lg transition-colors ${view === 'list' ? 'bg-[#C1A27B] text-white' : 'text-[#667280] hover:text-[#1f2322]'}`}
-            >
-              <List className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-
-        {/* Events Data Area */}
-        {loading && events.length === 0 ? (
-          <div className="flex justify-center items-center h-64">
-            <RefreshCw className="w-8 h-8 text-[#C9A84C] animate-spin" />
-          </div>
-        ) : filteredEvents.length > 0 ? (
-          view === 'grid' ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredEvents.map((event) => (
-                <div key={event._id} className="group bg-white rounded-2xl overflow-hidden border border-[#E8E1D5] hover:border-[#C1A27B]/30 transition-all duration-300">
-                  <div className="h-48 bg-gray-800 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a2e] to-transparent opacity-60"></div>
-                    <div className="absolute top-4 right-4 bg-[#C1A27B] text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-widest z-10">
-                      {event.category}
-                    </div>
-                    {event.image ? (
-                      <img src={event.image} alt={event.title} className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-700">
-                        <Calendar className="w-12 h-12 opacity-20" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-6">
-                    <h3 className="text-xl font-serif font-bold mb-4 group-hover:text-[#C1A27B] transition-colors">{event.title}</h3>
-                    <div className="space-y-2 mb-6">
-                      <div className="flex items-center gap-2 text-sm text-[#667280]">
-                        <MapPin className="w-4 h-4 text-[#C1A27B]" />
-                        {event.location}
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-[#667280]">
-                        <Calendar className="w-4 h-4 text-[#C1A27B]" />
-                        {new Date(event.date).toLocaleDateString()}
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between pt-4 border-t border-[#EFE8DC]">
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleOpenModal(event)}
-                          className="p-2 text-[#667280] hover:text-[#C1A27B] transition-colors"
-                        >
-                          <Edit2 className="w-5 h-5" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(event._id)}
-                          className="p-2 text-[#667280] hover:text-red-500 transition-colors"
-                        >
-                          <Trash2 className="w-5 h-5" />
-                        </button>
-                      </div>
-                      <div className="text-xs font-bold text-[#667280] uppercase tracking-tighter">
-                        {event.totalTickets} Tickets Left
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
+        {/* ── FORM CARD ── */}
+        <div ref={formRef} style={{ background: '#fff', borderRadius: '16px', border: '1px solid #E8E1D5', boxShadow: '0 2px 16px rgba(193,162,123,0.08)', marginBottom: '2.5rem', overflow: 'hidden' }}>
+          
+          {/* Header */}
+          <div style={{ padding: '1.25rem 1.75rem', borderBottom: '1px solid #EFE8DC', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(193,162,123,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <PlusCircle size={18} color="#C1A27B" />
+              </div>
+              <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.2rem', fontWeight: '700', color: '#1f2322', margin: 0 }}>
+                {editingEvent ? 'Edit Event' : 'Add New Event'}
+              </h2>
             </div>
-          ) : (
-            <div className="bg-white rounded-2xl overflow-hidden border border-[#E8E1D5]">
-              <table className="w-full text-left">
-                <thead className="bg-[#F7F3EC] text-[#667280] text-xs uppercase tracking-widest font-bold">
-                  <tr>
-                    <th className="px-6 py-4">Event</th>
-                    <th className="px-6 py-4">Date & Time</th>
-                    <th className="px-6 py-4">Location</th>
-                    <th className="px-6 py-4 text-center">Actions</th>
+            {editingEvent && (
+              <button onClick={handleCancelEdit} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'transparent', border: '1px solid #E8E1D5', borderRadius: '8px', padding: '0.4rem 0.85rem', color: '#667280', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '600' }}>
+                <X size={14} /> Cancel
+              </button>
+            )}
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} style={{ padding: '1.75rem' }}>
+
+            {/* Row 1: Title | Category */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: '1.25rem', marginBottom: '1.25rem' }}>
+              <div>
+                <label style={lbl}>Event Title *</label>
+                <input type="text" name="title" value={form.title} onChange={handleChange} required placeholder="e.g. Royal Venetian Masquerade" style={inp} onFocus={(e) => e.target.style.borderColor='#C1A27B'} onBlur={(e) => e.target.style.borderColor='#E8E1D5'} />
+              </div>
+              <div>
+                <label style={lbl}>Category *</label>
+                <select name="category" value={form.category} onChange={handleChange} style={inp} onFocus={(e) => e.target.style.borderColor='#C1A27B'} onBlur={(e) => e.target.style.borderColor='#E8E1D5'}>
+                  {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+                </select>
+              </div>
+            </div>
+
+            {/* Row 2: Price | Tickets | Images */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(160px,1fr))', gap: '1.25rem', marginBottom: '1.25rem' }}>
+              <div>
+                <label style={lbl}>Estimated Price (₹) *</label>
+                <div style={{ position: 'relative' }}>
+                  <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#667280', fontWeight: '600', pointerEvents: 'none' }}>₹</span>
+                  <input type="number" name="price" value={form.price} onChange={handleChange} required min="0" placeholder="50000" style={{ ...inp, paddingLeft: '1.8rem' }} onFocus={(e) => e.target.style.borderColor='#C1A27B'} onBlur={(e) => e.target.style.borderColor='#E8E1D5'} />
+                </div>
+              </div>
+              <div>
+                <label style={lbl}>Total Capacity *</label>
+                <input type="number" name="totalTickets" value={form.totalTickets} onChange={handleChange} required min="1" placeholder="500" style={inp} onFocus={(e) => e.target.style.borderColor='#C1A27B'} onBlur={(e) => e.target.style.borderColor='#E8E1D5'} />
+              </div>
+              <div>
+                <label style={lbl}>Event Images</label>
+                <input ref={fileInputRef} type="file" multiple accept="image/*" onChange={handleImageChange} id="imgInput" style={{ display: 'none' }} />
+                <label htmlFor="imgInput" style={{ ...inp, display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', justifyContent: 'center', color: '#667280', margin: 0 }}>
+                  <Upload size={15} color="#C1A27B" />
+                  Choose Images
+                  {(form.imageFiles.length + form.existingImages.length) > 0 && (
+                    <span style={{ background: '#C1A27B', color: '#fff', borderRadius: '999px', fontSize: '0.7rem', padding: '0.1rem 0.5rem', fontWeight: '700' }}>
+                      {form.imageFiles.length + form.existingImages.length}
+                    </span>
+                  )}
+                </label>
+              </div>
+            </div>
+
+            {/* Description */}
+            <div style={{ marginBottom: '1.25rem' }}>
+              <label style={lbl}>Description *</label>
+              <textarea name="description" value={form.description} onChange={handleChange} required rows={3} placeholder="Describe the atmosphere and specific offerings..." style={{ ...inp, resize: 'vertical', minHeight: '80px', lineHeight: '1.5' }} onFocus={(e) => e.target.style.borderColor='#C1A27B'} onBlur={(e) => e.target.style.borderColor='#E8E1D5'} />
+            </div>
+
+            {/* Image Previews */}
+            {(form.existingImages.length > 0 || imagePreviews.length > 0) && (
+              <div style={{ marginBottom: '1.25rem' }}>
+                <label style={lbl}>Selected Images ({form.existingImages.length + imagePreviews.length})</label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.65rem', marginTop: '0.5rem' }}>
+                  {form.existingImages.map((url, i) => (
+                    <div key={`ex-${i}`} style={{ position: 'relative', width: '70px', height: '70px' }}>
+                      <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px', border: '2px solid #E8E1D5' }} />
+                      <button type="button" onClick={() => removeExistingImage(url)} style={rmBtn}><X size={10} /></button>
+                      <span style={badge('#667280')}>Saved</span>
+                    </div>
+                  ))}
+                  {imagePreviews.map((p, i) => (
+                    <div key={`nw-${i}`} style={{ position: 'relative', width: '70px', height: '70px' }}>
+                      <img src={p.url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px', border: '2px solid #C1A27B' }} />
+                      <button type="button" onClick={() => removeNewImage(i)} style={rmBtn}><X size={10} /></button>
+                      <span style={badge('#C1A27B')}>New</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Submit */}
+            <button type="submit" disabled={submitting} style={{ background: submitting ? '#aaa' : '#1f2322', color: '#fff', border: 'none', borderRadius: '10px', padding: '0.7rem 2rem', fontWeight: '700', fontSize: '0.9rem', cursor: submitting ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', transition: 'background 0.2s' }}
+              onMouseOver={(e) => { if (!submitting) e.currentTarget.style.background = '#C1A27B'; }}
+              onMouseOut={(e) => { if (!submitting) e.currentTarget.style.background = '#1f2322'; }}
+            >
+              {submitting ? <RefreshCw size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <CheckCircle size={16} />}
+              {submitting ? 'Please wait...' : editingEvent ? 'Update Event' : 'Add Event'}
+            </button>
+          </form>
+        </div>
+
+        {/* ── EVENTS HISTORY TABLE ── */}
+        <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid #E8E1D5', boxShadow: '0 2px 16px rgba(193,162,123,0.08)', overflow: 'hidden' }}>
+          <div style={{ padding: '1.1rem 1.75rem', borderBottom: '1px solid #EFE8DC', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.1rem', fontWeight: '700', color: '#1f2322', margin: 0 }}>Events History</h2>
+            <span style={{ background: 'rgba(193,162,123,0.15)', color: '#C1A27B', borderRadius: '999px', fontSize: '0.72rem', fontWeight: '700', padding: '0.15rem 0.6rem' }}>{events.length}</span>
+          </div>
+
+          <div style={{ overflowX: 'auto' }}>
+            {loading && events.length === 0 ? (
+              <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}>
+                <RefreshCw size={28} color="#C1A27B" style={{ animation: 'spin 1s linear infinite' }} />
+              </div>
+            ) : events.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '4rem', color: '#667280' }}>
+                <ImageIcon size={36} style={{ opacity: 0.2, marginBottom: '1rem' }} />
+                <p style={{ fontWeight: '600' }}>No events yet. Create your first event above.</p>
+              </div>
+            ) : (
+              <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '700px' }}>
+                <thead>
+                  <tr style={{ background: '#1f2322' }}>
+                    {['Event', 'Category', 'Estimated Price', 'Capacity', 'Images', 'Actions'].map((h) => (
+                      <th key={h} style={{ padding: '0.9rem 1.25rem', textAlign: 'left', color: '#fff', fontSize: '0.72rem', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{h}</th>
+                    ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#EFE8DC]">
-                  {filteredEvents.map((event) => (
-                    <tr key={event._id} className="hover:bg-white/5 transition-colors">
-                      <td className="px-6 py-6">
-                        <div className="font-serif font-bold text-[#f8f5f0]">{event.title}</div>
-                        <div className="text-[10px] text-[#C1A27B] uppercase tracking-widest">{event.category}</div>
+                <tbody>
+                  {events.map((event, idx) => (
+                    <tr key={event._id} style={{ background: idx % 2 === 0 ? '#fff' : '#FDFAF6', borderBottom: '1px solid #F0EAE0' }}
+                      onMouseOver={(e) => e.currentTarget.style.background = '#FFF8F0'}
+                      onMouseOut={(e) => e.currentTarget.style.background = idx % 2 === 0 ? '#fff' : '#FDFAF6'}
+                    >
+                      <td style={{ padding: '0.9rem 1.25rem' }}>
+                        <span style={{ fontWeight: '700', color: '#1f2322', fontSize: '0.9rem', display: 'block', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{event.title}</span>
                       </td>
-                      <td className="px-6 py-6">
-                        <div className="text-sm">{new Date(event.date).toLocaleDateString()}</div>
-                        <div className="text-xs text-gray-500">{event.time}</div>
+                      <td style={{ padding: '0.9rem 1.25rem' }}>
+                        <span style={{ background: 'rgba(193,162,123,0.12)', color: '#C1A27B', borderRadius: '6px', padding: '0.2rem 0.65rem', fontSize: '0.75rem', fontWeight: '700', textTransform: 'capitalize', whiteSpace: 'nowrap' }}>{event.category}</span>
                       </td>
-                      <td className="px-6 py-6 text-sm text-[#667280]">{event.location}</td>
-                      <td className="px-6 py-6">
-                        <div className="flex items-center justify-center gap-3">
-                          <button
-                            onClick={() => handleOpenModal(event)}
-                            className="bg-[#C1A27B]/10 p-2 rounded hover:bg-[#C1A27B]/20 transition-colors"
+                      <td style={{ padding: '0.9rem 1.25rem' }}>
+                        <span style={{ color: '#C1A27B', fontWeight: '700', fontSize: '0.95rem' }}>₹ {event.price?.toLocaleString('en-IN')}</span>
+                      </td>
+                      <td style={{ padding: '0.9rem 1.25rem' }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#1f2322', fontWeight: '600', fontSize: '0.85rem' }}>
+                          <Users size={14} color="#C1A27B" />{event.totalTickets}
+                        </span>
+                      </td>
+                      <td style={{ padding: '0.9rem 1.25rem' }}>
+                        {event.images?.length > 0 ? (
+                          <div style={{ display: 'flex', gap: '4px' }}>
+                            {event.images.slice(0, 3).map((img, i) => (
+                              <img key={i} src={img} alt="" style={{ width: '34px', height: '34px', borderRadius: '6px', objectFit: 'cover', border: '2px solid #EFE8DC' }} />
+                            ))}
+                            {event.images.length > 3 && <div style={{ width: '34px', height: '34px', borderRadius: '6px', background: '#F0EAE0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: '700', color: '#667280' }}>+{event.images.length - 3}</div>}
+                          </div>
+                        ) : <span style={{ color: '#ccc' }}>—</span>}
+                      </td>
+                      <td style={{ padding: '0.9rem 1.25rem' }}>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                          <button onClick={() => handleEdit(event)} title="Edit" style={actBtn('#C1A27B', 'rgba(193,162,123,0.1)')}
+                            onMouseOver={(e) => e.currentTarget.style.background = 'rgba(193,162,123,0.22)'}
+                            onMouseOut={(e) => e.currentTarget.style.background = 'rgba(193,162,123,0.1)'}
+                          ><Edit2 size={15} /></button>
+                          <button onClick={() => handleDelete(event._id)} title="Delete" disabled={deletingId === event._id} style={actBtn('#ef4444', 'rgba(239,68,68,0.08)')}
+                            onMouseOver={(e) => e.currentTarget.style.background = 'rgba(239,68,68,0.18)'}
+                            onMouseOut={(e) => e.currentTarget.style.background = 'rgba(239,68,68,0.08)'}
                           >
-                            <Edit2 className="w-4 h-4 text-[#C1A27B]" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(event._id)}
-                            className="bg-red-500/10 p-2 rounded hover:bg-red-500/20 transition-colors"
-                          >
-                            <Trash2 className="w-4 h-4 text-red-500" />
+                            {deletingId === event._id ? <RefreshCw size={15} style={{ animation: 'spin 1s linear infinite' }} /> : <Trash2 size={15} />}
                           </button>
                         </div>
                       </td>
@@ -272,159 +373,19 @@ const ManageEvents = () => {
                   ))}
                 </tbody>
               </table>
-            </div>
-          )
-        ) : (
-          <div className="bg-white border border-dashed border-[#E8E1D5] rounded-2xl h-64 flex flex-col items-center justify-center text-center p-8">
-            <AlertCircle className="w-12 h-12 text-[#C1A27B]/40 mb-4" />
-            <h3 className="text-xl font-serif font-bold mb-2">No Events Found</h3>
-            <p className="text-[#667280] text-sm max-w-xs">Try adjusting your search or create a new event to get started.</p>
+            )}
           </div>
-        )}
-
-        {/* Modal */}
-        {isModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-            <div
-              className="absolute inset-0 bg-[#000]/80 backdrop-blur-sm"
-              onClick={handleCloseModal}
-            ></div>
-            <div className="relative bg-white w-full max-w-2xl rounded-2xl border border-[#E8E1D5] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
-              <div className="p-6 border-b border-[#EFE8DC] flex items-center justify-between">
-                <h2 className="text-2xl font-serif font-bold text-[#C1A27B]">
-                  {editingEvent ? 'Edit Luxury Experience' : 'New Luxury Experience'}
-                </h2>
-                <button onClick={handleCloseModal} className="text-[#667280] hover:text-[#1f2322] transition-colors">
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
-
-              <form id="event-form" onSubmit={handleSubmit} className="p-6 overflow-y-auto space-y-6">
-                <div>
-                  <label className="block text-xs font-bold text-[#667280] uppercase tracking-widest mb-2">Event Title</label>
-                  <input
-                    type="text" name="title" value={form.title} onChange={handleChange} required
-                    className="w-full bg-[#FAF9F6] border border-[#E8E1D5] rounded-lg px-4 py-3 focus:outline-none focus:border-[#C1A27B] transition-colors"
-                    placeholder="e.g. Royal Venetian Masquerade"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-[#667280] uppercase tracking-widest mb-2 flex justify-between items-center">
-                    Event Cover Image
-                    <span className="text-[10px] text-[#C1A27B] font-normal tracking-normal lowercase italic">Scroll to select...</span>
-                  </label>
-                  <div className="flex gap-4 overflow-x-auto pb-4 snap-x" style={{ scrollbarWidth: 'thin', scrollbarColor: '#C9A84C #0f0e17' }}>
-                    {AVAILABLE_IMAGES.map((img) => (
-                      <div
-                        key={img}
-                        onClick={() => setForm({ ...form, image: img })}
-                        className={`flex-shrink-0 w-[140px] h-[90px] rounded-lg overflow-hidden cursor-pointer snap-start transition-all border-2 ${form.image === img ? 'border-[#C1A27B] opacity-100 scale-105 shadow-[0_0_15px_rgba(193,162,123,0.3)]' : 'border-transparent opacity-40 hover:opacity-100'}`}
-                      >
-                        <img src={img} alt="Template" className="w-full h-full object-cover" />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-xs font-bold text-[#667280] uppercase tracking-widest mb-2 flex items-center gap-2">
-                      <Calendar className="w-3 h-3" /> Date
-                    </label>
-                    <input
-                      type="date" name="date" value={form.date} onChange={handleChange} required
-                      className="w-full bg-[#FAF9F6] border border-[#E8E1D5] rounded-lg px-4 py-3 focus:outline-none focus:border-[#C1A27B] transition-colors"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-[#667280] uppercase tracking-widest mb-2 flex items-center gap-2">
-                      <Clock className="w-3 h-3" /> Time (EST)
-                    </label>
-                    <input
-                      type="text" name="time" value={form.time} onChange={handleChange} required
-                      className="w-full bg-[#FAF9F6] border border-[#E8E1D5] rounded-lg px-4 py-3 focus:outline-none focus:border-[#C1A27B] transition-colors"
-                      placeholder="e.g. 19:00 PM"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-[#667280] uppercase tracking-widest mb-2 flex items-center gap-2">
-                      <MapPin className="w-3 h-3" /> Location
-                    </label>
-                    <input
-                      type="text" name="location" value={form.location} onChange={handleChange} required
-                      className="w-full bg-[#FAF9F6] border border-[#E8E1D5] rounded-lg px-4 py-3 focus:outline-none focus:border-[#C1A27B] transition-colors"
-                      placeholder="e.g. Grand Canal, Venice"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-[#667280] uppercase tracking-widest mb-2">Category</label>
-                    <select
-                      name="category" value={form.category} onChange={handleChange}
-                      className="w-full bg-[#FAF9F6] border border-[#E8E1D5] rounded-lg px-4 py-3 focus:outline-none focus:border-[#C1A27B] transition-colors"
-                    >
-                      <option value="weddings">Weddings</option>
-                      <option value="birthdays">Birthdays</option>
-                      <option value="milestone">Milestones</option>
-                      <option value="bussiness">Business & Office</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-[#667280] uppercase tracking-widest mb-2 flex items-center gap-2">
-                      <DollarSign className="w-3 h-3" /> Entry Fee (USD)
-                    </label>
-                    <input
-                      type="number" name="price" value={form.price} onChange={handleChange}
-                      className="w-full bg-[#FAF9F6] border border-[#E8E1D5] rounded-lg px-4 py-3 focus:outline-none focus:border-[#C1A27B] transition-colors"
-                      placeholder="0 for free"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-[#667280] uppercase tracking-widest mb-2 flex items-center gap-2">
-                      <Users className="w-3 h-3" /> Total Capacity
-                    </label>
-                    <input
-                      type="number" name="totalTickets" value={form.totalTickets} onChange={handleChange} required
-                      className="w-full bg-[#FAF9F6] border border-[#E8E1D5] rounded-lg px-4 py-3 focus:outline-none focus:border-[#C1A27B] transition-colors"
-                      placeholder="e.g. 500"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-[#667280] uppercase tracking-widest mb-2">Detailed Description</label>
-                  <textarea
-                    name="description" value={form.description} onChange={handleChange} required
-                    rows={4}
-                    className="w-full bg-[#FAF9F6] border border-[#E8E1D5] rounded-lg px-4 py-3 focus:outline-none focus:border-[#C1A27B] transition-colors resize-none"
-                    placeholder="Describe the atmosphere, exclusivity and specific offerings of this event..."
-                  ></textarea>
-                </div>
-              </form>
-
-              <div className="p-6 border-t border-[#EFE8DC] bg-white flex items-center justify-end gap-4">
-                <button
-                  onClick={handleCloseModal}
-                  className="px-6 py-3 text-[#667280] hover:text-[#1f2322] font-bold uppercase tracking-widest text-xs transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  form="event-form"
-                  disabled={loading}
-                  className="bg-[#C1A27B] hover:bg-[#AA8960] text-white font-bold uppercase tracking-[0.2em] py-3 px-8 rounded-lg transition-all duration-300 flex items-center gap-2 disabled:opacity-50"
-                >
-                  <Save className="w-4 h-4" />
-                  {editingEvent ? 'Update' : 'Create'} Experience
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        </div>
       </div>
+      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 };
+
+const lbl = { display: 'block', fontSize: '0.72rem', fontWeight: '700', color: '#667280', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.4rem' };
+const inp = { width: '100%', background: '#FAF9F6', border: '1px solid #E8E1D5', borderRadius: '10px', padding: '0.6rem 0.9rem', fontSize: '0.88rem', color: '#1f2322', outline: 'none', transition: 'border-color 0.2s', boxSizing: 'border-box' };
+const rmBtn = { position: 'absolute', top: '-6px', right: '-6px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '50%', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0, zIndex: 1 };
+const badge = (bg) => ({ position: 'absolute', bottom: 0, left: 0, right: 0, background: bg, color: '#fff', fontSize: '0.58rem', fontWeight: '700', textAlign: 'center', padding: '0.1rem 0', textTransform: 'uppercase', borderBottomLeftRadius: '6px', borderBottomRightRadius: '6px' });
+const actBtn = (color, bg) => ({ background: bg, color, border: 'none', borderRadius: '8px', padding: '0.45rem 0.55rem', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'background 0.2s' });
 
 export default ManageEvents;
