@@ -90,7 +90,8 @@ router.post("/admin/chat-reply", authMiddleware(["admin"]), async (req, res) => 
 
         res.status(200).json({ success: true, message: "Reply sent", chats: user.chats });
     } catch (err) {
-        res.status(500).json({ success: false, message: "Error sending reply" });
+        res.status(500).json({ success: false, message: "Error sending reply chatttt" });
+        // console.log(err.message)
     }
 });
 
