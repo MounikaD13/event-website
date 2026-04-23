@@ -6,7 +6,7 @@ const multer = require("multer");
 const { uploadImageStream } = require("../utils/GridFs");
 
 // Set up Multer for memory storage
-const storage = multer.memoryStorage();
+const storage = multer.memoryStorage(); 
 const upload = multer({ storage });
 
 // @route   POST /api/events
