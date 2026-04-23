@@ -11,6 +11,7 @@ import {
   fetchAllContacts, updateContactStatus, deleteContact 
 } from '../store/slices/adminSlice';
 import toast from 'react-hot-toast';
+import { io } from 'socket.io-client';
 
 const getStatusColor = (status) => {
   switch (status) {
@@ -45,6 +46,39 @@ const AdminDashboard = () => {
   const [replyText, setReplyText] = useState({});
   const [adminResponseText, setAdminResponseText] = useState({});
   const [filterStatus, setFilterStatus] = useState('');
+  const [realtimeActivities, setRealtimeActivities] = useState([]);
+
+  // Setup Socket.IO connection
+  useEffect(() => {
+    // Assuming backend runs on the standard Vite proxy or localhost:5000
+    // Adjust URL if your backend runs on a different port
+    const socket = io('http://localhost:5000', {
+      withCredentials: true,
+    });
+
+    socket.on('connect', () => {
+      console.log('Connected to real-time activity socket');
+    });
+
+    socket.on('new_activity', (data) => {
+      // data format expected: { type, name, event, status, date }
+      toast.success(`New activity from ${data.name || 'User'}`);
+      setRealtimeActivities(prev => [{
+        id: Date.now().toString(),
+        type: data.type || 'Inquiry Update',
+        name: data.name || 'Unknown',
+        email: data.email || '',
+        event: data.event || 'Activity',
+        date: new Date(data.date || new Date()),
+        status: data.status || 'Pending',
+        isRealtime: true
+      }, ...prev]);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   useEffect(() => {
     dispatch(fetchAllUserData({ search: searchTerm }));
@@ -85,7 +119,9 @@ const AdminDashboard = () => {
 
     // Sort by date descending
     activities.sort((a, b) => b.date - a.date);
-    return activities.slice(0, 5); // Top 5 recent
+    
+    // Merge real-time socket events at the top and slice to top 5
+    return [...realtimeActivities, ...activities].slice(0, 5);
   })();
 
   const handleUserStatusUpdate = async (userId, inquiryId, newStatus) => {
@@ -196,15 +232,18 @@ const AdminDashboard = () => {
           </div>
           <div className="flex gap-4 overflow-x-auto pb-4 hide-scrollbar">
             {recentActivity.length > 0 ? recentActivity.map((act, i) => (
-              <div key={i} className="min-w-[280px] bg-[#FAF9F6] border border-[#E8E1D5] rounded-2xl p-4 flex-shrink-0 animate-in slide-in-from-right duration-500" style={{ animationDelay: `${i * 100}ms` }}>
+              <div key={i} className={`min-w-[280px] border rounded-2xl p-4 flex-shrink-0 animate-in slide-in-from-right duration-500 ${act.isRealtime ? 'bg-indigo-50/50 border-indigo-200' : 'bg-[#FAF9F6] border-[#E8E1D5]'}`} style={{ animationDelay: `${i * 100}ms` }}>
                 <div className="flex justify-between items-start mb-2">
-                  <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md ${act.type === 'User Inquiry' ? 'bg-indigo-500/10 text-indigo-600' : 'bg-orange-500/10 text-orange-600'}`}>
+                  <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md ${act.type === 'User Inquiry' ? 'bg-indigo-500/10 text-indigo-600' : act.type === 'Guest Inquiry' ? 'bg-orange-500/10 text-orange-600' : 'bg-green-500/10 text-green-600'}`}>
                     {act.type}
                   </span>
-                  <span className="text-xs text-[#667280] flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
-                    {act.date.toLocaleDateString()}
-                  </span>
+                  <div className="text-xs text-[#667280] flex flex-col items-end gap-0.5">
+                    <span className="flex items-center gap-1 font-medium text-[#1f2322]">
+                      <Clock className="w-3 h-3 text-[#C1A27B]" />
+                      {act.date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                    <span className="text-[10px] uppercase tracking-wider">{act.date.toLocaleDateString()}</span>
+                  </div>
                 </div>
                 <p className="font-bold text-[#1f2322] truncate">{act.name}</p>
                 <p className="text-xs text-[#667280] truncate mb-3">{act.event}</p>
