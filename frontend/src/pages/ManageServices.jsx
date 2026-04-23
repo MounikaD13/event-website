@@ -53,7 +53,7 @@ const ManageServices = () => {
   const dispatch = useDispatch();
   const { events, loading: eventsLoading } = useSelector((state) => state.events);
   const { services, loading: servicesLoading } = useSelector((state) => state.services);
-  
+
   const [selectedEventId, setSelectedEventId] = useState('');
   const [editingService, setEditingService] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
@@ -63,8 +63,8 @@ const ManageServices = () => {
   const formRef = useRef(null);
   const fileInputRef = useRef(null);
 
-  useEffect(() => { 
-    dispatch(fetchEvents()); 
+  useEffect(() => {
+    dispatch(fetchEvents());
   }, [dispatch]);
 
   useEffect(() => {
@@ -218,9 +218,9 @@ const ManageServices = () => {
         <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid #E8E1D5', padding: '1.5rem', marginBottom: '2rem', boxShadow: '0 2px 16px rgba(193,162,123,0.08)' }}>
           <label style={lbl}>Select Event to Manage Services</label>
           {eventsLoading ? (
-             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#667280', fontSize: '0.9rem' }}>
-               <RefreshCw size={14} style={{ animation: 'spin 1s linear infinite' }} /> Loading events...
-             </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#667280', fontSize: '0.9rem' }}>
+              <RefreshCw size={14} style={{ animation: 'spin 1s linear infinite' }} /> Loading events...
+            </div>
           ) : (
             <select value={selectedEventId} onChange={handleEventFilterChange} style={inp} onFocus={(e) => e.target.style.borderColor = '#C1A27B'} onBlur={(e) => e.target.style.borderColor = '#E8E1D5'}>
               <option value="">-- Choose an Event --</option>
@@ -252,7 +252,7 @@ const ManageServices = () => {
 
           {/* Form */}
           <form onSubmit={handleSubmit} style={{ padding: '1.75rem' }}>
-            
+
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: '1.25rem', marginBottom: '1.25rem' }}>
               <div>
                 <label style={lbl}>Service Title *</label>
@@ -315,74 +315,74 @@ const ManageServices = () => {
 
         {/* ── SERVICES HISTORY TABLE ── */}
         {selectedEventId && (
-        <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid #E8E1D5', boxShadow: '0 2px 16px rgba(193,162,123,0.08)', overflow: 'hidden' }}>
-          <div style={{ padding: '1.1rem 1.75rem', borderBottom: '1px solid #EFE8DC', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.1rem', fontWeight: '700', color: '#1f2322', margin: 0 }}>Services for Selected Event</h2>
-            <span style={{ background: 'rgba(193,162,123,0.15)', color: '#C1A27B', borderRadius: '999px', fontSize: '0.72rem', fontWeight: '700', padding: '0.15rem 0.6rem' }}>{services.length}</span>
-          </div>
+          <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid #E8E1D5', boxShadow: '0 2px 16px rgba(193,162,123,0.08)', overflow: 'hidden' }}>
+            <div style={{ padding: '1.1rem 1.75rem', borderBottom: '1px solid #EFE8DC', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.1rem', fontWeight: '700', color: '#1f2322', margin: 0 }}>Services for Selected Event</h2>
+              <span style={{ background: 'rgba(193,162,123,0.15)', color: '#C1A27B', borderRadius: '999px', fontSize: '0.72rem', fontWeight: '700', padding: '0.15rem 0.6rem' }}>{services.length}</span>
+            </div>
 
-          <div style={{ overflowX: 'auto' }}>
-            {servicesLoading ? (
-              <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}>
-                <RefreshCw size={28} color="#C1A27B" style={{ animation: 'spin 1s linear infinite' }} />
-              </div>
-            ) : services.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '4rem', color: '#667280' }}>
-                <Settings size={36} style={{ opacity: 0.2, marginBottom: '1rem', display: 'inline-block' }} />
-                <p style={{ fontWeight: '600' }}>No services yet for this event. Create your first service above.</p>
-              </div>
-            ) : (
-              <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '700px' }}>
-                <thead>
-                  <tr style={{ background: '#1f2322' }}>
-                    {['Service', 'Description', 'Images', 'Actions'].map((h) => (
-                      <th key={h} style={{ padding: '0.9rem 1.25rem', textAlign: 'left', color: '#fff', fontSize: '0.72rem', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {services.map((service, idx) => (
-                    <tr key={service._id} style={{ background: idx % 2 === 0 ? '#fff' : '#FDFAF6', borderBottom: '1px solid #F0EAE0' }}
-                      onMouseOver={(e) => e.currentTarget.style.background = '#FFF8F0'}
-                      onMouseOut={(e) => e.currentTarget.style.background = idx % 2 === 0 ? '#fff' : '#FDFAF6'}
-                    >
-                      <td style={{ padding: '0.9rem 1.25rem' }}>
-                        <span style={{ fontWeight: '700', color: '#1f2322', fontSize: '0.9rem', display: 'block', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{service.title}</span>
-                      </td>
-                      <td style={{ padding: '0.9rem 1.25rem' }}>
-                        <span style={{ color: '#667280', fontSize: '0.85rem', display: 'block', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{service.description}</span>
-                      </td>
-                      <td style={{ padding: '0.9rem 1.25rem' }}>
-                        {service.images?.length > 0 ? (
-                          <div style={{ display: 'flex', gap: '4px' }}>
-                            {service.images.slice(0, 3).map((img, i) => (
-                              <img key={i} src={img} alt="" style={{ width: '34px', height: '34px', borderRadius: '6px', objectFit: 'cover', border: '2px solid #EFE8DC' }} />
-                            ))}
-                            {service.images.length > 3 && <div style={{ width: '34px', height: '34px', borderRadius: '6px', background: '#F0EAE0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: '700', color: '#667280' }}>+{service.images.length - 3}</div>}
-                          </div>
-                        ) : <span style={{ color: '#ccc' }}>—</span>}
-                      </td>
-                      <td style={{ padding: '0.9rem 1.25rem' }}>
-                        <div style={{ display: 'flex', gap: '0.5rem' }}>
-                          <button onClick={() => handleEdit(service)} title="Edit" style={actBtn('#C1A27B', 'rgba(193,162,123,0.1)')}
-                            onMouseOver={(e) => e.currentTarget.style.background = 'rgba(193,162,123,0.22)'}
-                            onMouseOut={(e) => e.currentTarget.style.background = 'rgba(193,162,123,0.1)'}
-                          ><Edit2 size={15} /></button>
-                          <button onClick={() => handleDelete(service._id)} title="Delete" disabled={deletingId === service._id} style={actBtn('#ef4444', 'rgba(239,68,68,0.08)')}
-                            onMouseOver={(e) => e.currentTarget.style.background = 'rgba(239,68,68,0.18)'}
-                            onMouseOut={(e) => e.currentTarget.style.background = 'rgba(239,68,68,0.08)'}
-                          >
-                            {deletingId === service._id ? <RefreshCw size={15} style={{ animation: 'spin 1s linear infinite' }} /> : <Trash2 size={15} />}
-                          </button>
-                        </div>
-                      </td>
+            <div style={{ overflowX: 'auto' }}>
+              {servicesLoading ? (
+                <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}>
+                  <RefreshCw size={28} color="#C1A27B" style={{ animation: 'spin 1s linear infinite' }} />
+                </div>
+              ) : services.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '4rem', color: '#667280' }}>
+                  <Settings size={36} style={{ opacity: 0.2, marginBottom: '1rem', display: 'inline-block' }} />
+                  <p style={{ fontWeight: '600' }}>No services yet for this event. Create your first service above.</p>
+                </div>
+              ) : (
+                <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '700px' }}>
+                  <thead>
+                    <tr style={{ background: '#1f2322' }}>
+                      {['Service', 'Description', 'Images', 'Actions'].map((h) => (
+                        <th key={h} style={{ padding: '0.9rem 1.25rem', textAlign: 'left', color: '#fff', fontSize: '0.72rem', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{h}</th>
+                      ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
+                  </thead>
+                  <tbody>
+                    {services.map((service, idx) => (
+                      <tr key={service._id} style={{ background: idx % 2 === 0 ? '#fff' : '#FDFAF6', borderBottom: '1px solid #F0EAE0' }}
+                        onMouseOver={(e) => e.currentTarget.style.background = '#FFF8F0'}
+                        onMouseOut={(e) => e.currentTarget.style.background = idx % 2 === 0 ? '#fff' : '#FDFAF6'}
+                      >
+                        <td style={{ padding: '0.9rem 1.25rem' }}>
+                          <span style={{ fontWeight: '700', color: '#1f2322', fontSize: '0.9rem', display: 'block', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{service.title}</span>
+                        </td>
+                        <td style={{ padding: '0.9rem 1.25rem' }}>
+                          <span style={{ color: '#667280', fontSize: '0.85rem', display: 'block', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{service.description}</span>
+                        </td>
+                        <td style={{ padding: '0.9rem 1.25rem' }}>
+                          {service.images?.length > 0 ? (
+                            <div style={{ display: 'flex', gap: '4px' }}>
+                              {service.images.slice(0, 3).map((img, i) => (
+                                <img key={i} src={img} alt="" style={{ width: '34px', height: '34px', borderRadius: '6px', objectFit: 'cover', border: '2px solid #EFE8DC' }} />
+                              ))}
+                              {service.images.length > 3 && <div style={{ width: '34px', height: '34px', borderRadius: '6px', background: '#F0EAE0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: '700', color: '#667280' }}>+{service.images.length - 3}</div>}
+                            </div>
+                          ) : <span style={{ color: '#ccc' }}>—</span>}
+                        </td>
+                        <td style={{ padding: '0.9rem 1.25rem' }}>
+                          <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <button onClick={() => handleEdit(service)} title="Edit" style={actBtn('#C1A27B', 'rgba(193,162,123,0.1)')}
+                              onMouseOver={(e) => e.currentTarget.style.background = 'rgba(193,162,123,0.22)'}
+                              onMouseOut={(e) => e.currentTarget.style.background = 'rgba(193,162,123,0.1)'}
+                            ><Edit2 size={15} /></button>
+                            <button onClick={() => handleDelete(service._id)} title="Delete" disabled={deletingId === service._id} style={actBtn('#ef4444', 'rgba(239,68,68,0.08)')}
+                              onMouseOver={(e) => e.currentTarget.style.background = 'rgba(239,68,68,0.18)'}
+                              onMouseOut={(e) => e.currentTarget.style.background = 'rgba(239,68,68,0.08)'}
+                            >
+                              {deletingId === service._id ? <RefreshCw size={15} style={{ animation: 'spin 1s linear infinite' }} /> : <Trash2 size={15} />}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
           </div>
-        </div>
         )}
       </div>
       <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>

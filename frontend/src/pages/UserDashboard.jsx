@@ -613,11 +613,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 /* ─── Helpers ────────────────────────────────────────────────────── */
 const statusStyle = (s) =>
-  ({
-    Confirmed: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-    Checked:   'bg-amber-50  text-amber-700  border-amber-200',
-    Rejected:  'bg-red-50    text-red-500    border-red-200',
-  }[s] ?? 'bg-orange-50 text-orange-600 border-orange-200');
+({
+  Confirmed: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  Checked: 'bg-amber-50  text-amber-700  border-amber-200',
+  Rejected: 'bg-red-50    text-red-500    border-red-200',
+}[s] ?? 'bg-orange-50 text-orange-600 border-orange-200');
 
 const fmt = (d) =>
   new Date(d).toLocaleDateString(undefined, {
@@ -775,15 +775,15 @@ const ChatBubble = ({ chat, idx }) => {
 
 /* ─── Main Dashboard ─────────────────────────────────────────────── */
 const UserDashboard = () => {
-  const dispatch              = useDispatch();
-  const { dashboard }         = useSelector((s) => s.userAccount);
-  const { user }              = useSelector((s) => s.auth);
+  const dispatch = useDispatch();
+  const { dashboard } = useSelector((s) => s.userAccount);
+  const { user } = useSelector((s) => s.auth);
   const [chatMsg, setChatMsg] = useState('');
-  const chatEnd               = useRef(null);
+  const chatEnd = useRef(null);
 
   const inquiries = dashboard?.inquiries ?? [];
-  const bookings  = dashboard?.bookings  ?? [];
-  const chats     = dashboard?.chats     ?? [];
+  const bookings = dashboard?.bookings ?? [];
+  const chats = dashboard?.chats ?? [];
 
   useEffect(() => { dispatch(fetchDashboardData()); }, [dispatch]);
 
@@ -796,7 +796,7 @@ const UserDashboard = () => {
     socket.on('connect', () => user?._id && socket.emit('join_room', user._id));
 
     const refresh = () => dispatch(fetchDashboardData());
-    const onMsg   = (d) => {
+    const onMsg = (d) => {
       refresh();
       if (d.sender === 'Admin')
         toast('New message from Executive Support', {
@@ -805,12 +805,12 @@ const UserDashboard = () => {
         });
     };
 
-    socket.on('receive_message',           onMsg);
+    socket.on('receive_message', onMsg);
     socket.on('dashboard:inquiry-updated', refresh);
     socket.on('dashboard:booking-created', refresh);
 
     return () => {
-      socket.off('receive_message',           onMsg);
+      socket.off('receive_message', onMsg);
       socket.off('dashboard:inquiry-updated', refresh);
       socket.off('dashboard:booking-created', refresh);
       socket.disconnect();
@@ -839,7 +839,7 @@ const UserDashboard = () => {
   };
 
   const hasContent = inquiries.length > 0 || bookings.length > 0;
-  const firstName  = user?.name?.split(' ')[0] || 'Guest';
+  const firstName = user?.name?.split(' ')[0] || 'Guest';
 
   return (
     <div className="min-h-screen bg-[#FBF8F3] pt-20 sm:pt-24 lg:pt-28 pb-16 sm:pb-20">
@@ -931,10 +931,10 @@ const UserDashboard = () => {
         {/* ── SECTION 2 · Stats ───────────────────────────────────── */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-5">
           {[
-            { label: 'Confirmed', value: bookings.length,  Icon: CheckCircle,   color: 'text-emerald-600', bg: 'bg-emerald-50', sub: 'Event Ready', delay: 0    },
-            { label: 'Inquiries', value: inquiries.length, Icon: Calendar,      color: 'text-[#C29B5F]',   bg: 'bg-amber-50',  sub: 'Awaiting',    delay: 0.07 },
-            { label: 'Support',   value: chats.length,     Icon: MessageSquare, color: 'text-[#3F4A50]',   bg: 'bg-slate-100', sub: 'Direct Line', delay: 0.14 },
-            { label: 'Uptime',    value: '100%',           Icon: Zap,           color: 'text-amber-500',   bg: 'bg-amber-50',  sub: 'Live Sync',   delay: 0.21 },
+            { label: 'Confirmed', value: bookings.length, Icon: CheckCircle, color: 'text-emerald-600', bg: 'bg-emerald-50', sub: 'Event Ready', delay: 0 },
+            { label: 'Inquiries', value: inquiries.length, Icon: Calendar, color: 'text-[#C29B5F]', bg: 'bg-amber-50', sub: 'Awaiting', delay: 0.07 },
+            { label: 'Support', value: chats.length, Icon: MessageSquare, color: 'text-[#3F4A50]', bg: 'bg-slate-100', sub: 'Direct Line', delay: 0.14 },
+            { label: 'Uptime', value: '100%', Icon: Zap, color: 'text-amber-500', bg: 'bg-amber-50', sub: 'Live Sync', delay: 0.21 },
           ].map((s) => <StatCard key={s.label} {...s} />)}
         </div>
 
@@ -966,7 +966,7 @@ const UserDashboard = () => {
             <AnimatePresence mode="popLayout">
               {hasContent ? (
                 <div className="flex flex-col gap-4">
-                  {bookings.map((book, i)  => (
+                  {bookings.map((book, i) => (
                     <BookingCard key={`bk-${i}`} book={book} idx={i} />
                   ))}
                   {inquiries.map((inq) => (
@@ -1144,7 +1144,7 @@ const UserDashboard = () => {
                             flex flex-col justify-between h-full relative overflow-hidden
                             shadow-xl shadow-black/10 min-h-[280px]">
               <div aria-hidden
-                   className="absolute top-0 right-0 p-6 opacity-[0.04] pointer-events-none">
+                className="absolute top-0 right-0 p-6 opacity-[0.04] pointer-events-none">
                 <LayoutGrid className="w-28 h-28" />
               </div>
 
@@ -1155,9 +1155,9 @@ const UserDashboard = () => {
                 </h4>
                 <div className="space-y-3">
                   {[
-                    { name: 'Priority Venue Scouting', Icon: Compass,     sub: 'Global Network'    },
-                    { name: 'Concierge Support 24/7',  Icon: ShieldCheck,  sub: 'Instant Access'   },
-                    { name: 'Curated Vendor Access',   Icon: Package,      sub: 'Bespoke Selection' },
+                    { name: 'Priority Venue Scouting', Icon: Compass, sub: 'Global Network' },
+                    { name: 'Concierge Support 24/7', Icon: ShieldCheck, sub: 'Instant Access' },
+                    { name: 'Curated Vendor Access', Icon: Package, sub: 'Bespoke Selection' },
                   ].map((p) => (
                     <div
                       key={p.name}

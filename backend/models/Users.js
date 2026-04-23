@@ -28,7 +28,6 @@ const userSchema = mongoose.Schema({
         default: false
     },
     // Dashboard Data - Inquiries, Bookings, and Chats
-
     inquiries: [{
         eventType: String,
         eventDate: Date,
@@ -67,5 +66,4 @@ const userSchema = mongoose.Schema({
 })
 
 module.exports = mongoose.model("User", userSchema)
-
 

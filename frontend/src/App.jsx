@@ -6,8 +6,6 @@ import Footer from './components/Footer';
 import LandingPage from './pages/LandingPage';
 import EventsPage from './pages/EventsPage';
 import AuthPage from './pages/AuthPage';
-import BookingPage from './pages/BookingPage';
-import ProfilePage from './pages/ProfilePage';
 import AdminDashboard from './pages/AdminDashboard';
 import ManageEvents from './pages/ManageEvents';
 import ManageServices from './pages/ManageServices';
@@ -41,14 +39,7 @@ const AppContent = () => {
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/signin" element={<AuthPage />} />
           <Route path="/signup" element={<AuthPage />} />
-          <Route
-            path="/booking"
-            element={
-              <ProtectedRoute>
-                <BookingPage />
-              </ProtectedRoute>
-            }
-          />
+
           <Route
             path="/dashboard"
             element={
@@ -57,14 +48,7 @@ const AppContent = () => {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <ProfilePage />
-              </ProtectedRoute>
-            }
-          />
+
           <Route
             path="/admin/dashboard"
             element={

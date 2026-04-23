@@ -26,9 +26,9 @@ router.post("/contact", async (req, res) => {
             timestamp: new Date()
         });
 
-        res.status(201).json({ 
-            success: true, 
-            message: "Contact form submitted successfully! We will get back to you soon." 
+        res.status(201).json({
+            success: true,
+            message: "Contact form submitted successfully! We will get back to you soon."
         });
     } catch (err) {
         console.error("Error in contact route:", err);
@@ -49,6 +49,7 @@ router.put("/contact/:id", authMiddleware(["admin"]), async (req, res) => {
     try {
         const { status, adminResponse } = req.body;
         
+
         const updatedContact = await Contact.findByIdAndUpdate(
             req.params.id,
             { status, adminResponse },

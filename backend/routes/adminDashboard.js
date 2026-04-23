@@ -5,7 +5,6 @@ const authMiddleware = require("../middleware/middleware");
 const transporter = require("../utils/mail");
 const { getIo, emitToAdmins, emitToUser } = require("../utils/socket");
 
-
 // 1. GET ALL USER DATA (With simple search/filter)
 router.get("/admin/all-data", authMiddleware(["admin"]), async (req, res) => {
     try {
