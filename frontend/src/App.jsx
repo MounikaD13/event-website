@@ -6,9 +6,6 @@ import Footer from './components/Footer';
 import LandingPage from './pages/LandingPage';
 import EventsPage from './pages/EventsPage';
 import AuthPage from './pages/AuthPage';
-import BookingPage from './pages/BookingPage';
-import BusinessPage from './pages/BusinessPage';
-import ProfilePage from './pages/ProfilePage';
 import AdminDashboard from './pages/AdminDashboard';
 import ManageEvents from './pages/ManageEvents';
 import ContactPage from './pages/ContactPage';
@@ -38,31 +35,14 @@ const AppContent = () => {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/events" element={<EventsPage />} />
-          <Route path="/business" element={<BusinessPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/signin" element={<AuthPage />} />
           <Route path="/signup" element={<AuthPage />} />
-          <Route
-            path="/booking"
-            element={
-              <ProtectedRoute>
-                <BookingPage />
-              </ProtectedRoute>
-            }
-          />
           <Route
             path="/dashboard"
             element={
               <ProtectedRoute>
                 <UserDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <ProfilePage />
               </ProtectedRoute>
             }
           />

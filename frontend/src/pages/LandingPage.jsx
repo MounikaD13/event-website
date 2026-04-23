@@ -223,13 +223,13 @@ export default function LandingPage() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {featuredEvents.map((event, i) => (
-              <div
-                key={event.id || i}
-                className={`transition-all duration-700 ${eventsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-                style={{ transitionDelay: `${i * 100}ms` }}
-              >
-                <EventCard event={event} />
-              </div>
+                <div
+                  key={event.id || i}
+                  className={`transition-all duration-700 ${eventsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+                  style={{ transitionDelay: `${i * 100}ms` }}
+                >
+                  <EventCard event={event} />
+                </div>
               ))}
             </div>
           )}
