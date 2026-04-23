@@ -1,11 +1,16 @@
 const socketIo = require("socket.io");
 
+const ADMIN_ROOM = "admins";
+const USER_ROOM_PREFIX = "user:";
+
 let io;
+
+const getUserRoom = (userId) => `${USER_ROOM_PREFIX}${userId}`;
 
 const initSocket = (server) => {
     io = socketIo(server, {
         cors: {
-            origin: "*", 
+            origin: "*",
             methods: ["GET", "POST"],
             credentials: true
         }
@@ -14,10 +19,16 @@ const initSocket = (server) => {
     io.on("connection", (socket) => {
         console.log("A user connected:", socket.id);
 
-        // Join a private room based on userId
-        socket.on("join_room", (userId) => {
-            socket.join(userId);
-            console.log(`User ${socket.id} joined room: ${userId}`);
+        socket.on("join_admin_room", () => {
+            socket.join(ADMIN_ROOM);
+            console.log(`Socket ${socket.id} joined admin room`);
+        });
+
+        socket.on("join_user_room", (userId) => {
+            if (!userId) return;
+            const room = getUserRoom(userId);
+            socket.join(room);
+            console.log(`Socket ${socket.id} joined room: ${room}`);
         });
 
         socket.on("disconnect", () => {
@@ -35,4 +46,20 @@ const getIo = () => {
     return io;
 };
 
-module.exports = { initSocket, getIo };
+const emitToAdmins = (eventName, payload) => {
+    getIo().to(ADMIN_ROOM).emit(eventName, payload);
+};
+
+const emitToUser = (userId, eventName, payload) => {
+    if (!userId) return;
+    getIo().to(getUserRoom(userId)).emit(eventName, payload);
+};
+
+module.exports = {
+    ADMIN_ROOM,
+    initSocket,
+    getIo,
+    emitToAdmins,
+    emitToUser,
+    getUserRoom
+};

@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { fetchDashboardData, submitChat, cancelInquiry } from '../store/slices/userAccountSlice';
 import toast from 'react-hot-toast';
+import { createSocket } from '../utils/socket';
 
 const UserDashboard = () => {
   const dispatch = useDispatch();
@@ -22,6 +23,51 @@ const UserDashboard = () => {
   useEffect(() => {
     dispatch(fetchDashboardData());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (!user?.id) return undefined;
+
+    const socket = createSocket();
+
+    socket.on('connect', () => {
+      socket.emit('join_user_room', user.id);
+    });
+
+    socket.on('dashboard:chat-message', (data) => {
+      if (data.chat?.sender === 'Admin') {
+        toast.success('New message from your planner');
+      }
+      dispatch(fetchDashboardData());
+    });
+
+    socket.on('dashboard:inquiry-updated', (data) => {
+      const status = data.inquiry?.status || 'updated';
+      toast.success(`Your inquiry was marked ${status}`);
+      dispatch(fetchDashboardData());
+    });
+
+    socket.on('dashboard:booking-created', () => {
+      toast.success('A booking was added to your dashboard');
+      dispatch(fetchDashboardData());
+    });
+
+    socket.on('dashboard:inquiry-cancelled', () => {
+      dispatch(fetchDashboardData());
+    });
+
+    socket.on('dashboard:inquiry-created', () => {
+      dispatch(fetchDashboardData());
+    });
+
+    return () => {
+      socket.off('dashboard:chat-message');
+      socket.off('dashboard:inquiry-updated');
+      socket.off('dashboard:booking-created');
+      socket.off('dashboard:inquiry-cancelled');
+      socket.off('dashboard:inquiry-created');
+      socket.disconnect();
+    };
+  }, [dispatch, user?.id]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });

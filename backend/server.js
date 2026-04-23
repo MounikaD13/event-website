@@ -1,5 +1,5 @@
 require("dotenv").config();
-const { initGridFS } = require("./utils/GridFs");
+const { initGridFS } = require("./utils/gridFs");
 const mongoose = require("mongoose")
 const cors = require("cors")
 const express = require("express")
@@ -40,4 +40,4 @@ app.use("/api", userAccountRoutes)
 app.use("/api", adminDashboardRoutes)
 app.use("/api", imageRoutes)
 
-app.listen(process.env.PORT, () => { console.log("server started successfully") })
+server.listen(process.env.PORT, () => { console.log("server started successfully") })

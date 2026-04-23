@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import {
@@ -8,6 +8,7 @@ import {
 import { submitInquiry } from '../store/slices/userAccountSlice';
 import api from '../utils/api';
 import toast from 'react-hot-toast';
+import { createSocket } from '../utils/socket';
 
 const ContactPage = () => {
   const dispatch = useDispatch();
@@ -23,6 +24,27 @@ const ContactPage = () => {
 
   const [contactForm, setContactForm] = useState({ fullName: '', email: '', message: '' });
   const [contactLoading, setContactLoading] = useState(false);
+  const [liveChannelReady, setLiveChannelReady] = useState(false);
+
+  useEffect(() => {
+    const socket = createSocket();
+
+    const handleConnect = () => setLiveChannelReady(true);
+    const handleDisconnect = () => setLiveChannelReady(false);
+
+    socket.on('connect', handleConnect);
+    socket.on('disconnect', handleDisconnect);
+
+    if (socket.connected) {
+      setLiveChannelReady(true);
+    }
+
+    return () => {
+      socket.off('connect', handleConnect);
+      socket.off('disconnect', handleDisconnect);
+      socket.disconnect();
+    };
+  }, []);
 
   const handleInquiryChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -63,6 +85,10 @@ const ContactPage = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/70" />
         <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
           <span className="font-cursive text-[#C1A27B] text-3xl md:text-4xl block mb-3">Get in Touch</span>
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.25em] text-white/80 mb-5">
+            <span className={`h-2 w-2 rounded-full ${liveChannelReady ? 'bg-green-400' : 'bg-white/50'}`} />
+            {liveChannelReady ? 'Live Support Channel Ready' : 'Connecting Support Channel'}
+          </div>
           <h1 className="font-['Playfair_Display'] text-4xl md:text-6xl font-bold text-white mb-4">
             {isAuthenticated ? 'Request a ' : 'Contact Our '}
             <span className="text-[#C1A27B]">{isAuthenticated ? 'Consultation' : 'Experts'}</span>

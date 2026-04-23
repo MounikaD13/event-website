@@ -3,7 +3,7 @@ const router = express.Router()
 const User = require("../models/Users")
 const authMiddleware = require("../middleware/middleware")
 const transporter = require("../utils/mail")
-const { getIo } = require("../utils/socket");
+const { emitToAdmins, emitToUser, getIo } = require("../utils/socket");
 
 // 1. GET ALL USER DATA (With simple search/filter)
 router.get("/admin/all-data", authMiddleware(["admin"]), async (req, res) => {
@@ -57,6 +57,7 @@ router.put("/admin/update-inquiry-status", authMiddleware(["admin"]), async (req
             }
 
             await user.save();
+            const latestBooking = user.bookings[user.bookings.length - 1];
 
             // #3: SEND PREMIUM STATUS EMAIL NOTIFICATION
             try {
@@ -102,6 +103,20 @@ router.put("/admin/update-inquiry-status", authMiddleware(["admin"]), async (req
                 console.error("Email notification failed:", mailErr);
             }
 
+            emitToAdmins("dashboard:inquiry-updated", {
+                userId: user._id.toString(),
+                userName: user.name,
+                inquiry,
+                booking: newStatus === "Confirmed" ? latestBooking : null,
+                timestamp: new Date()
+            });
+
+            emitToUser(user._id.toString(), "dashboard:inquiry-updated", {
+                inquiry,
+                booking: newStatus === "Confirmed" ? latestBooking : null,
+                timestamp: new Date()
+            });
+
             return res.status(200).json({ success: true, message: `Status updated to ${newStatus}`, user });
         }
         res.status(404).json({ success: false, message: "Inquiry not found" });
@@ -120,10 +135,20 @@ router.post("/admin/chat-reply", authMiddleware(["admin"]), async (req, res) => 
 
         user.chats.push({ sender: "Admin", message });
         await user.save();
+        const chat = user.chats[user.chats.length - 1];
 
         // --- REAL-TIME NOTIFICATION ---
         const io = getIo();
-        io.to(userId).emit("receive_message", { sender: "Admin", message, timestamp: new Date() });
+        const payload = {
+            userId: user._id.toString(),
+            userName: user.name,
+            chat,
+            timestamp: new Date()
+        };
+
+        io.to(`user:${userId}`).emit("receive_message", { sender: "Admin", message, timestamp: new Date() });
+        emitToUser(userId, "dashboard:chat-message", payload);
+        emitToAdmins("dashboard:chat-message", payload);
 
         res.status(200).json({ success: true, message: "Reply sent", chats: user.chats });
     } catch (err) {
@@ -137,6 +162,11 @@ router.delete("/admin/user/:id", authMiddleware(["admin"]), async (req, res) => 
     try {
         const user = await User.findByIdAndDelete(req.params.id);
         if (!user) return res.status(404).json({ success: false, message: "User not found" });
+        emitToAdmins("dashboard:user-deleted", {
+            userId: req.params.id,
+            userName: user.name,
+            timestamp: new Date()
+        });
         res.status(200).json({ success: true, message: "User deleted successfully" });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });

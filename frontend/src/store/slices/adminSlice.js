@@ -3,6 +3,7 @@ import api from '../../utils/api';
 
 const initialState = {
   users: [],
+  contacts: [],
   loading: false,
   error: null,
 };
@@ -44,6 +45,33 @@ export const deleteUser = createAsyncThunk('admin/deleteUser', async (id, { reje
   }
 });
 
+export const fetchAllContacts = createAsyncThunk('admin/fetchAllContacts', async (_, { rejectWithValue }) => {
+  try {
+    const { data } = await api.get('/contact/all');
+    return data.contacts;
+  } catch (err) {
+    return rejectWithValue(err.response?.data?.message || err.message || 'Failed to fetch contacts');
+  }
+});
+
+export const updateContactStatus = createAsyncThunk('admin/updateContactStatus', async ({ id, status, adminResponse }, { rejectWithValue }) => {
+  try {
+    const { data } = await api.put(`/contact/${id}`, { status, adminResponse });
+    return data.contact;
+  } catch (err) {
+    return rejectWithValue(err.response?.data?.message || err.message || 'Failed to update contact status');
+  }
+});
+
+export const deleteContact = createAsyncThunk('admin/deleteContact', async (id, { rejectWithValue }) => {
+  try {
+    await api.delete(`/contact/${id}`);
+    return id;
+  } catch (err) {
+    return rejectWithValue(err.response?.data?.message || err.message || 'Failed to delete contact');
+  }
+});
+
 const adminSlice = createSlice({
   name: 'admin',
   initialState,
@@ -80,6 +108,27 @@ const adminSlice = createSlice({
       })
       .addCase(deleteUser.fulfilled, (state, action) => {
         state.users = state.users.filter(u => u._id !== action.payload);
+      })
+      .addCase(fetchAllContacts.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAllContacts.fulfilled, (state, action) => {
+        state.loading = false;
+        state.contacts = action.payload;
+      })
+      .addCase(fetchAllContacts.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(updateContactStatus.fulfilled, (state, action) => {
+        const index = state.contacts.findIndex(c => c._id === action.payload._id);
+        if (index !== -1) {
+          state.contacts[index] = action.payload;
+        }
+      })
+      .addCase(deleteContact.fulfilled, (state, action) => {
+        state.contacts = state.contacts.filter(c => c._id !== action.payload);
       });
   },
 });
