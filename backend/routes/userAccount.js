@@ -7,7 +7,7 @@ const { emitToAdmins, emitToUser, getIo } = require("../utils/socket");
 
 // 1. GET FULL DASHBOARD DATA 
 router.get("/dashboard", authMiddleware(["user"]), async (req, res) => {
-    try { 
+    try {
         const user = await User.findById(req.user.id).select("-password");
         res.status(200).json({
             success: true,
@@ -62,7 +62,7 @@ router.post("/dashboard/inquiry", authMiddleware(["user"]), async (req, res) => 
 router.post("/dashboard/book-event", authMiddleware(["user"]), async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
-        
+
         user.bookings.push(req.body); // Pushes eventType, eventDate, venue
         await user.save();
 
@@ -117,11 +117,11 @@ router.post("/dashboard/chat", authMiddleware(["user"]), async (req, res) => {
 
         io.to("admins").emit("dashboard:chat-message", payload);
         emitToUser(user._id.toString(), "dashboard:chat-message", payload);
-        io.emit("admin_receive_message", { 
-            userId: user._id, 
-            userName: user.name, 
-            message, 
-            timestamp: new Date() 
+        io.emit("admin_receive_message", {
+            userId: user._id,
+            userName: user.name,
+            message,
+            timestamp: new Date()
         });
 
         res.status(200).json({ success: true, chats: user.chats });

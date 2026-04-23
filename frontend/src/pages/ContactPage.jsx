@@ -165,7 +165,7 @@ const ContactPage = () => {
                   <div>
                     <label className={labelCls}><Target className="w-3 h-3" /> Event Type</label>
                     <select name="eventType" value={inquiryForm.eventType} onChange={handleInquiryChange} className={inputCls}>
-                      {['Wedding','Birthday','Luxury Gala','Graduation','Anniversary','Other'].map(t => <option key={t} value={t}>{t}</option>)}
+                      {['Wedding', 'Birthday', 'Luxury Gala', 'Graduation', 'Anniversary', 'Other'].map(t => <option key={t} value={t}>{t}</option>)}
                     </select>
                   </div>
                   <div>
@@ -193,7 +193,7 @@ const ContactPage = () => {
                 <div className="mb-5">
                   <label className={labelCls}><HelpCircle className="w-3 h-3" /> How did you hear about us?</label>
                   <select name="referredBy" value={inquiryForm.referredBy} onChange={handleInquiryChange} className={inputCls}>
-                    {['Instagram','Facebook','Google','Friend','Other'].map(r => <option key={r} value={r}>{r === 'Google' ? 'Google Search' : r === 'Friend' ? 'A Friend' : r}</option>)}
+                    {['Instagram', 'Facebook', 'Google', 'Friend', 'Other'].map(r => <option key={r} value={r}>{r === 'Google' ? 'Google Search' : r === 'Friend' ? 'A Friend' : r}</option>)}
                   </select>
                 </div>
 

@@ -3,10 +3,10 @@ const router = express.Router();
 const Event = require("../models/Event");
 const authMiddleware = require("../middleware/middleware");
 const multer = require("multer");
-const { uploadImageStream, deleteImage } = require("../utils/GridFs");
+const { uploadImageStream, deleteImage } = require("../utils/gridFs");
 
 // Set up Multer for memory storage
-const storage = multer.memoryStorage(); 
+const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 // @route   POST /api/events
