@@ -160,12 +160,9 @@ export default function EventsPage() {
         </div>
       </section>
 
-      {loading && (
-        <div className="flex justify-center py-20">
-          <Loader2 className="animate-spin text-[#C29B5F]" size={40} />
-        </div>
-      )}
+//code for displaying events
 
+<<<<<<< HEAD
       {error && !loading && (
         <div className="max-w-7xl mx-auto px-4 pb-6">
           <div className="rounded-2xl border border-red-200 bg-red-50 text-red-700 px-4 py-3 text-sm">{error}</div>
@@ -258,6 +255,8 @@ export default function EventsPage() {
           </div>
         </div>
       )}
+=======
+>>>>>>> f8ffe44365293af76638de7b95b03f14e1a18ab3
     </div>
   );
 }

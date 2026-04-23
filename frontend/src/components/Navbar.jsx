@@ -76,8 +76,8 @@ export default function Navbar() {
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 border-b ${isScrolled
-          ? 'bg-[#FBF8F3]/95 backdrop-blur-xl border-[#E7DDCF] shadow-lg py-3 lg:py-4'
-          : 'bg-[#FBF8F3]/85 backdrop-blur-xl border-[#E7DDCF]/80 py-5 lg:py-6'
+        ? 'bg-[#FBF8F3]/95 backdrop-blur-xl border-[#E7DDCF] shadow-lg py-3 lg:py-4'
+        : 'bg-[#FBF8F3]/85 backdrop-blur-xl border-[#E7DDCF]/80 py-5 lg:py-6'
         }`}
     >
       <div className="max-w-[95rem] mx-auto px-4 sm:px-6 lg:px-16 xl:px-20">
@@ -101,8 +101,8 @@ export default function Navbar() {
                 key={link.name}
                 to={link.path}
                 className={`font-['Playfair_Display'] text-[15px] lg:text-[17px] transition-all duration-300 whitespace-nowrap ${location.pathname === link.path
-                    ? 'text-[#C29B5F]'
-                    : 'text-[#3F4A50] hover:text-[#C29B5F]'
+                  ? 'text-[#C29B5F]'
+                  : 'text-[#3F4A50] hover:text-[#C29B5F]'
                   }`}
               >
                 {link.name}
@@ -251,8 +251,8 @@ export default function Navbar() {
               to={link.path}
               onClick={() => setMobileOpen(false)}
               className={`font-['Playfair_Display'] text-lg py-3.5 px-3 rounded-xl transition-all ${location.pathname === link.path
-                  ? 'text-[#C1A27B] bg-[#C1A27B]/10'
-                  : 'text-[#3F4A50] hover:text-[#252938] hover:bg-[#FAF6EF]'
+                ? 'text-[#C1A27B] bg-[#C1A27B]/10'
+                : 'text-[#3F4A50] hover:text-[#252938] hover:bg-[#FAF6EF]'
                 }`}
             >
               {link.name}

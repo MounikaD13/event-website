@@ -427,8 +427,8 @@ export default function AdminDashboard() {
                     animate={{ opacity: 1, scale: 1, x: 0 }}
                     exit={{ opacity: 0, scale: 0.8 }}
                     className={`relative min-w-[320px] overflow-hidden rounded-[1.75rem] border p-6 shadow-xl ${act.isRealtime
-                      ? 'border-emerald-500/20 bg-emerald-500/5'
-                      : 'border-[#E8E1D5] bg-white'
+                        ? 'border-emerald-500/20 bg-emerald-500/5'
+                        : 'border-[#E8E1D5] bg-white'
                       }`}
                   >
                     {act.isRealtime && (
@@ -469,8 +469,8 @@ export default function AdminDashboard() {
                   setExpandedItem(null);
                 }}
                 className={`flex-1 sm:flex-none rounded-xl px-6 lg:px-8 py-3 text-[10px] sm:text-sm font-bold uppercase tracking-widest transition-all ${activeTab === tab
-                  ? 'bg-[#C1A27B] text-white shadow-lg'
-                  : 'text-[#667280] hover:text-[#C1A27B]'
+                    ? 'bg-[#C1A27B] text-white shadow-lg'
+                    : 'text-[#667280] hover:text-[#C1A27B]'
                   }`}
               >
                 {tab === 'clients' ? 'Registered Clients' : 'Guest Inquiries'}
@@ -533,8 +533,8 @@ export default function AdminDashboard() {
                         <td className="px-4 sm:px-8 py-6" onClick={() => toggleExpand(item._id)}>
                           <div className="flex items-center gap-3 sm:gap-4">
                             <div className={`flex h-10 w-10 sm:h-14 sm:w-14 shrink-0 items-center justify-center rounded-xl sm:rounded-2xl border-2 border-white font-serif text-base sm:text-xl font-bold shadow-lg transition-transform group-hover:scale-110 ${activeTab === 'clients'
-                              ? 'bg-emerald-500/10 text-emerald-600'
-                              : 'bg-[#C1A27B]/10 text-[#C1A27B]'
+                                ? 'bg-emerald-500/10 text-emerald-600'
+                                : 'bg-[#C1A27B]/10 text-[#C1A27B]'
                               }`}>
                               {(item.name || item.fullName)?.charAt(0)}
                             </div>
@@ -600,8 +600,8 @@ export default function AdminDashboard() {
                             <button
                               onClick={() => toggleExpand(item._id)}
                               className={`rounded-xl sm:rounded-2xl border p-2 sm:p-3 transition-all ${expandedItem === item._id
-                                ? 'border-[#C1A27B] bg-[#C1A27B] text-white shadow-lg'
-                                : 'border-[#E8E1D5] bg-white text-[#667280] hover:border-[#C1A27B] hover:text-[#C1A27B]'
+                                  ? 'border-[#C1A27B] bg-[#C1A27B] text-white shadow-lg'
+                                  : 'border-[#E8E1D5] bg-white text-[#667280] hover:border-[#C1A27B] hover:text-[#C1A27B]'
                                 }`}
                             >
                               {expandedItem === item._id ? <ChevronUp className="h-4 w-4 sm:h-5 sm:w-5" /> : <ChevronDown className="h-4 w-4 sm:h-5 sm:w-5" />}
@@ -690,8 +690,8 @@ export default function AdminDashboard() {
                                                       }
                                                     }}
                                                     className={`flex-1 sm:flex-none rounded-xl border px-3 sm:px-5 py-2.5 text-[8px] sm:text-[10px] font-bold uppercase tracking-widest transition-all ${inq.status === status
-                                                      ? 'scale-105 border-[#C1A27B] bg-[#C1A27B] text-white shadow-lg'
-                                                      : 'border-[#E8E1D5] bg-white text-[#667280] hover:border-[#C1A27B] hover:bg-[#C1A27B]/5 hover:text-[#C1A27B]'
+                                                        ? 'scale-105 border-[#C1A27B] bg-[#C1A27B] text-white shadow-lg'
+                                                        : 'border-[#E8E1D5] bg-white text-[#667280] hover:border-[#C1A27B] hover:bg-[#C1A27B]/5 hover:text-[#C1A27B]'
                                                       }`}
                                                   >
                                                     {status}
@@ -721,8 +721,8 @@ export default function AdminDashboard() {
                                             item.chats.map((chat, idx) => (
                                               <div key={idx} className={`flex ${chat.sender === 'Admin' ? 'justify-end' : 'justify-start'}`}>
                                                 <div className={`max-w-[80%] rounded-3xl p-5 text-sm ${chat.sender === 'Admin'
-                                                  ? 'rounded-tr-none bg-[#C1A27B] text-white shadow-xl shadow-[#C1A27B]/10'
-                                                  : 'rounded-tl-none border border-[#E8E1D5] bg-[#FBF8F3] text-[#2F3742]'
+                                                    ? 'rounded-tr-none bg-[#C1A27B] text-white shadow-xl shadow-[#C1A27B]/10'
+                                                    : 'rounded-tl-none border border-[#E8E1D5] bg-[#FBF8F3] text-[#2F3742]'
                                                   }`}>
                                                   <div className="mb-2 flex items-center justify-between gap-4">
                                                     <span className={`text-[9px] font-bold uppercase tracking-widest ${chat.sender === 'Admin' ? 'text-[#FBF8F3]' : 'text-[#C1A27B]'
