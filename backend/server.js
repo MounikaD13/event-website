@@ -40,4 +40,4 @@ app.use("/api", userAccountRoutes)
 app.use("/api", adminDashboardRoutes)
 app.use("/api", imageRoutes)
 
-server.listen(process.env.PORT, () => { console.log("server started successfully") })
+app.listen(process.env.PORT, () => { console.log("server started successfully") })

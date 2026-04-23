@@ -19,11 +19,9 @@ const userLinks = [
 ];
 
 const adminLinks = [
-  { name: 'Events', path: '/events' },
-  { name: 'Business', path: '/business' },
-  { name: 'Contact Us', path: '/contact' },
   { name: 'Dashboard', path: '/admin/dashboard' },
   { name: 'Manage Events', path: '/admin/events' },
+  { name: 'Events', path: '/events' },
 ];
 
 export default function Navbar() {

@@ -35,20 +35,13 @@ export default function Footer() {
             <h3 className="font-['Playfair_Display'] text-2xl sm:text-3xl text-black mb-2">Join our Insider List</h3>
             <p className="text-black/70 text-sm leading-relaxed">Subscribe for exclusive access to hidden venues, event trends, and luxury inspiration straight to your inbox.</p>
           </div>
-          <div className="w-full lg:w-auto lg:flex-1 lg:max-w-md">
-            <form className="flex flex-col sm:flex-row items-stretch gap-3 w-full" onSubmit={(e) => e.preventDefault()}>
-              <input
-                type="email"
-                placeholder="Enter your email address"
-                className="flex-1 min-w-0 bg-white border border-[#EBE5DA] rounded-full py-3.5 px-6 text-sm text-black placeholder-black/50 focus:outline-none focus:border-[#C1A27B] transition-colors shadow-sm"
-              />
-              <button
-                type="submit"
-                className="shrink-0 flex items-center justify-center gap-2 px-6 py-3.5 bg-[#C1A27B] hover:bg-[#b0916a] text-white rounded-full text-sm font-semibold tracking-wide transition-colors whitespace-nowrap"
-              >
-                Subscribe <ArrowRight className="w-4 h-4" />
-              </button>
-            </form>
+          <div className="w-full lg:w-auto lg:flex-1 lg:max-w-md flex justify-center lg:justify-end">
+            <Link
+              to="/contact"
+              className="shrink-0 flex items-center justify-center gap-2 px-10 py-4 bg-[#C1A27B] hover:bg-[#b0916a] text-white rounded-full text-sm font-semibold tracking-wide transition-all shadow-lg hover:scale-105"
+            >
+              Contact Us <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
         </div>
       </div>
