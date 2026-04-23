@@ -26,7 +26,7 @@ export const eventsData = [
     rating: 5.0,
     reviews: 89,
     description: 'Exchange vows on a breathtaking clifftop overlooking the Aegean Sea with iconic white-and-blue architecture all around.',
-    image: '/images/event_santorini_wedding.jpg',
+    image: '/images/event_tuscany_wedding.jpg',
     destination: 'santorini',
   },
   {
@@ -116,7 +116,7 @@ export const eventsData = [
     rating: 4.8,
     reviews: 61,
     description: 'Ring in the New Year with a spectacular private island party under the stars in the crystal-clear Maldivian waters.',
-    image: '/images/event_maldives_party.jpg',
+    image: '/images/event_maldives_retreat.jpg',
     destination: 'maldives',
   },
 ];
@@ -135,7 +135,7 @@ export const destinations = [
     name: 'Santorini, Greece',
     tagline: 'Clifftop Paradise',
     eventsCount: 32,
-    image: '/images/dest_santorini.jpg',
+    image: '/images/dest_paris.jpg',
     dest: 'santorini',
   },
   {
@@ -178,7 +178,7 @@ export const testimonials = [
     name: 'Sarah & Michael Chen',
     event: 'Beach Wedding - Bali',
     text: 'Overseas Events made our dream wedding a reality. Every detail was perfect — from the floral arrangements to the sunset ceremony. We couldn\'t have asked for more.',
-    avatar: '/images/avatar_sarah.jpg',
+    avatar: '/images/avatar_emma.jpg',
     rating: 5,
   },
   {
@@ -210,11 +210,11 @@ export const testimonials = [
 export const heroSlides = [
   {
     id: 1,
-    cursiveTitle: 'your dream',
-    mainTitle: 'WEDDING',
+    cursiveTitle: 'Make Your Dream',
+    mainTitle: 'WEDDING A REALITY',
     image: '/images/hero_wedding_aesthetic.png',
     cta: 'Plan Your Wedding',
-    ctaPath: '/events?type=wedding',
+    ctaPath: '/events?type=weddings',
   },
   {
     id: 2,
@@ -222,7 +222,7 @@ export const heroSlides = [
     mainTitle: 'EXCELLENCE',
     image: '/images/hero_corporate_aesthetic.png',
     cta: 'Book a Retreat',
-    ctaPath: '/events?type=corporate',
+    ctaPath: '/events?type=bussiness',
   },
   {
     id: 3,
@@ -230,7 +230,7 @@ export const heroSlides = [
     mainTitle: 'INDIAN WEDDING',
     image: '/images/hero_indian_wedding.png',
     cta: 'Plan Your Shaadi',
-    ctaPath: '/events?type=wedding',
+    ctaPath: '/events?type=weddings',
   },
   {
     id: 4,
@@ -238,6 +238,6 @@ export const heroSlides = [
     mainTitle: 'BIRTHDAY PARTY',
     image: '/images/hero_birthday_party.png',
     cta: 'Celebrate With Us',
-    ctaPath: '/events?type=party',
+    ctaPath: '/events?type=birthdays',
   },
 ];

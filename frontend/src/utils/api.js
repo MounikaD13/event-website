@@ -1,11 +1,49 @@
-import axios from 'axios';
+import axios from 'axios'
 
-const api = axios.create({
-  baseURL: 'http://localhost:5000/api',
-  withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+export const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api"
 
-export default api;
+const instance = axios.create({
+    baseURL: BASE_URL,
+    withCredentials: true
+})
+
+instance.interceptors.request.use((config) => {
+    const token = localStorage.getItem("token")
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`
+    }
+    return config
+})
+
+instance.interceptors.response.use(
+    res => res,
+    async error => {
+        const originalRequest = error.config
+
+        // Retrying on 401 (Standard for Unauthorized/Expired)
+        if (error.response?.status === 401 && !originalRequest._retry) {
+            originalRequest._retry = true
+            try {
+                const { data } = await axios.post(`${BASE_URL}/refresh-token`, {}, {
+                    withCredentials: true
+                })
+
+                localStorage.setItem("token", data.accessToken)
+
+                // Update header and retry
+                originalRequest.headers.Authorization = `Bearer ${data.accessToken}`
+                return instance(originalRequest)
+            } catch (err) {
+                // If refresh fails, sign out
+                localStorage.removeItem("token")
+                localStorage.removeItem("eventUser")
+                localStorage.removeItem("eventRole")
+                window.location.href = "/signin"
+                return Promise.reject(err)
+            }
+        }
+        return Promise.reject(error)
+    }
+)
+
+export default instance

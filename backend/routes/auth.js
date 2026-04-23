@@ -284,16 +284,16 @@ router.post("/refresh-token", async (req, res) => {
         return res.status(401).json({ "message": "invalid refresh token" })
     }
 })
-router.post("/admin/reg",async(req,res)=>{
+router.post("/admin/reg", async (req, res) => {
     try {
         const { name, email, password } = req.body
         // console.log("*******************",name,email,password)
-        if (!email || !password ||!name) {
+        if (!email || !password || !name) {
             return res.status(400).json({ message: "All fields are required" })
         }
         const hashedPassword = await bcrypt.hash(password, 10)
-        const admin= new Admin({
-            name,email, password:hashedPassword
+        const admin = new Admin({
+            name, email, password: hashedPassword
         })
         await admin.save()
         res.status(201).json({ message: "User registered successfully" })

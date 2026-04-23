@@ -1,9 +1,15 @@
 require("dotenv").config();
-const { initGridFS } = require("./utils/GridFs");
+const { initGridFS } = require("./utils/gridFs");
 const mongoose = require("mongoose")
 const cors = require("cors")
 const express = require("express")
+const http = require("http");
 const app = express()
+const server = http.createServer(app);
+const { initSocket } = require("./utils/socket");
+
+// Initialize Socket.io
+initSocket(server);
 const authRoutes = require("./routes/auth")
 const contactRoutes = require("./routes/contact")
 const eventRoutes = require("./routes/events")

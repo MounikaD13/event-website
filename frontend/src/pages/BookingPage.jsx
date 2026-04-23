@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import {
   Calendar, MapPin, Users, DollarSign, CheckCircle2,
   ArrowLeft, Clock, Star, Sparkles, CreditCard, Info
 } from 'lucide-react';
-import { eventsData } from '../data/events';
+import { submitInquiry } from '../store/slices/userAccountSlice';
 import toast from 'react-hot-toast';
 
 const packages = [
@@ -34,17 +34,34 @@ const packages = [
 
 export default function BookingPage() {
   const { user } = useSelector((state) => state.auth);
+  const { loading } = useSelector((state) => state.userAccount);
+  const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
   const eventFromState = location.state?.event;
-  const [selectedEvent, setSelectedEvent] = useState(eventFromState || eventsData[0]);
+
+  // If no event was passed, redirect back
+  if (!eventFromState) {
+    return (
+      <div className="min-h-screen bg-[#FAF9F6] pt-20 flex items-center justify-center px-4">
+        <div className="max-w-md w-full text-center">
+          <h1 className="font-['Playfair_Display'] text-3xl font-bold text-[#4A4F4D] mb-3">No Event Selected</h1>
+          <p className="text-[#4A4F4D]/60 mb-6">Please select an event from our gallery to begin booking.</p>
+          <Link to="/events" className="inline-block px-8 py-3 rounded-xl btn-pastel text-sm font-bold">
+            Browse Events
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const [selectedEvent] = useState(eventFromState);
   const [selectedPackage, setSelectedPackage] = useState('premium');
-  const [step, setStep] = useState(0);
-  const [loading, setLoading] = useState(false);
   const [booked, setBooked] = useState(false);
   const [form, setForm] = useState({
     guests: '',
     date: selectedEvent?.date || '',
+    phone: '',
     specialRequests: '',
   });
 
@@ -52,11 +69,22 @@ export default function BookingPage() {
 
   const handleConfirm = async () => {
     if (!form.guests) { toast.error('Please enter expected guest count'); return; }
-    setLoading(true);
-    await new Promise((r) => setTimeout(r, 1800));
-    setLoading(false);
-    setBooked(true);
-    toast.success('Booking confirmed! Our team will contact you shortly.');
+    try {
+      await dispatch(submitInquiry({
+        eventType: selectedEvent.type || selectedEvent.category || 'Event',
+        eventDate: form.date || selectedEvent.date,
+        guestCount: parseInt(form.guests),
+        phone: form.phone || 'Not Provided',
+        referredBy: 'Website Booking Flow',
+        budgetRange: selectedEvent.price || 'To be discussed',
+        location: selectedEvent.location,
+        message: form.specialRequests || `Booking request for ${selectedEvent.title} - ${selectedPackage} package.`,
+      })).unwrap();
+      setBooked(true);
+      toast.success('Booking confirmed! Our team will contact you shortly.');
+    } catch (err) {
+      toast.error(err || 'Failed to submit booking. Please try again.');
+    }
   };
 
   if (booked) {
@@ -92,8 +120,8 @@ export default function BookingPage() {
             <Link to="/events" className="flex-1 py-3 rounded-xl glass border border-[#A3B19B]/20 text-[#A3B19B] text-sm font-semibold text-center hover:border-[#A3B19B]/50 transition-all">
               Browse More
             </Link>
-            <Link to="/contact" className="flex-1 py-3 rounded-xl btn-pastel text-sm font-bold text-center flex items-center justify-center gap-1.5">
-              Contact Us <Sparkles className="w-4 h-4" />
+            <Link to="/dashboard" className="flex-1 py-3 rounded-xl btn-pastel text-sm font-bold text-center flex items-center justify-center gap-1.5">
+              My Dashboard <Sparkles className="w-4 h-4" />
             </Link>
           </div>
         </div>
@@ -118,20 +146,24 @@ export default function BookingPage() {
             {/* Event Card Preview */}
             <div className="glass rounded-2xl border border-[#A3B19B]/15 overflow-hidden">
               <div className="relative h-56">
-                <img src={selectedEvent.image} alt={selectedEvent.title} className="w-full h-full object-cover" />
+                <img src={selectedEvent.image} alt={selectedEvent.title} className="w-full h-full object-cover"
+                  onError={(e) => { e.currentTarget.src = '/images/events_gallery_bg.png'; }}
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#FAF9F6]/90 to-transparent" />
                 <div className="absolute bottom-0 left-0 p-5">
                   <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-[#A3B19B] text-white mb-2 inline-block">
-                    {selectedEvent.type}
+                    {selectedEvent.type || selectedEvent.category}
                   </span>
                   <h1 className="font-['Playfair_Display'] text-2xl font-bold text-[#4A4F4D]">{selectedEvent.title}</h1>
                   <div className="flex items-center gap-4 mt-1">
                     <span className="flex items-center gap-1.5 text-xs text-[#4A4F4D]/70">
                       <MapPin className="w-3.5 h-3.5 text-[#A3B19B]" /> {selectedEvent.location}
                     </span>
-                    <span className="flex items-center gap-1.5 text-xs text-[#4A4F4D]/70">
-                      <Star className="w-3.5 h-3.5 fill-[#A3B19B] text-[#A3B19B]" /> {selectedEvent.rating} ({selectedEvent.reviews})
-                    </span>
+                    {selectedEvent.rating && (
+                      <span className="flex items-center gap-1.5 text-xs text-[#4A4F4D]/70">
+                        <Star className="w-3.5 h-3.5 fill-[#A3B19B] text-[#A3B19B]" /> {selectedEvent.rating} ({selectedEvent.reviews})
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
@@ -199,10 +231,10 @@ export default function BookingPage() {
                       onChange={handleChange}
                       placeholder="Expected number of guests"
                       min="1"
-                      max={selectedEvent.capacity}
+                      max={selectedEvent.capacity || selectedEvent.totalTickets}
                       className="w-full px-4 py-3 bg-[#FAF9F6]/60 border border-[#A3B19B]/20 rounded-xl text-[#4A4F4D] text-sm placeholder:text-[#4A4F4D]/30 transition-all"
                     />
-                    <p className="text-xs text-[#4A4F4D]/30 mt-1">Max capacity: {selectedEvent.capacity} guests</p>
+                    <p className="text-xs text-[#4A4F4D]/30 mt-1">Max capacity: {selectedEvent.capacity || selectedEvent.totalTickets} guests</p>
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-[#4A4F4D]/60 mb-2 uppercase tracking-wider">
@@ -214,7 +246,6 @@ export default function BookingPage() {
                       value={form.date}
                       onChange={handleChange}
                       className="w-full px-4 py-3 bg-[#FAF9F6]/60 border border-[#A3B19B]/20 rounded-xl text-[#4A4F4D] text-sm transition-all"
-                      style={{ colorScheme: 'dark' }}
                     />
                   </div>
                 </div>

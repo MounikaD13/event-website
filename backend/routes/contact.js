@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const Contact = require("../models/Contact");
 const authMiddleware = require("../middleware/middleware");
+const transporter = require("../utils/mail");
+const { emitToAdmins } = require("../utils/socket");
 
 router.post("/contact", async (req, res) => {
     try {
@@ -19,9 +21,14 @@ router.post("/contact", async (req, res) => {
 
         await newContact.save();
 
-        res.status(201).json({ 
-            success: true, 
-            message: "Contact form submitted successfully! We will get back to you soon." 
+        emitToAdmins("contact:created", {
+            contact: newContact,
+            timestamp: new Date()
+        });
+
+        res.status(201).json({
+            success: true,
+            message: "Contact form submitted successfully! We will get back to you soon."
         });
     } catch (err) {
         console.error("Error in contact route:", err);
@@ -37,7 +44,6 @@ router.get("/contact/all", authMiddleware(["admin"]), async (req, res) => {
         res.status(500).json({ success: false, message: err.message });
     }
 });
-
 // Update contact status and send email notification
 router.put("/contact/:id", authMiddleware(["admin"]), async (req, res) => {
     try {
@@ -52,6 +58,11 @@ router.put("/contact/:id", authMiddleware(["admin"]), async (req, res) => {
         if (!updatedContact) {
             return res.status(404).json({ success: false, message: "Contact not found" });
         }
+
+        emitToAdmins("contact:updated", {
+            contact: updatedContact,
+            timestamp: new Date()
+        });
 
         // --- SEND STYLED EMAIL NOTIFICATION ---
         try {
@@ -115,9 +126,16 @@ router.delete("/contact/:id", authMiddleware(["admin"]), async (req, res) => {
             return res.status(404).json({ success: false, message: "Contact not found" });
         }
 
+        emitToAdmins("contact:deleted", {
+            contactId: req.params.id,
+            timestamp: new Date()
+        });
+
         res.status(200).json({ success: true, message: "Contact deleted successfully" });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
 });
+
+
 module.exports = router;
