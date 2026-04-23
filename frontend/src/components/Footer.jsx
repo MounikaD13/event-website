@@ -108,15 +108,15 @@ export default function Footer() {
             <ul className="space-y-5 text-sm text-black/70">
               <li className="flex flex-col sm:flex-row items-center sm:items-start gap-3">
                 <MapPin className="w-4 h-4 text-[#C1A27B] mt-0.5" />
-                <span>123 Elite Horizon Blvd,<br />Suite 400, New York, NY 10001</span>
+                <span>123 Luxury Lane, Mayfair, London</span>
               </li>
               <li className="flex flex-col sm:flex-row items-center sm:items-start gap-3">
                 <Phone className="w-4 h-4 text-[#C1A27B]" />
-                <a href="tel:+18886837472" className="hover:text-[#C1A27B] transition-colors">+1 (888) OVERSEAS</a>
+                <a href="tel:+12345678901" className="hover:text-[#C1A27B] transition-colors">+1 (234) 567-8901</a>
               </li>
               <li className="flex flex-col sm:flex-row items-center sm:items-start gap-3">
                 <Mail className="w-4 h-4 text-[#C1A27B]" />
-                <a href="mailto:hello@overseas.events" className="hover:text-[#C1A27B] transition-colors">hello@overseas.events</a>
+                <a href="mailto:concierge@elysium.events" className="hover:text-[#C1A27B] transition-colors">concierge@elysium.events</a>
               </li>
             </ul>
           </div>

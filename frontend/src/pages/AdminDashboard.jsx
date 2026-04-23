@@ -773,6 +773,12 @@ export default function AdminDashboard() {
                                                 onChange={(e) => setAdminResponseText((prev) => ({ ...prev, [item._id]: e.target.value }))}
                                                 className="w-full resize-none rounded-2xl border border-[#E8E1D5] bg-white p-5 text-sm font-medium shadow-inner transition-all focus:border-[#C1A27B] focus:outline-none focus:ring-4 focus:ring-[#C1A27B]/10"
                                               />
+                                              <button
+                                                onClick={() => handleContactStatusUpdate(item._id, item.status || 'Checked')}
+                                                className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#C1A27B] px-8 py-4 text-xs font-bold uppercase tracking-widest text-white shadow-xl transition-all active:scale-95 hover:brightness-110"
+                                              >
+                                                SEND RESPONSE <Send className="h-4 w-4" />
+                                              </button>
                                             </div>
                                             <div className="flex items-center gap-3 rounded-xl border border-[#E8E1D5] bg-white p-4 text-xs font-bold text-[#667280]">
                                               <Bell className="h-4 w-4 text-[#C1A27B]" />
