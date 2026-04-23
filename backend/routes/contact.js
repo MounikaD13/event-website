@@ -54,6 +54,7 @@ router.put("/contact/:id", authMiddleware(["admin"]), async (req, res) => {
             { status, adminResponse },
             { new: true }
         );
+
         if (!updatedContact) {
             return res.status(404).json({ success: false, message: "Contact not found" });
         }
@@ -62,6 +63,7 @@ router.put("/contact/:id", authMiddleware(["admin"]), async (req, res) => {
             contact: updatedContact,
             timestamp: new Date()
         });
+
         // --- SEND STYLED EMAIL NOTIFICATION ---
         try {
             await transporter.sendMail({
@@ -128,9 +130,12 @@ router.delete("/contact/:id", authMiddleware(["admin"]), async (req, res) => {
             contactId: req.params.id,
             timestamp: new Date()
         });
+
         res.status(200).json({ success: true, message: "Contact deleted successfully" });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
 });
+
+
 module.exports = router;
