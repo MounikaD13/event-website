@@ -19,9 +19,9 @@ router.post("/contact", async (req, res) => {
 
         await newContact.save();
 
-        res.status(201).json({ 
-            success: true, 
-            message: "Contact form submitted successfully! We will get back to you soon." 
+        res.status(201).json({
+            success: true,
+            message: "Contact form submitted successfully! We will get back to you soon."
         });
     } catch (err) {
         console.error("Error in contact route:", err);

@@ -30,7 +30,6 @@ export default function EventsPage() {
   const [selectedType, setSelectedType] = useState("All");
   const [filtered, setFiltered] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const [ticketCount, setTicketCount] = useState(1);
   const [selectedDestination, setSelectedDestination] = useState("");
 
   useEffect(() => {
@@ -92,27 +91,15 @@ export default function EventsPage() {
     [allEvents]
   );
 
-  const handleBooking = () => {
-    if (!selectedEvent || ticketCount < 1) return;
-    if (ticketCount > selectedEvent.available) {
-      toast.error("Not enough seats available");
-      return;
-    }
-    if (!user) {
-      toast("Please sign in to continue booking", { id: "signin-required" });
-      navigate("/signin");
-      return;
-    }
-    navigate("/booking", {
+  const handleEnquiry = () => {
+    if (!selectedEvent) return;
+    navigate("/contact", {
       state: {
-        event: {
-          ...selectedEvent,
-          capacity: selectedEvent.totalTickets || selectedEvent.available + (selectedEvent.booked || 0),
-        },
+        subject: `Enquiry for ${selectedEvent.title}`,
+        message: `I'm interested in the ${selectedEvent.title} event at ${selectedEvent.location}. Please provide more details.`
       },
     });
     setSelectedEvent(null);
-    setTicketCount(1);
   };
 
   const noResults = useMemo(() => !loading && filtered.length === 0, [loading, filtered.length]);
@@ -264,12 +251,9 @@ export default function EventsPage() {
               <span className="inline-flex items-center gap-1.5"><Calendar size={14} />{selectedEvent.date}</span>
               <span className="text-[#C29B5F] font-bold">{selectedEvent.price}</span>
             </div>
-            <div className="mt-4">
-              <p className="text-sm mb-1 inline-flex items-center gap-1.5"><Users size={14} />Available Seats: {selectedEvent.available}</p>
-              <input type="number" min="1" max={selectedEvent.available} value={ticketCount} onChange={(e) => setTicketCount(Number(e.target.value))} className="border border-[#E7DDCF] p-2.5 w-full rounded-lg" />
-            </div>
-            <button onClick={handleBooking} className="w-full mt-5 btn-earthy py-3 rounded-xl font-semibold tracking-wide">
-              {user ? "Continue Booking" : "Sign In to Book"}
+
+            <button onClick={handleEnquiry} className="w-full mt-5 btn-earthy py-3 rounded-xl font-semibold tracking-wide">
+              Enquire Now
             </button>
           </div>
         </div>

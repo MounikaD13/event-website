@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import {
   Mail, Phone, MapPin, Send, MessageSquare, User, Calendar,
   Users, Target, DollarSign, HelpCircle, Sparkles, Clock, Globe
@@ -8,6 +8,7 @@ import {
 import { submitInquiry } from '../store/slices/userAccountSlice';
 import api from '../utils/api';
 import toast from 'react-hot-toast';
+import { createSocket } from '../utils/socket';
 
 const ContactPage = () => {
   const dispatch = useDispatch();
@@ -15,14 +16,45 @@ const ContactPage = () => {
   const { user } = useSelector((state) => state.auth);
   const isAuthenticated = !!user;
 
+  const location = useLocation();
   const [inquiryForm, setInquiryForm] = useState({
     eventType: 'Wedding', eventDate: '', guestCount: '', phone: '',
     referredBy: 'Other', budgetRange: '', location: '',
     estimatedDuration: '', specificServices: '', isFlexibleDate: false, message: '',
   });
 
+  useEffect(() => {
+    if (location.state?.message) {
+      setInquiryForm(prev => ({
+        ...prev,
+        message: location.state.message
+      }));
+    }
+  }, [location.state]);
+
   const [contactForm, setContactForm] = useState({ fullName: '', email: '', message: '' });
   const [contactLoading, setContactLoading] = useState(false);
+  const [liveChannelReady, setLiveChannelReady] = useState(false);
+
+  useEffect(() => {
+    const socket = createSocket();
+
+    const handleConnect = () => setLiveChannelReady(true);
+    const handleDisconnect = () => setLiveChannelReady(false);
+
+    socket.on('connect', handleConnect);
+    socket.on('disconnect', handleDisconnect);
+
+    if (socket.connected) {
+      setLiveChannelReady(true);
+    }
+
+    return () => {
+      socket.off('connect', handleConnect);
+      socket.off('disconnect', handleDisconnect);
+      socket.disconnect();
+    };
+  }, []);
 
   const handleInquiryChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -63,6 +95,10 @@ const ContactPage = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/70" />
         <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
           <span className="font-cursive text-[#C1A27B] text-3xl md:text-4xl block mb-3">Get in Touch</span>
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.25em] text-white/80 mb-5">
+            <span className={`h-2 w-2 rounded-full ${liveChannelReady ? 'bg-green-400' : 'bg-white/50'}`} />
+            {liveChannelReady ? 'Live Support Channel Ready' : 'Connecting Support Channel'}
+          </div>
           <h1 className="font-['Playfair_Display'] text-4xl md:text-6xl font-bold text-white mb-4">
             {isAuthenticated ? 'Request a ' : 'Contact Our '}
             <span className="text-[#C1A27B]">{isAuthenticated ? 'Consultation' : 'Experts'}</span>
@@ -86,8 +122,8 @@ const ContactPage = () => {
               <div className="space-y-5">
                 {[
                   { icon: Mail, label: 'Email', value: 'concierge@elysium.events' },
-                  { icon: Phone, label: 'Call Us', value: '+1 (234) 567-8901' },
-                  { icon: MapPin, label: 'Visit Us', value: '123 Luxury Lane, Mayfair, London' },
+                  { icon: Phone, label: 'Call Us', value: '+91 (80) 4567 8901' },
+                  { icon: MapPin, label: 'Visit Us', value: 'Level 4, Prestige Trade Tower, Bengaluru, KA 560001' },
                   { icon: Clock, label: 'Hours', value: 'Mon–Sat: 9AM – 7PM' },
                 ].map(({ icon: Icon, label, value }) => (
                   <div key={label} className="flex items-start gap-4">
@@ -129,7 +165,7 @@ const ContactPage = () => {
                   <div>
                     <label className={labelCls}><Target className="w-3 h-3" /> Event Type</label>
                     <select name="eventType" value={inquiryForm.eventType} onChange={handleInquiryChange} className={inputCls}>
-                      {['Wedding','Birthday','Corporate','Graduation','Anniversary','Other'].map(t => <option key={t} value={t}>{t}</option>)}
+                      {['Wedding','Birthday','Luxury Gala','Graduation','Anniversary','Other'].map(t => <option key={t} value={t}>{t}</option>)}
                     </select>
                   </div>
                   <div>

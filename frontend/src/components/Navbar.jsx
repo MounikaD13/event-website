@@ -75,11 +75,10 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 border-b ${
-        isScrolled
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 border-b ${isScrolled
           ? 'bg-[#FBF8F3]/95 backdrop-blur-xl border-[#E7DDCF] shadow-lg py-3 lg:py-4'
           : 'bg-[#FBF8F3]/85 backdrop-blur-xl border-[#E7DDCF]/80 py-5 lg:py-6'
-      }`}
+        }`}
     >
       <div className="max-w-[95rem] mx-auto px-4 sm:px-6 lg:px-16 xl:px-20">
         <div className="flex items-center justify-between">
@@ -101,11 +100,10 @@ export default function Navbar() {
               <Link
                 key={link.name}
                 to={link.path}
-                className={`font-['Playfair_Display'] text-[15px] lg:text-[17px] transition-all duration-300 whitespace-nowrap ${
-                  location.pathname === link.path
+                className={`font-['Playfair_Display'] text-[15px] lg:text-[17px] transition-all duration-300 whitespace-nowrap ${location.pathname === link.path
                     ? 'text-[#C29B5F]'
                     : 'text-[#3F4A50] hover:text-[#C29B5F]'
-                }`}
+                  }`}
               >
                 {link.name}
               </Link>
@@ -155,12 +153,6 @@ export default function Navbar() {
                     <div className="p-2">
                       {!isAdmin && (
                         <>
-                          <Link
-                            to="/profile"
-                            className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-[#4F5968] hover:text-[#252938] hover:bg-[#FAF6EF] transition-all"
-                          >
-                            <User className="w-4 h-4 text-[#C29B5F]" /> My Profile
-                          </Link>
                           <Link
                             to="/dashboard"
                             className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-[#4F5968] hover:text-[#252938] hover:bg-[#FAF6EF] transition-all"
@@ -235,9 +227,8 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       <div
-        className={`lg:hidden transition-all duration-300 overflow-hidden ${
-          mobileOpen ? 'max-h-[700px] border-t border-white/10 mt-3' : 'max-h-0'
-        }`}
+        className={`lg:hidden transition-all duration-300 overflow-hidden ${mobileOpen ? 'max-h-[700px] border-t border-white/10 mt-3' : 'max-h-0'
+          }`}
       >
         <div className="bg-[#FBF8F3] backdrop-blur-xl px-6 py-6 flex flex-col gap-1">
           {/* User Info (mobile) */}
@@ -259,11 +250,10 @@ export default function Navbar() {
               key={link.name}
               to={link.path}
               onClick={() => setMobileOpen(false)}
-              className={`font-['Playfair_Display'] text-lg py-3.5 px-3 rounded-xl transition-all ${
-                location.pathname === link.path
+              className={`font-['Playfair_Display'] text-lg py-3.5 px-3 rounded-xl transition-all ${location.pathname === link.path
                   ? 'text-[#C1A27B] bg-[#C1A27B]/10'
                   : 'text-[#3F4A50] hover:text-[#252938] hover:bg-[#FAF6EF]'
-              }`}
+                }`}
             >
               {link.name}
             </Link>
@@ -273,15 +263,6 @@ export default function Navbar() {
           <div className="pt-4 mt-3 border-t border-[#E7DDCF] flex flex-col gap-1">
             {isAuthenticated ? (
               <>
-                {!isAdmin && (
-                  <Link
-                    to="/profile"
-                    onClick={() => setMobileOpen(false)}
-                    className="flex items-center gap-3 text-[#3F4A50] hover:text-[#252938] font-['Playfair_Display'] text-lg py-3.5 px-3 rounded-xl hover:bg-[#FAF6EF] transition-all"
-                  >
-                    <User className="w-5 h-5 text-[#C29B5F]" /> My Profile
-                  </Link>
-                )}
                 <button
                   onClick={handleLogout}
                   className="flex items-center gap-3 text-red-400 hover:text-red-300 font-['Playfair_Display'] text-lg py-3.5 px-3 rounded-xl hover:bg-red-500/10 transition-all w-full text-left"
