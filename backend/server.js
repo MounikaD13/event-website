@@ -29,7 +29,7 @@ app.use(cookieParser())
 mongoose.connect(process.env.MONGODB_URL)
     .then(() => {
         console.log("DB connected successfully");
-        initGridFS(mongoose.connection.db);
+        initGridFS();
     })
     .catch(err => console.log(err));
 app.get("/", (req, res) => res.json({ "message": 'dummy route' }))
@@ -40,4 +40,5 @@ app.use("/api", userAccountRoutes)
 app.use("/api", adminDashboardRoutes)
 app.use("/api", imageRoutes)
 
-app.listen(process.env.PORT, () => { console.log("server started successfully") })
+
+server.listen(process.env.PORT, () => { console.log("server started successfully") })

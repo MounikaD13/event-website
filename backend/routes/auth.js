@@ -302,5 +302,4 @@ router.post("/admin/reg",async(req,res)=>{
         res.status(500).json({ message: "Registration failed" })
     }
 })
-
 module.exports = router;

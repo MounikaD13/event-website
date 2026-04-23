@@ -363,6 +363,7 @@ const UserDashboard = () => {
               </Link>
             </div>
 
+<<<<<<< HEAD
             {/* Cards */}
             <AnimatePresence mode="popLayout">
               {hasContent ? (

@@ -1,6 +1,8 @@
 import axios from 'axios'
 
-export const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api"
+// Use relative URL so Vite dev-server proxy forwards to backend (no CORS issues)
+// Vite proxy: /api/* → http://localhost:5000/api/*
+export const BASE_URL = '/api'
 
 const instance = axios.create({
     baseURL: BASE_URL,
@@ -20,21 +22,17 @@ instance.interceptors.response.use(
     async error => {
         const originalRequest = error.config
 
-        // Retrying on 401 (Standard for Unauthorized/Expired)
         if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true
             try {
-                const { data } = await axios.post(`${BASE_URL}/refresh-token`, {}, {
+                const { data } = await axios.post('/api/refresh-token', {}, {
                     withCredentials: true
                 })
 
                 localStorage.setItem("token", data.accessToken)
-
-                // Update header and retry
                 originalRequest.headers.Authorization = `Bearer ${data.accessToken}`
                 return instance(originalRequest)
             } catch (err) {
-                // If refresh fails, sign out
                 localStorage.removeItem("token")
                 localStorage.removeItem("eventUser")
                 localStorage.removeItem("eventRole")

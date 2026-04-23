@@ -339,6 +339,7 @@ export default function AdminDashboard() {
             </p>
           </motion.div>
 
+ 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -362,6 +363,7 @@ export default function AdminDashboard() {
           </motion.div>
         </div>
 
+<<<<<<< HEAD
         <motion.div
           {...cardMotion}
           transition={{ delay: 0.2 }}
@@ -379,6 +381,12 @@ export default function AdminDashboard() {
               </div>
               <h2 className="font-serif text-xl font-bold text-[#2F3742]">Real-Time Pulse</h2>
             </div>
+          </div>
+        </div>
+                       <div className="flex-grow overflow-hidden">
+                        <p className="truncate text-sm font-bold text-[#2F3742]">Elysium Support</p>
+                        <p className="truncate text-xs text-[#667280]">Connected</p>
+                      </div>
             <button 
               onClick={() => setIsLogsOpen(!isLogsOpen)}
               className="flex items-center gap-2 text-xs font-bold text-[#C1A27B] transition-colors hover:text-[#A98960]"

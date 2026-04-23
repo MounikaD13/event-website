@@ -46,8 +46,31 @@ const uploadImageStream = (fileBuffer, filename, mimetype) => {
     });
 };
 
+const deleteImage = (fileId) => {
+    return new Promise((resolve, reject) => {
+        if (!gfsBucket) {
+            return reject(new Error("GridFS not initialized"));
+        }
+
+        let id;
+        try {
+            id = new mongoose.Types.ObjectId(fileId);
+        } catch (err) {
+            return reject(new Error("Invalid image ID format"));
+        }
+
+        gfsBucket.delete(id, (err) => {
+            if (err) {
+                return reject(err);
+            }
+            resolve();
+        });
+    });
+};
+
 module.exports = {
     initGridFS,
     getGridFSBucket,
-    uploadImageStream
+    uploadImageStream,
+    deleteImage
 };
