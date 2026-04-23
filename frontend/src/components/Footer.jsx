@@ -28,23 +28,7 @@ const LinkedinIcon = ({ className }) => (
 export default function Footer() {
   return (
     <footer className="w-full bg-[#FAF9F6] border-t border-[#EBE5DA] mt-auto">
-      {/* Newsletter / Top Banner */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="py-10 md:py-14 flex flex-col lg:flex-row items-center justify-between gap-8 border-b border-[#EBE5DA]">
-          <div className="text-center lg:text-left max-w-lg">
-            <h3 className="font-['Playfair_Display'] text-2xl sm:text-3xl text-black mb-2">Join our Insider List</h3>
-            <p className="text-black/70 text-sm leading-relaxed">Subscribe for exclusive access to hidden venues, event trends, and luxury inspiration straight to your inbox.</p>
-          </div>
-          <div className="w-full lg:w-auto lg:flex-1 lg:max-w-md flex justify-center lg:justify-end">
-            <Link
-              to="/contact"
-              className="shrink-0 flex items-center justify-center gap-2 px-10 py-4 bg-[#C1A27B] hover:bg-[#b0916a] text-white rounded-full text-sm font-semibold tracking-wide transition-all shadow-lg hover:scale-105"
-            >
-              Contact Us <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-        </div>
-      </div>
+
 
       {/* Main Footer Block */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14">
@@ -61,7 +45,7 @@ export default function Footer() {
               </span>
             </Link>
             <p className="text-sm text-black/70 leading-relaxed mb-8 max-w-xs">
-              Curating spectacular destination weddings, exclusive corporate retreats, and unforgettable celebrations across the globe since 2010.
+              Curating spectacular destination weddings and unforgettable celebrations across India and the globe since 2010.
             </p>
             <div className="flex items-center gap-4">
               <a href="#" className="w-10 h-10 rounded-full border border-[#EBE5DA] bg-white flex items-center justify-center text-[#C1A27B] hover:bg-[#C1A27B] hover:text-white hover:border-[#C1A27B] transition-all duration-300">
@@ -86,7 +70,6 @@ export default function Footer() {
               <li><Link to="/events?type=weddings" className="hover:text-[#C1A27B] transition-colors">Destination Weddings</Link></li>
               <li><Link to="/events?type=birthdays" className="hover:text-[#C1A27B] transition-colors">Birthday Celebrations</Link></li>
               <li><Link to="/events?type=milestone" className="hover:text-[#C1A27B] transition-colors">Milestone Events</Link></li>
-              <li><Link to="/events?type=bussiness" className="hover:text-[#C1A27B] transition-colors">Business Retreats</Link></li>
             </ul>
           </div>
 
@@ -108,11 +91,11 @@ export default function Footer() {
             <ul className="space-y-5 text-sm text-black/70">
               <li className="flex flex-col sm:flex-row items-center sm:items-start gap-3">
                 <MapPin className="w-4 h-4 text-[#C1A27B] mt-0.5" />
-                <span>123 Luxury Lane, Mayfair, London</span>
+                <span>Level 4, Prestige Trade Tower,<br />Palace Rd, Bengaluru, KA 560001, India</span>
               </li>
               <li className="flex flex-col sm:flex-row items-center sm:items-start gap-3">
                 <Phone className="w-4 h-4 text-[#C1A27B]" />
-                <a href="tel:+12345678901" className="hover:text-[#C1A27B] transition-colors">+1 (234) 567-8901</a>
+                <a href="tel:+918045678901" className="hover:text-[#C1A27B] transition-colors">+91 (80) 4567 8901</a>
               </li>
               <li className="flex flex-col sm:flex-row items-center sm:items-start gap-3">
                 <Mail className="w-4 h-4 text-[#C1A27B]" />

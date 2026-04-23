@@ -24,6 +24,10 @@ const contactSchema = new mongoose.Schema({
         type: String,
         default: ""
     },
+    adminResponse: {
+        type: String,
+        default: ""
+    },
     createdAt: {
         type: Date,
         default: Date.now

@@ -12,7 +12,7 @@ const eventSchema = new mongoose.Schema(
         },
         category: {
             type: String,
-            enum: ["weddings", "birthdays", "milestone", "bussiness"]
+            enum: ["weddings", "birthdays", "milestone", "business"]
         },
         images: [
             {
@@ -42,14 +42,10 @@ const eventSchema = new mongoose.Schema(
 );
 
 // Pre-save hook to initialize availableTickets
-eventSchema.pre("save", function (next) {
-    if (this.isNew || this.isModified("totalTickets")) {
-        // Only set availableTickets to totalTickets initially, or update appropriately
-        if (this.isNew) {
-            this.availableTickets = this.totalTickets;
-        }
+eventSchema.pre("save", function () {
+    if (this.isNew && this.totalTickets) {
+        this.availableTickets = Number(this.totalTickets);
     }
-    next();
 });
 
 module.exports = mongoose.model("Event", eventSchema);

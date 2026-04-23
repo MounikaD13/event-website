@@ -11,22 +11,13 @@ const categoryMap = {
   weddings: "Weddings",
   birthdays: "Birthdays",
   milestone: "Milestones",
-  bussiness: "Business & Office",
+  business: "Business & Office",
 };
 
 const categoryKeys = Object.keys(categoryMap);
 const fallbackImage = "/images/events/decor.jpg";
 
-const dummyEvents = [
-  { id: "d-1", title: "Royal Garden Wedding Soiree", category: "weddings", location: "Udaipur, India", price: 9800, totalTickets: 220, booked: 78, image: "/images/events/wedding.jpg", description: "Palace-inspired floral wedding with live Sufi set and sunset lakeside vows.", date: "2026-06-12" },
-  { id: "d-2", title: "Skyline Birthday Luxe Night", category: "birthdays", location: "Mumbai, India", price: 3900, totalTickets: 150, booked: 54, image: "/images/hero_birthday_party.png", description: "Rooftop birthday with curated chef stations, cocktail lab, and themed dance floor.", date: "2026-07-20" },
-  { id: "d-3", title: "Founder Milestone Summit", category: "milestone", location: "Bengaluru, India", price: 5400, totalTickets: 300, booked: 125, image: "/images/events/conference.jpg", description: "Investor-grade milestone celebration with keynote stage production and media lounge.", date: "2026-08-10" },
-  { id: "d-4", title: "Global Strategy Leadership Meet", category: "bussiness", location: "Dubai, UAE", price: 7500, totalTickets: 260, booked: 103, image: "/images/event_dubai_gala.jpg", description: "Board-level strategy meet with bilingual hosts, high-end AV, and premium banquet.", date: "2026-09-02" },
-  { id: "d-5", title: "Mehendi Carnival Experience", category: "weddings", location: "Jaipur, India", price: 4600, totalTickets: 200, booked: 89, image: "/images/events/mehendi.jpg", description: "Vibrant pre-wedding mehendi with folk artists, decor zones, and custom dessert bar.", date: "2026-10-05" },
-  { id: "d-6", title: "Elite Stage & Sound Showcase", category: "milestone", location: "Hyderabad, India", price: 6300, totalTickets: 240, booked: 92, image: "/images/events/stage.jpg", description: "Product milestone reveal event with immersive stage mapping and gala networking.", date: "2026-10-26" },
-  { id: "d-7", title: "Destination Beach Celebration", category: "birthdays", location: "Goa, India", price: 5100, totalTickets: 170, booked: 62, image: "/images/event_beach_wedding.jpg", description: "Luxury beach celebration with wave-side brunch, private performers, and afterparty.", date: "2026-11-14" },
-  { id: "d-8", title: "Executive Innovation Conference", category: "bussiness", location: "Singapore", price: 8800, totalTickets: 500, booked: 215, image: "/images/event_tokyo_conf.jpg", description: "Enterprise SaaS conference format with multi-track sessions and curated CX lounges.", date: "2026-12-01" },
-];
+
 
 export default function EventsPage() {
   const dispatch = useDispatch();
@@ -65,7 +56,7 @@ export default function EventsPage() {
           type: e.category,
           price: e.price ? `₹${Number(e.price).toLocaleString()}` : "Free",
           date: e.date ? new Date(e.date).toLocaleDateString() : "",
-          image: e.image ? `${BASE_URL}${e.image}` : fallbackImage,
+          image: e.images && e.images.length > 0 ? `${BASE_URL}${e.images[0]}` : fallbackImage,
           available: Math.max(total - booked, 0),
           rating: Number((4.6 + Math.random() * 0.35).toFixed(1)),
           reviews: 80 + Math.floor(Math.random() * 170),
@@ -75,22 +66,7 @@ export default function EventsPage() {
     [events]
   );
 
-  const mappedDummyEvents = useMemo(
-    () =>
-      dummyEvents.map((e) => ({
-        ...e,
-        type: e.category,
-        price: `₹${Number(e.price).toLocaleString()}`,
-        date: new Date(e.date).toLocaleDateString(),
-        available: Math.max(e.totalTickets - e.booked, 0),
-        rating: Number((4.7 + Math.random() * 0.25).toFixed(1)),
-        reviews: 90 + Math.floor(Math.random() * 250),
-        source: "dummy",
-      })),
-    []
-  );
-
-  const allEvents = mappedBackendEvents.length > 0 ? mappedBackendEvents : mappedDummyEvents;
+  const allEvents = mappedBackendEvents;
 
   useEffect(() => {
     let result = [...allEvents];
@@ -237,11 +213,7 @@ export default function EventsPage() {
                   <span className="inline-flex items-center gap-1.5 text-xs text-[#667280] bg-[#FBF8F3] border border-[#E7DDCF] rounded-full px-3 py-1"><Calendar size={13} />{event.date}</span>
                   <span className="inline-flex items-center gap-1.5 text-xs text-[#7F4E75] bg-[#FAF3F8] border border-[#F0DDEC] rounded-full px-3 py-1"><Users size={13} />{event.available} seats left</span>
                 </div>
-                {event.source === "dummy" && (
-                  <div className="mt-4 text-[11px] uppercase tracking-[0.16em] text-[#2C7A6C] bg-[#EAF7F3] border border-[#C8E7DE] inline-flex items-center gap-1.5 rounded-full px-3 py-1">
-                    <Compass size={12} /> curated showcase event
-                  </div>
-                )}
+
               </div>
             </article>
           ))}
@@ -271,7 +243,21 @@ export default function EventsPage() {
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
           <div className="bg-white rounded-2xl w-full max-w-2xl p-6 relative border border-[#EDE5D8]">
             <button onClick={() => setSelectedEvent(null)} className="absolute top-3 right-3 text-[#667280]">✖</button>
-            <img src={selectedEvent.image} alt={selectedEvent.title} onError={(e) => (e.currentTarget.src = fallbackImage)} className="h-72 w-full object-cover rounded-xl mb-5" />
+            <div className="flex overflow-x-auto gap-4 mb-5 pb-2 snap-x">
+              {selectedEvent.images && selectedEvent.images.length > 0 ? (
+                selectedEvent.images.map((imgUrl, index) => (
+                  <img 
+                    key={index} 
+                    src={`${BASE_URL}${imgUrl}`} 
+                    alt={selectedEvent.title} 
+                    style={{ width: '100%', height: 'auto', maxHeight: '300px' }}
+                    className="object-cover rounded-xl flex-shrink-0 snap-center min-w-[85%]"
+                  />
+                ))
+              ) : (
+                <img src={selectedEvent.image} alt={selectedEvent.title} onError={(e) => (e.currentTarget.src = fallbackImage)} className="h-72 w-full object-cover rounded-xl flex-shrink-0 min-w-full" />
+              )}
+            </div>
             <h2 className="font-['Playfair_Display'] text-3xl text-[#222531] font-semibold">{selectedEvent.title}</h2>
             <p className="text-[#667280] mt-2">{selectedEvent.description}</p>
             <div className="flex justify-between mt-4 text-sm text-[#667280]">
