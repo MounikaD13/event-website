@@ -3,6 +3,7 @@ const router = express.Router();
 const User = require("../models/Users");
 const authMiddleware = require("../middleware/middleware");
 const transporter = require("../utils/mail");
+const { getIo } = require("../utils/socket");
 
 // 1. GET FULL DASHBOARD DATA 
 router.get("/dashboard", authMiddleware(["user"]), async (req, res) => {
@@ -73,6 +74,15 @@ router.post("/dashboard/chat", authMiddleware(["user"]), async (req, res) => {
 
         user.chats.push({ sender: "User", message });
         await user.save();
+
+        // --- REAL-TIME NOTIFICATION FOR ADMIN ---
+        const io = getIo();
+        io.emit("admin_receive_message", { 
+            userId: user._id, 
+            userName: user.name, 
+            message, 
+            timestamp: new Date() 
+        });
 
         res.status(200).json({ success: true, chats: user.chats });
     } catch (err) {

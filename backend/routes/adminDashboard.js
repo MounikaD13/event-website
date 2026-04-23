@@ -3,6 +3,7 @@ const router = express.Router()
 const User = require("../models/Users")
 const authMiddleware = require("../middleware/middleware")
 const transporter = require("../utils/mail")
+const { getIo } = require("../utils/socket");
 
 // 1. GET ALL USER DATA (With simple search/filter)
 router.get("/admin/all-data", authMiddleware(["admin"]), async (req, res) => {
@@ -115,8 +116,14 @@ router.post("/admin/chat-reply", authMiddleware(["admin"]), async (req, res) => 
         const { userId, message } = req.body;
         const user = await User.findById(userId);
 
+        if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
         user.chats.push({ sender: "Admin", message });
         await user.save();
+
+        // --- REAL-TIME NOTIFICATION ---
+        const io = getIo();
+        io.to(userId).emit("receive_message", { sender: "Admin", message, timestamp: new Date() });
 
         res.status(200).json({ success: true, message: "Reply sent", chats: user.chats });
     } catch (err) {
