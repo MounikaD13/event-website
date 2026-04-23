@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Event = require("../models/Event");
+const Service = require("../models/Service");
 const authMiddleware = require("../middleware/middleware");
 const multer = require("multer");
 const { uploadImageStream, deleteImage } = require("../utils/gridFs");
@@ -160,8 +161,44 @@ router.delete("/events/:id", authMiddleware(["admin"]), async (req, res) => {
             return res.status(404).json({ message: "Event not found" });
         }
 
+        // 1. Delete event images from GridFS
+        if (event.images && event.images.length > 0) {
+            for (const imageUrl of event.images) {
+                const idMatch = imageUrl.match(/\/api\/images\/([a-f\d]{24})/i);
+                if (idMatch) {
+                    const imageId = idMatch[1];
+                    try {
+                        await deleteImage(imageId);
+                    } catch (err) {
+                        console.error(`Failed to delete event image ${imageId} from GridFS:`, err);
+                    }
+                }
+            }
+        }
+
+        // 2. Find and delete associated services and their images
+        const services = await Service.find({ eventId: req.params.id });
+        for (const service of services) {
+            if (service.images && service.images.length > 0) {
+                for (const imageUrl of service.images) {
+                    const idMatch = imageUrl.match(/\/api\/images\/([a-f\d]{24})/i);
+                    if (idMatch) {
+                        const imageId = idMatch[1];
+                        try {
+                            await deleteImage(imageId);
+                        } catch (err) {
+                            console.error(`Failed to delete service image ${imageId} from GridFS:`, err);
+                        }
+                    }
+                }
+            }
+        }
+        await Service.deleteMany({ eventId: req.params.id });
+
+        // 3. Delete the event itself from MongoDB
         await Event.findByIdAndDelete(req.params.id);
-        res.status(200).json({ message: "Event deleted successfully" });
+
+        res.status(200).json({ message: "Event and associated images/services deleted successfully" });
     } catch (error) {
         console.error("Error deleting event:", error);
         if (error.kind === "ObjectId") {
