@@ -10,6 +10,7 @@ const eventRoutes = require("./routes/events")
 const userAccountRoutes = require("./routes/userAccount")
 const adminDashboardRoutes = require("./routes/adminDashboard")
 const imageRoutes = require("./routes/images")
+const servicesRoutes = require("./routes/services")
 const cookieParser = require("cookie-parser")
 
 app.use(cors({
@@ -33,5 +34,6 @@ app.use("/api", eventRoutes)
 app.use("/api", userAccountRoutes)
 app.use("/api", adminDashboardRoutes)
 app.use("/api", imageRoutes)
+app.use("/api", servicesRoutes)
 
 app.listen(process.env.PORT, () => { console.log("server started successfully") })

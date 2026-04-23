@@ -7,10 +7,10 @@ import LandingPage from './pages/LandingPage';
 import EventsPage from './pages/EventsPage';
 import AuthPage from './pages/AuthPage';
 import BookingPage from './pages/BookingPage';
-import BusinessPage from './pages/BusinessPage';
 import ProfilePage from './pages/ProfilePage';
 import AdminDashboard from './pages/AdminDashboard';
 import ManageEvents from './pages/ManageEvents';
+import ManageServices from './pages/ManageServices';
 import ContactPage from './pages/ContactPage';
 import UserDashboard from './pages/UserDashboard';
 
@@ -38,7 +38,6 @@ const AppContent = () => {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/events" element={<EventsPage />} />
-          <Route path="/business" element={<BusinessPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/signin" element={<AuthPage />} />
           <Route path="/signup" element={<AuthPage />} />
@@ -79,6 +78,14 @@ const AppContent = () => {
             element={
               <AdminRoute>
                 <ManageEvents />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/services"
+            element={
+              <AdminRoute>
+                <ManageServices />
               </AdminRoute>
             }
           />

@@ -7,23 +7,21 @@ import { Menu, X, LogOut, User, LayoutDashboard, Settings, Calendar } from 'luci
 /* ─── Link configs by role ─── */
 const publicLinks = [
   { name: 'Events', path: '/events' },
-  { name: 'Business', path: '/business' },
   { name: 'Contact Us', path: '/contact' },
 ];
 
 const userLinks = [
   { name: 'Events', path: '/events' },
-  { name: 'Business', path: '/business' },
   { name: 'Contact Us', path: '/contact' },
   { name: 'Dashboard', path: '/dashboard' },
 ];
 
 const adminLinks = [
   { name: 'Events', path: '/events' },
-  { name: 'Business', path: '/business' },
   { name: 'Contact Us', path: '/contact' },
   { name: 'Dashboard', path: '/admin/dashboard' },
   { name: 'Manage Events', path: '/admin/events' },
+  { name: 'Manage Services', path: '/admin/services' },
 ];
 
 export default function Navbar() {
@@ -184,6 +182,12 @@ export default function Navbar() {
                             className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-[#4F5968] hover:text-[#252938] hover:bg-[#FAF6EF] transition-all"
                           >
                             <Calendar className="w-4 h-4 text-[#C29B5F]" /> Manage Events
+                          </Link>
+                          <Link
+                            to="/admin/services"
+                            className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-[#4F5968] hover:text-[#252938] hover:bg-[#FAF6EF] transition-all"
+                          >
+                            <Settings className="w-4 h-4 text-[#C29B5F]" /> Manage Services
                           </Link>
                         </>
                       )}
