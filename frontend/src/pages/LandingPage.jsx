@@ -11,7 +11,6 @@ import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/effect-fade';
 import EventCard from '../components/EventCard';
-import { destinations, testimonials, heroSlides } from '../data/events';
 import { fetchEvents } from '../store/slices/eventsSlice';
 
 const API_ORIGIN = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '');
@@ -31,6 +30,27 @@ function useReveal() {
   return [ref, visible];
 }
 
+const destinations = [
+  { id: 1, name: 'Bali, Indonesia', tagline: 'Island of the Gods', eventsCount: 45, image: '/images/dest_bali.jpg', dest: 'bali' },
+  { id: 2, name: 'Santorini, Greece', tagline: 'Clifftop Paradise', eventsCount: 32, image: '/images/dest_paris.jpg', dest: 'santorini' },
+  { id: 3, name: 'Maldives', tagline: 'Overwater Luxury', eventsCount: 28, image: '/images/dest_maldives.jpg', dest: 'maldives' },
+  { id: 4, name: 'Dubai, UAE', tagline: 'City of Gold', eventsCount: 67, image: '/images/dest_dubai.jpg', dest: 'dubai' },
+  { id: 5, name: 'Paris, France', tagline: 'City of Love', eventsCount: 54, image: '/images/dest_paris.jpg', dest: 'paris' },
+  { id: 6, name: 'Tokyo, Japan', tagline: 'Futuristic Wonder', eventsCount: 38, image: '/images/dest_tokyo.jpg', dest: 'tokyo' },
+];
+
+const testimonials = [
+  { id: 1, name: 'Sarah & Michael Chen', event: 'Beach Wedding - Bali', text: 'Overseas Events made our dream wedding a reality. Every detail was perfect — from the floral arrangements to the sunset ceremony. We couldn\'t have asked for more.', avatar: '/images/avatar_emma.jpg', rating: 5 },
+  { id: 3, name: 'Emma & David Park', event: 'Rooftop Gala - Dubai', text: 'If you want a luxury event with zero stress, this is the team. They exceeded every expectation. Our Dubai gala was the talk of the industry.', avatar: '/images/avatar_emma.jpg', rating: 5 },
+  { id: 4, name: 'Priya Sharma', event: 'Pareisian Dinner - Paris', text: 'Magical, intimate, and utterly romantic. My engagement dinner in Paris was like a fairytale. I\'m so grateful for the Overseas Events team.', avatar: '/images/avatar_priya.jpg', rating: 5 },
+];
+
+const heroSlides = [
+  { id: 1, cursiveTitle: 'Make Your Dream', mainTitle: 'WEDDING A REALITY', image: '/images/hero_wedding_aesthetic.png', cta: 'Plan Your Wedding', ctaPath: '/events?type=weddings' },
+  { id: 3, cursiveTitle: 'traditional', mainTitle: 'INDIAN WEDDING', image: '/images/hero_indian_wedding.png', cta: 'Plan Your Shaadi', ctaPath: '/events?type=weddings' },
+  { id: 4, cursiveTitle: 'unforgettable', mainTitle: 'BIRTHDAY PARTY', image: '/images/hero_birthday_party.png', cta: 'Celebrate With Us', ctaPath: '/events?type=birthdays' },
+];
+
 const stats = [
   { value: '500+', label: 'Events Planned', icon: Sparkles },
   { value: '120+', label: 'Destinations', icon: Globe },
@@ -42,7 +62,6 @@ const categories = [
   { name: 'Weddings', icon: Heart, color: '#c084fc', type: 'weddings' },
   { name: 'Birthdays', icon: PartyPopper, color: '#f472b6', type: 'birthdays' },
   { name: 'Milestones', icon: Sparkles, color: '#fb923c', type: 'milestone' },
-  { name: 'Business', icon: Briefcase, color: '#667280', type: 'bussiness' },
 ];
 
 const mapEventToCard = (event) => ({
@@ -248,10 +267,10 @@ export default function LandingPage() {
                 Creating Memories<br />Beyond Borders
               </h2>
               <p className="text-[#667280]/80 text-base leading-relaxed mb-4">
-                For over 15 years, Overseas Events has been transforming dreams into reality. We specialize in destination events that transcend ordinary gatherings — creating experiences that linger in memory long after the last dance.
+                For over 15 years, Elysium has been transforming dreams into reality. We specialize in destination events that transcend ordinary gatherings — creating experiences that linger in memory long after the last dance.
               </p>
               <p className="text-[#667280]/60 text-sm leading-relaxed mb-8">
-                From intimate beach weddings in Bali to grand corporate galas in Dubai, our dedicated team of planners handle every detail with care, creativity, and uncompromising attention to quality.
+                From intimate beach weddings in Bali to grand luxury galas in Dubai, our dedicated team of planners handle every detail with care, creativity, and uncompromising attention to quality.
               </p>
               <div className="flex flex-wrap gap-4">
                 <Link to="/events" className="btn-earthy px-8 py-3 rounded-full text-sm font-semibold tracking-widest uppercase shadow-sm">
