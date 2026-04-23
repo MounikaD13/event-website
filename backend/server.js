@@ -1,5 +1,5 @@
 require("dotenv").config();
-const { initGridFS } = require("./utils/gridFs");
+const { initGridFS } = require("./utils/gridFs.js");
 const mongoose = require("mongoose")
 const cors = require("cors")
 const express = require("express")
