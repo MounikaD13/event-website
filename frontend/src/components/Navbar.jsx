@@ -152,7 +152,7 @@ export default function Navbar() {
                     </div>
 
                     {/* Menu Items */}
-                    <div className="p-2">
+                    {/*<div className="p-2">
                       {!isAdmin && (
                         <>
                           <Link
@@ -185,7 +185,7 @@ export default function Navbar() {
                           </Link>
                         </>
                       )}
-                    </div>
+                    </div>*/}
 
                     {/* Logout */}
                     <div className="p-2 border-t border-[#EFE7DA]">
