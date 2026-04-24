@@ -104,18 +104,17 @@ const ContactPage = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-14">
 
-          {/* Left Sidebar */}
-          <div className="lg:col-span-1 space-y-6">
+          <div className="lg:col-span-1 flex flex-col gap-6">
             {/* Contact Info Card */}
             <div className="bg-white rounded-2xl p-7 md:p-8 border border-[#E8E1D5] shadow-sm">
               <h3 className="font-['Playfair_Display'] text-xl font-semibold text-[#2C2828] mb-6">Contact Information</h3>
               <div className="space-y-5">
                 {[
-                  { icon: Mail, label: 'Email', value: 'concierge@elysium.events' },
-                  { icon: Phone, label: 'Call Us', value: '+1 (234) 567-8901' },
-                  { icon: MapPin, label: 'Visit Us', value: '123 Luxury Lane, Mayfair, London' },
+                  { icon: Mail, label: 'Email', value: 'Elysium.events.com' },
+                  { icon: Phone, label: 'Call Us', value: '+91 9876543210' },
+                  { icon: MapPin, label: 'Visit Us', value: 'Siddartha, Mogalrajpuram, Vijayawada, AP' },
                   { icon: Clock, label: 'Hours', value: 'Mon–Sat: 9AM – 7PM' },
-                ].map(({ icon: Icon, label, value }) => (
+                ].map(({ icon: Icon, label, value }) => ( // eslint-disable-line no-unused-vars
                   <div key={label} className="flex items-start gap-4">
                     <div className="w-10 h-10 rounded-xl bg-[#C1A27B]/10 flex items-center justify-center shrink-0">
                       <Icon className="w-5 h-5 text-[#C1A27B]" />
@@ -129,16 +128,26 @@ const ContactPage = () => {
               </div>
             </div>
 
-            {/* CTA Card */}
-            <div className="bg-gradient-to-br from-[#4A4F4D] to-[#2C2828] rounded-2xl p-7 md:p-8 text-white">
+            {/* CTA Card (Black Card) */}
+            <div className="bg-gradient-to-br from-[#4A4F4D] to-[#2C2828] rounded-2xl p-7 md:p-8 text-white flex-grow flex flex-col">
               <Globe className="w-8 h-8 text-[#C1A27B] mb-4" />
-              <h3 className="font-['Playfair_Display'] text-lg font-semibold mb-3">Planning a Destination Event?</h3>
-              <p className="text-white/60 text-sm leading-relaxed mb-5">
-                Our specialists are available for in-person consultations at 120+ global destinations.
-              </p>
-              <Link to="/events" className="inline-flex items-center gap-2 text-[#C1A27B] text-sm font-bold uppercase tracking-widest hover:gap-3 transition-all">
-                Browse Events <Sparkles className="w-4 h-4" />
-              </Link>
+              <h3 className="font-['Playfair_Display'] text-xl font-semibold mb-4">Elite Destination Planning</h3>
+              <div className="space-y-4 mb-8">
+                <p className="text-white/70 text-sm leading-relaxed font-light">
+                  From the royal palaces of Udaipur to the serene beaches of Goa and Vizag, we specialize in curating ultra-luxury destination experiences across the Indian subcontinent.
+                </p>
+                <p className="text-white/70 text-sm leading-relaxed font-light">
+                  Our dedicated concierge team manages every intricate detail—from high-profile logistics and luxury hospitality to grand-scale decor—ensuring your celebration is a legendary affair that reflects your unique vision and heritage.
+                </p>
+                <p className="text-white/70 text-sm leading-relaxed font-light">
+                  Whether you are planning a grand wedding in Vijayawada or a corporate retreat in the hills, Elysium brings unparalleled sophistication to your doorstep.
+                </p>
+              </div>
+              <div className="mt-auto">
+                <Link to="/events" className="inline-flex items-center gap-2 text-[#C1A27B] text-sm font-bold uppercase tracking-widest hover:gap-3 transition-all">
+                  Explore Destinations <Sparkles className="w-4 h-4" />
+                </Link>
+              </div>
             </div>
           </div>
 
@@ -164,19 +173,19 @@ const ContactPage = () => {
                   </div>
                   <div>
                     <label className={labelCls}><Users className="w-3 h-3" /> Guest Count</label>
-                    <input type="number" name="guestCount" value={inquiryForm.guestCount} onChange={handleInquiryChange} required placeholder="e.g. 150" className={inputCls} />
+                    <input type="number" name="guestCount" value={inquiryForm.guestCount} onChange={handleInquiryChange} required placeholder="e.g. 500+" className={inputCls} />
                   </div>
                   <div>
                     <label className={labelCls}><Phone className="w-3 h-3" /> Contact Phone</label>
-                    <input type="tel" name="phone" value={inquiryForm.phone} onChange={handleInquiryChange} required placeholder="+1 (555) 000-0000" className={inputCls} />
+                    <input type="tel" name="phone" value={inquiryForm.phone} onChange={handleInquiryChange} required placeholder="+91 90000 00000" className={inputCls} />
                   </div>
                   <div>
                     <label className={labelCls}><DollarSign className="w-3 h-3" /> Budget Range</label>
-                    <input type="text" name="budgetRange" value={inquiryForm.budgetRange} onChange={handleInquiryChange} placeholder="e.g. $10k - $20k" className={inputCls} />
+                    <input type="text" name="budgetRange" value={inquiryForm.budgetRange} onChange={handleInquiryChange} placeholder="e.g. ₹20 Lakhs - ₹50 Lakhs" className={inputCls} />
                   </div>
                   <div>
                     <label className={labelCls}><MapPin className="w-3 h-3" /> Location Preference</label>
-                    <input type="text" name="location" value={inquiryForm.location} onChange={handleInquiryChange} placeholder="e.g. Venice, Italy" className={inputCls} />
+                    <input type="text" name="location" value={inquiryForm.location} onChange={handleInquiryChange} placeholder="e.g. Vijayawada, AP" className={inputCls} />
                   </div>
                 </div>
 

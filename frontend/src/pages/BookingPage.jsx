@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import {
-  Calendar, MapPin, Users, DollarSign, CheckCircle2,
+  Calendar, MapPin, Users, DollarSign, CheckCircle,
   ArrowLeft, Clock, Star, Sparkles, CreditCard, Info
 } from 'lucide-react';
 import { submitInquiry } from '../store/slices/userAccountSlice';
@@ -92,7 +92,7 @@ export default function BookingPage() {
       <div className="min-h-screen bg-[#FAF9F6] pt-20 flex items-center justify-center px-4">
         <div className="max-w-md w-full text-center">
           <div className="w-28 h-28 rounded-full bg-gradient-to-br from-[#A3B19B] to-[#D8C3A5] flex items-center justify-center mx-auto mb-6 animate-pulse-pastel">
-            <CheckCircle2 className="w-14 h-14 text-white" />
+            <CheckCircle className="w-14 h-14 text-white" />
           </div>
           <h1 className="font-['Playfair_Display'] text-4xl font-bold text-[#4A4F4D] mb-3">Booking Confirmed!</h1>
           <p className="text-[#4A4F4D]/60 mb-2">
@@ -203,7 +203,7 @@ export default function BookingPage() {
                     <ul className="space-y-1.5">
                       {pkg.features.map((f) => (
                         <li key={f} className="flex items-start gap-1.5 text-xs text-[#4A4F4D]/60">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-[#A3B19B] mt-0.5 shrink-0" />
+                          <CheckCircle className="w-3.5 h-3.5 text-[#A3B19B] mt-0.5 shrink-0" />
                           {f}
                         </li>
                       ))}

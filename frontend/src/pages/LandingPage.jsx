@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -32,40 +32,60 @@ function useReveal() {
 }
 
 const stats = [
-  { value: '500+', label: 'Events Planned', icon: Sparkles },
-  { value: '120+', label: 'Destinations', icon: Globe },
-  { value: '10K+', label: 'Happy Clients', icon: Users },
-  { value: '15+', label: 'Years Experience', icon: Award },
+  { value: '850+', label: 'Events Planned', icon: Sparkles, target: 850 },
+  { value: '25+', label: 'Destinations', icon: Globe, target: 25 },
+  { value: '15K+', label: 'Happy Clients', icon: Users, target: 15000 },
+  { value: '20+', label: 'Years Experience', icon: Award, target: 20 },
 ];
 
 const categories = [
-  { name: 'Weddings', icon: Heart, color: '#c084fc', type: 'weddings' },
-  { name: 'Birthdays', icon: PartyPopper, color: '#f472b6', type: 'birthdays' },
-  { name: 'Milestones', icon: Sparkles, color: '#fb923c', type: 'milestone' },
-  { name: 'Business', icon: Briefcase, color: '#667280', type: 'bussiness' },
+  { name: 'Weddings', type: 'weddings', image: '/images/events/wedding.jpg', desc: 'Curating royal unions and timeless romantic tales.' },
+  { name: 'Birthdays', type: 'birthdays', image: '/images/hero_birthday_party.png', desc: 'Crafting vibrant celebrations for every age and joy.' },
+  { name: 'Milestones', type: 'milestone', image: '/images/events/stage.jpg', desc: 'Marking legendary achievements with grand productions.' },
+  { name: 'Businesses', type: 'bussiness', image: '/images/event_dubai_gala.jpg', desc: 'Elevating corporate visions through high-end networking.' },
 ];
 
-const mapEventToCard = (event) => ({
-  ...event,
-  id: event._id,
-  type: event.category,
-  price: event.price ? `$${Number(event.price).toLocaleString()}` : '$0',
-  rating: '4.9',
-  reviews: '128',
-  capacity: event.totalTickets,
-  date: event.date
-    ? new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-    : '',
-  image: event.image?.startsWith('http')
-    ? event.image
-    : event.image
-      ? `${API_ORIGIN}${event.image}`
-      : '/images/events_gallery_bg.png',
-});
+const interestImages = {
+  weddings: [
+    '/images/events/wedding.jpg',
+    '/images/events/mehendi.jpg',
+    '/images/event_beach_wedding.jpg',
+    '/images/about_ceremony.jpg',
+    '/images/events/decor.jpg'
+  ],
+  birthdays: [
+    '/images/hero_birthday_party.png',
+    '/images/event_beach_wedding.jpg',
+    '/images/events/decor.jpg',
+    '/images/about_gala.jpg'
+  ],
+  milestone: [
+    '/images/events/stage.jpg',
+    '/images/events/conference.jpg',
+    '/images/event_dubai_gala.jpg',
+    '/images/about_gala.jpg'
+  ],
+  bussiness: [
+    '/images/event_dubai_gala.jpg',
+    '/images/event_tokyo_conf.jpg',
+    '/images/events/conference.jpg',
+    '/images/about_gala.jpg'
+  ],
+  default: [
+    '/images/events/wedding.jpg',
+    '/images/hero_birthday_party.png',
+    '/images/events/stage.jpg',
+    '/images/event_dubai_gala.jpg',
+    '/images/about_ceremony.jpg',
+    '/images/about_gala.jpg'
+  ]
+};
+
+
 
 export default function LandingPage() {
   const dispatch = useDispatch();
-  const { events, loading } = useSelector((state) => state.events);
+  const { events } = useSelector((state) => state.events);
   const [activeSlide, setActiveSlide] = useState(0);
   const [statsRef, statsVisible] = useReveal();
   const [catRef, catVisible] = useReveal();
@@ -73,7 +93,7 @@ export default function LandingPage() {
   const [destRef, destVisible] = useReveal();
   const [testimonialRef, testimonialVisible] = useReveal();
   const [aboutRef, aboutVisible] = useReveal();
-  const featuredEvents = events.slice(0, 4).map(mapEventToCard);
+
 
   useEffect(() => {
     if (!events.length) {
@@ -81,12 +101,56 @@ export default function LandingPage() {
     }
   }, [dispatch, events.length]);
 
+  // Interest Tracking & Personalization Logic
+  const { dashboard } = useSelector((state) => state.userAccount);
+  const [userInterest, setUserInterest] = useState(null);
+
+  useEffect(() => {
+    const trackInterest = () => {
+      const scores = { weddings: 0, birthdays: 0, milestone: 0, bussiness: 0 };
+      
+      // 1. Check past inquiries (High weight)
+      if (dashboard.inquiries?.length) {
+        dashboard.inquiries.forEach(inq => {
+          const type = inq.eventType?.toLowerCase();
+          if (type === 'wedding' || type === 'weddings') scores.weddings += 10;
+          else if (type === 'birthday' || type === 'birthdays') scores.birthdays += 10;
+          else if (type === 'milestone') scores.milestone += 10;
+          else if (type === 'business' || type === 'corporate' || type === 'bussiness') scores.bussiness += 10;
+        });
+      }
+
+      // 2. Check category clicks from localStorage (Medium weight)
+      const clicks = JSON.parse(localStorage.getItem('elysium_category_clicks') || '{}');
+      Object.keys(clicks).forEach(cat => {
+        if (scores[cat] !== undefined) scores[cat] += clicks[cat];
+      });
+
+      const top = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+      if (top[0][1] > 0) setUserInterest(top[0][0]);
+    };
+
+    trackInterest();
+  }, [dashboard.inquiries]);
+
+  const handleCategoryClick = (type) => {
+    const clicks = JSON.parse(localStorage.getItem('elysium_category_clicks') || '{}');
+    clicks[type] = (clicks[type] || 0) + 1;
+    localStorage.setItem('elysium_category_clicks', JSON.stringify(clicks));
+  };
+
+  // Personalize images based on interest
+  const personalizedGallery = useMemo(() => {
+    if (!userInterest || !interestImages[userInterest]) {
+      return interestImages.default;
+    }
+    return interestImages[userInterest];
+  }, [userInterest]);
+
   return (
     <div className="bg-[#FAF9F6]">
 
-      {/* ══════════════════════════════════════════════════
-          1. HERO SLIDER
-      ══════════════════════════════════════════════════ */}
+      {/* 1. HERO SLIDER */}
       <section className="relative h-[88vh] min-h-[600px] overflow-hidden">
         <Swiper
           modules={[Autoplay, Pagination, EffectFade]}
@@ -113,11 +177,8 @@ export default function LandingPage() {
                     {slide.mainTitle}
                   </h1>
                   <div className="flex items-center justify-center gap-4 mt-10 md:mt-16">
-                    <Link to="/contact" className="btn-earthy px-10 py-4 rounded-full text-sm font-bold tracking-[0.2em] uppercase shadow-2xl hover:scale-105 transition-transform">
-                      BOOK NOW
-                    </Link>
-                    <Link to="/events" className="px-10 py-4 rounded-full border-2 border-white/40 text-white text-sm font-bold tracking-[0.2em] uppercase hover:bg-white/10 transition-all">
-                      EXPLORE
+                    <Link to="/events" className="btn-earthy px-12 py-5 rounded-full text-sm font-bold tracking-[0.25em] uppercase shadow-2xl hover:scale-105 transition-transform">
+                      EXPLORE MORE
                     </Link>
                   </div>
                 </div>
@@ -127,112 +188,134 @@ export default function LandingPage() {
         </Swiper>
       </section>
 
-      {/* SaaS trust strip */}
-      <section className="relative z-20 -mt-10 px-4 sm:px-6">
-        <div className="max-w-6xl mx-auto rounded-3xl border border-[#E7DDCF] bg-white/95 backdrop-blur-md shadow-[0_22px_40px_rgba(34,37,49,0.12)] p-5 md:p-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { label: 'Client Satisfaction', value: '98.7%' },
-              { label: 'Avg Planning Cycle', value: '11 Days' },
-              { label: 'Global Vendor Partners', value: '1,200+' },
-              { label: 'Event Success Score', value: '4.9/5' },
-            ].map((item) => (
-              <div key={item.label} className="text-center">
-                <p className="text-2xl md:text-3xl font-bold text-[#222531]">{item.value}</p>
-                <p className="text-[10px] uppercase tracking-[0.18em] text-[#667280] mt-1">{item.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════════════
-          2. STATS BAR
-      ══════════════════════════════════════════════════ */}
-      <section ref={statsRef} className="bg-[#3F4A50] py-16 mt-10">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+      {/* 2. STATS BAR (Moved up after Hero) */}
+      <section ref={statsRef} className="bg-[#F6F1EB] py-24 relative overflow-hidden border-b border-[#E3DCD3]">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[#C1A27B]/10 via-transparent to-transparent" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
             {stats.map((stat, i) => (
               <div
                 key={stat.label}
-                className={`flex flex-col items-center text-center transition-all duration-700 ${statsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
-                style={{ transitionDelay: `${i * 100}ms` }}
+                className={`flex flex-col items-center text-center transition-all duration-[1000ms] ease-out ${statsVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-12 scale-95'}`}
+                style={{ transitionDelay: `${i * 200}ms` }}
               >
-                <stat.icon className="w-7 h-7 text-[#C1A27B] mb-3 opacity-80" />
-                <span className="font-['Playfair_Display'] text-3xl font-bold text-white">{stat.value}</span>
-                <span className="text-xs text-white/50 uppercase tracking-[0.18em] mt-1 font-semibold">{stat.label}</span>
+                <div className="w-16 h-16 rounded-2xl bg-white flex items-center justify-center mb-8 border border-[#E3DCD3] shadow-sm group hover:border-[#C1A27B]/50 transition-all hover:-translate-y-1">
+                  <stat.icon className="w-8 h-8 text-[#C1A27B] opacity-80 group-hover:opacity-100 transition-opacity" />
+                </div>
+                <div className="relative overflow-hidden group">
+                  <span className="font-['Playfair_Display'] text-5xl md:text-6xl font-bold text-[#3D3833] tracking-tight block mb-2 group-hover:text-[#C1A27B] transition-colors duration-500">
+                    {stat.value}
+                  </span>
+                  <div className="w-0 h-0.5 bg-[#C1A27B]/30 mx-auto group-hover:w-full transition-all duration-700" />
+                </div>
+                <span className="text-[11px] text-[#8C8479] uppercase tracking-[0.4em] mt-4 font-bold leading-relaxed">{stat.label}</span>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ══════════════════════════════════════════════════
-          3. CATEGORIES
-      ══════════════════════════════════════════════════ */}
-      <section ref={catRef} className="py-20 bg-[#FAF9F6] border-b border-[#EBE5DA]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className={`text-center mb-12 transition-all duration-700 ${catVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
-            <span className="text-[#C1A27B] text-xs uppercase tracking-[4px] font-semibold">What We Do</span>
-            <h2 className="font-['Playfair_Display'] text-3xl md:text-4xl text-[#4A4F4D] mt-3 font-medium">
+      {/* 2. EVENT CATEGORIES (Moved up as requested) */}
+      <section ref={catRef} className="py-24 bg-white border-b border-[#EBE5DA]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className={`text-center mb-16 transition-all duration-700 ${catVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
+            <span className="text-[#C1A27B] text-xs uppercase tracking-[4px] font-semibold">Bespoke Experiences</span>
+            <h2 className="font-['Playfair_Display'] text-4xl md:text-5xl text-[#2C2828] mt-3 font-medium">
               Event Categories
             </h2>
+            <div className="w-20 h-1 bg-[#C1A27B] mx-auto mt-6 rounded-full" />
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {categories.map((cat, i) => (
-              <Link
+              <div
                 key={cat.name}
-                to={`/events?type=${cat.type}`}
-                className={`flex flex-col items-center gap-3 p-5 rounded-2xl bg-white border border-[#EBE5DA] hover:border-[#C1A27B]/40 hover:shadow-md transition-all duration-300 group transition-all duration-700 ${catVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
-                style={{ transitionDelay: `${i * 80}ms` }}
+                className={`group relative h-[420px] rounded-[2.5rem] overflow-hidden shadow-xl border border-[#EBE5DA] transition-all duration-700 ${catVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+                style={{ transitionDelay: `${i * 150}ms` }}
               >
-                <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ background: `${cat.color}18` }}>
-                  <cat.icon className="w-6 h-6 group-hover:scale-110 transition-transform duration-300" style={{ color: cat.color }} />
+                {/* Background Image */}
+                <img
+                  src={cat.image}
+                  alt={cat.name}
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                />
+                
+                {/* Overlays */}
+                <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black/90" />
+                <div className="absolute inset-0 bg-[#C1A27B]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                {/* Content */}
+                <div className="absolute inset-0 p-8 flex flex-col justify-end">
+                  <div className="transform translate-y-6 group-hover:translate-y-0 transition-transform duration-500">
+                    <h3 className="font-['Playfair_Display'] text-3xl font-bold text-white mb-3 tracking-wide">
+                      {cat.name}
+                    </h3>
+                    <p className="text-white/70 text-sm leading-relaxed mb-8 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                      {cat.desc}
+                    </p>
+                    <Link
+                      to={`/events?type=${cat.type}`}
+                      onClick={() => handleCategoryClick(cat.type)}
+                      className="inline-flex items-center gap-3 bg-white text-[#2C2828] px-8 py-3.5 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-2xl hover:bg-[#C1A27B] hover:text-white transition-all"
+                    >
+                      Browse {cat.name} <ArrowRight className="w-4 h-4" />
+                    </Link>
+                  </div>
                 </div>
-                <p className="text-xs font-semibold text-[#667280] tracking-wide text-center leading-tight">{cat.name}</p>
-              </Link>
+              </div>
             ))}
           </div>
         </div>
       </section>
+
+
 
       {/* ══════════════════════════════════════════════════
           4. FEATURED EVENTS
       ══════════════════════════════════════════════════ */}
-      <section ref={eventsRef} className="py-20 bg-white border-b border-[#EBE5DA]">
+      <section ref={eventsRef} className="py-24 bg-white border-b border-[#EBE5DA] overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className={`flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12 transition-all duration-700 ${eventsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
+          <div className={`flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-16 transition-all duration-700 ${eventsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
             <div>
-              <span className="text-[#C1A27B] text-xs uppercase tracking-[4px] font-semibold">Handpicked For You</span>
-              <h2 className="font-['Playfair_Display'] text-3xl md:text-4xl text-[#4A4F4D] mt-2 font-medium">
-                Featured Events
+              <span className="text-[#C1A27B] text-xs uppercase tracking-[4px] font-semibold">
+                {userInterest ? `Your Personalized Inspiration: ${userInterest.charAt(0).toUpperCase() + userInterest.slice(1)}` : 'Handpicked Inspiration'}
+              </span>
+              <h2 className="font-['Playfair_Display'] text-4xl md:text-5xl text-[#4A4F4D] mt-2 font-medium">
+                Behold Our Miracles
               </h2>
             </div>
-            <Link to="/events" className="inline-flex items-center gap-2 text-sm font-semibold text-[#C1A27B] hover:gap-3 transition-all shrink-0">
+            <Link to="/events" className="inline-flex items-center gap-2 text-sm font-bold tracking-widest uppercase text-[#C1A27B] hover:gap-4 transition-all shrink-0">
               View All Events <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
-          {loading && featuredEvents.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-[#EBE5DA] p-8 text-center text-sm text-[#667280]">
-              Loading featured events...
-            </div>
-          ) : featuredEvents.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-[#EBE5DA] p-8 text-center text-sm text-[#667280]">
-              No events available right now.
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {featuredEvents.map((event, i) => (
-              <div
-                key={event.id || i}
-                className={`transition-all duration-700 ${eventsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-                style={{ transitionDelay: `${i * 100}ms` }}
-              >
-                <EventCard event={event} />
-              </div>
+
+          <div className={`transition-all duration-700 ${eventsVisible ? 'opacity-100' : 'opacity-0'}`}>
+            <Swiper
+              modules={[Autoplay, Pagination]}
+              spaceBetween={20}
+              slidesPerView={1}
+              autoplay={{ delay: 3000 }}
+              pagination={{ clickable: true }}
+              breakpoints={{
+                640: { slidesPerView: 1.5 },
+                1024: { slidesPerView: 2 },
+              }}
+              className="pb-16 !overflow-visible"
+            >
+              {personalizedGallery.map((img, i) => (
+                <SwiperSlide key={i}>
+                  <div className="relative h-[450px] md:h-[600px] w-full rounded-[2rem] overflow-hidden shadow-2xl group border border-[#EBE5DA]">
+                    <img 
+                      src={img} 
+                      alt="Inspiration" 
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                  </div>
+                </SwiperSlide>
               ))}
-            </div>
-          )}
+            </Swiper>
+          </div>
         </div>
       </section>
 
@@ -253,13 +336,25 @@ export default function LandingPage() {
               <p className="text-[#667280]/60 text-sm leading-relaxed mb-8">
                 From intimate beach weddings in Bali to grand corporate galas in Dubai, our dedicated team of planners handle every detail with care, creativity, and uncompromising attention to quality.
               </p>
-              <div className="flex flex-wrap gap-4">
-                <Link to="/events" className="btn-earthy px-8 py-3 rounded-full text-sm font-semibold tracking-widest uppercase shadow-sm">
-                  Explore Gallery
-                </Link>
-                <Link to="/contact" className="px-8 py-3 rounded-full border border-[#C1A27B] text-[#C1A27B] text-sm font-semibold tracking-widest uppercase hover:bg-[#C1A27B] hover:text-white transition-all">
-                  Contact Us
-                </Link>
+              <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="flex items-start gap-4 p-6 rounded-3xl bg-white shadow-sm border border-[#EBE5DA] group hover:border-[#C1A27B]/40 transition-all">
+                  <div className="p-3 bg-[#C1A27B]/10 rounded-2xl text-[#C1A27B] group-hover:scale-110 transition-transform">
+                    <Sparkles className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-[#2C2828] text-xs uppercase tracking-widest mb-2">Heritage Mastery</h4>
+                    <p className="text-xs text-[#667280] leading-relaxed">Specializing in the intricate tapestry of South Indian rituals, from vibrant Mehendi carnivals to soulful Muhurthams.</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4 p-6 rounded-3xl bg-white shadow-sm border border-[#EBE5DA] group hover:border-[#C1A27B]/40 transition-all">
+                  <div className="p-3 bg-[#C1A27B]/10 rounded-2xl text-[#C1A27B] group-hover:scale-110 transition-transform">
+                    <Globe className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-[#2C2828] text-xs uppercase tracking-widest mb-2">Iconic Venues</h4>
+                    <p className="text-xs text-[#667280] leading-relaxed">Exclusive access to Taj Falaknuma, Hampi's ruins, and Kerala's pristine backwaters for legendary celebrations.</p>
+                  </div>
+                </div>
               </div>
             </div>
             <div
@@ -267,14 +362,14 @@ export default function LandingPage() {
               style={{ transitionDelay: '180ms' }}
             >
               <img
-                src="/images/about_ceremony.jpg"
-                alt="Event ceremony"
-                className="h-72 w-full object-cover rounded-2xl shadow-md"
+                src="/images/hero_indian_wedding.png"
+                alt="Traditional Indian Wedding"
+                className="h-80 w-full object-cover rounded-[2.5rem] shadow-xl border-4 border-white"
               />
               <img
-                src="/images/about_gala.jpg"
-                alt="Event gala"
-                className="h-72 w-full object-cover rounded-2xl shadow-md mt-12"
+                src="/images/places/hyderabad.jpg"
+                alt="Taj Falaknuma Palace"
+                className="h-80 w-full object-cover rounded-[2.5rem] shadow-xl mt-12 border-4 border-white"
               />
             </div>
           </div>
@@ -284,45 +379,46 @@ export default function LandingPage() {
       {/* ══════════════════════════════════════════════════
           6. DESTINATIONS
       ══════════════════════════════════════════════════ */}
-      <section id="destinations" ref={destRef} className="py-20 bg-white border-b border-[#EBE5DA]">
+      <section id="destinations" ref={destRef} className="py-24 bg-white border-b border-[#EBE5DA]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className={`text-center mb-14 transition-all duration-700 ${destVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
-            <span className="text-[#C1A27B] text-xs uppercase tracking-[4px] font-semibold">Our World</span>
-            <h2 className="font-['Playfair_Display'] text-3xl md:text-4xl text-[#4A4F4D] mt-3 font-medium">
+          <div className={`text-center mb-16 transition-all duration-700 ${destVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
+            <span className="text-[#C1A27B] text-xs uppercase tracking-[4px] font-semibold">Exquisite Venues</span>
+            <h2 className="font-['Playfair_Display'] text-4xl md:text-5xl text-[#4A4F4D] mt-3 font-medium">
               Top Event Locations
             </h2>
+            <div className="w-20 h-1 bg-[#C1A27B] mx-auto mt-6 rounded-full" />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {destinations.slice(0, 3).map((dest, i) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+            {destinations.slice(0, 6).map((dest, i) => (
               <div
                 key={dest.id}
-                className={`relative rounded-3xl overflow-hidden group shadow-sm border border-[#EBE5DA] transition-all duration-700 ${destVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+                className={`relative rounded-[2.5rem] overflow-hidden group shadow-lg border border-[#EBE5DA] transition-all duration-700 ${destVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
                 style={{ transitionDelay: `${i * 120}ms` }}
               >
                 <img
                   src={dest.image}
                   alt={dest.name}
-                  className="w-full h-72 object-cover group-hover:scale-105 transition-transform duration-700"
+                  className="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-1000"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-6 flex items-end justify-between">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-8 flex items-end justify-between">
                   <div>
-                    <p className="text-white font-['Playfair_Display'] text-xl font-semibold">{dest.name}</p>
-                    <p className="text-white/60 text-xs mt-1">{dest.tagline} · {dest.eventsCount} events</p>
+                    <p className="text-white font-['Playfair_Display'] text-2xl font-bold tracking-wide">{dest.name}</p>
+                    <p className="text-white/70 text-sm mt-2 font-light uppercase tracking-[0.2em]">{dest.tagline}</p>
                   </div>
                   <Link
                     to={`/events?dest=${dest.dest}`}
-                    className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center hover:bg-[#C1A27B] hover:border-[#C1A27B] transition-all"
+                    className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center hover:bg-[#C1A27B] hover:border-[#C1A27B] transition-all text-white"
                   >
-                    <ArrowRight className="w-4 h-4 text-white" />
+                    <ArrowRight className="w-5 h-5" />
                   </Link>
                 </div>
               </div>
             ))}
           </div>
-          <div className="flex justify-center mt-12">
-            <Link to="/events" className="btn-earthy px-10 py-4 font-bold rounded-full text-sm tracking-widest uppercase">
-              Explore All Destinations →
+          <div className="flex justify-center mt-16">
+            <Link to="/events" className="btn-earthy px-12 py-5 font-bold rounded-full text-sm tracking-[0.25em] uppercase shadow-lg">
+              Explore All Destinations
             </Link>
           </div>
         </div>
@@ -364,24 +460,24 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ══════════════════════════════════════════════════
-          8. CTA BANNER
-      ══════════════════════════════════════════════════ */}
-      <section className="py-20 bg-[#4A4F4D]">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <Sparkles className="w-8 h-8 text-[#C1A27B] mx-auto mb-5 opacity-80" />
-          <h2 className="font-['Playfair_Display'] text-3xl md:text-4xl text-white font-medium mb-4">
-            Ready to Plan Your Dream Event?
+      {/* 8. CTA BANNER */}
+      <section className="py-24 bg-[#4A4F4D] relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('/images/events_gallery_bg.png')] opacity-10 bg-cover bg-center" />
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+          <div className="w-16 h-1 bg-[#C1A27B] mx-auto mb-10 rounded-full" />
+          <h2 className="font-['Playfair_Display'] text-4xl md:text-5xl lg:text-6xl text-white font-medium mb-8 leading-tight">
+            Ready to Plan Our Dream Event?
           </h2>
-          <p className="text-white/55 text-base mb-10 leading-relaxed">
-            Let our team of expert planners turn your vision into an unforgettable experience. We handle every detail so you can enjoy every moment.
+          <p className="text-white/60 text-lg mb-12 max-w-2xl mx-auto leading-relaxed">
+            Let our team of expert planners turn your vision into an unforgettable masterpiece. From heritage palaces to backwater retreats, we weave magic into every detail.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link to="/contact" className="btn-earthy px-10 py-4 rounded-full font-bold tracking-widest uppercase text-sm shadow-lg hover:scale-105 transition-transform w-full sm:w-auto text-center">
-              Start Planning
-            </Link>
-            <Link to="/contact" className="px-10 py-4 rounded-full border-2 border-white/30 text-white font-bold tracking-widest uppercase text-sm hover:bg-white/10 transition-all w-full sm:w-auto text-center">
-              Talk to Us
+          <div className="flex justify-center">
+            <Link 
+              to="/contact" 
+              className="group relative px-16 py-6 overflow-hidden rounded-full bg-[#C1A27B] text-[#2C2828] font-bold tracking-[0.3em] uppercase text-sm shadow-[0_20px_50px_rgba(193,162,123,0.3)] hover:scale-105 transition-all duration-500"
+            >
+              <span className="relative z-10">Start Planning Now</span>
+              <div className="absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
             </Link>
           </div>
         </div>
