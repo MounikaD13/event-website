@@ -1,9 +1,9 @@
-const express = require("express")
-const router = express.Router()
-const User = require("../models/Users")
-const authMiddleware = require("../middleware/middleware")
-const transporter = require("../utils/mail")
-const { emitToAdmins, emitToUser, getIo } = require("../utils/socket");
+const express = require("express");
+const router = express.Router();
+const User = require("../models/Users");
+const authMiddleware = require("../middleware/middleware");
+const transporter = require("../utils/mail");
+const { getIo, emitToAdmins, emitToUser } = require("../utils/socket");
 
 // 1. GET ALL USER DATA (With simple search/filter)
 router.get("/admin/all-data", authMiddleware(["admin"]), async (req, res) => {

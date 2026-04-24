@@ -98,11 +98,24 @@ router.put("/services/:id", authMiddleware(["admin"]), upload.array("images", 10
         }
 
         const updateData = { ...req.body };
+        // Remove immutable or internal fields
+        delete updateData._id;
+        delete updateData.__v;
 
         // Handle image deletions
         let currentImages = service.images || [];
         if (req.body.deletedImages) {
             let deletedImages = req.body.deletedImages;
+
+            // Try to parse if it's a JSON string
+            if (typeof deletedImages === "string" && deletedImages.startsWith("[")) {
+                try {
+                    deletedImages = JSON.parse(deletedImages);
+                } catch (e) {
+                    console.error("Failed to parse deletedImages JSON:", e);
+                }
+            }
+
             if (typeof deletedImages === "string") {
                 deletedImages = [deletedImages]; // Handle single item
             }
@@ -142,7 +155,7 @@ router.put("/services/:id", authMiddleware(["admin"]), upload.array("images", 10
         service = await Service.findByIdAndUpdate(
             req.params.id,
             { $set: updateData },
-            { new: true } // Return updated document
+            { returnDocument: 'after' } // Return updated document
         );
 
         res.status(200).json({ message: "Service updated successfully", service });

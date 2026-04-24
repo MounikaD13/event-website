@@ -304,8 +304,8 @@ export default function AuthPage() {
               <Globe style={{ width: 19, height: 19, color: '#fff', opacity: 0.88 }} />
             </div>
             <div style={{ textAlign: 'left' }}>
-              <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: '18px', fontWeight: '700', letterSpacing: '0.28em', color: '#fff', display: 'block', lineHeight: 1.1 }}>OVERSEAS</span>
-              <span style={{ fontSize: '8px', color: 'rgba(255,255,255,0.45)', letterSpacing: '3.5px', textTransform: 'uppercase', fontWeight: '600' }}>Destination Planners</span>
+              <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: '18px', fontWeight: '700', letterSpacing: '0.28em', color: '#fff', display: 'block', lineHeight: 1.1 }}>ELYSIUM</span>
+              <span style={{ fontSize: '8px', color: 'rgba(255,255,255,0.45)', letterSpacing: '3.5px', textTransform: 'uppercase', fontWeight: '600' }}>Event Planners</span>
             </div>
           </Link>
           <h1 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: '24px', fontWeight: '700', color: '#fff', margin: '0 0 4px', lineHeight: 1.2, textAlign: 'center' }}>

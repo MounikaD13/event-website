@@ -4,8 +4,8 @@ import {
   Users, MessageSquare, Calendar, Search,
   ChevronDown, ChevronUp, Send, Trash2, Mail, ShieldCheck,
   Filter, Activity, CheckCircle, Clock, XCircle, Info,
-  Briefcase, Bell, Zap, MapPin, Banknote, Wrench, Phone, Heart, Layers,
-  StickyNote, PlusCircle, Tag, FileText, Star, AlertTriangle
+  Zap, MapPin, Banknote, Heart, Layers,
+  StickyNote, PlusCircle, FileText, Star
 } from 'lucide-react';
 import {
   fetchAllUserData, updateInquiryStatus, replyToChat, deleteUser,
@@ -86,8 +86,6 @@ const getActivityTypeMeta = (type) => {
 
 const premiumCardClass =
   'rounded-[2rem] border border-[#E8E1D5] bg-white shadow-[0_18px_50px_rgba(34,37,49,0.06)]';
-<<<<<<< HEAD
-=======
 
 const RequirementItem = ({ icon: Icon, label, value, subValue }) => (
   <div className="flex items-start gap-3 p-3 rounded-xl hover:bg-[#C1A27B]/5 transition-colors group">
@@ -256,7 +254,6 @@ const AdminNotesPanel = ({ itemId }) => {
     </div>
   );
 };
->>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
 
 export default function AdminDashboard() {
   const dispatch = useDispatch();
@@ -281,6 +278,7 @@ export default function AdminDashboard() {
     dispatch(fetchAllUserData({ search: searchTerm }));
     dispatch(fetchAllContacts());
   }, [dispatch, searchTerm]);
+
   useEffect(() => {
     const refreshAdminData = () => {
       dispatch(fetchAllUserData({ search: searchTermRef.current }));
@@ -419,6 +417,7 @@ export default function AdminDashboard() {
     activities.sort((a, b) => b.date - a.date);
     return [...realtimeActivities, ...activities].slice(0, 5);
   })();
+
   const handleUserStatusUpdate = async (userId, inquiryId, newStatus) => {
     try {
       await dispatch(updateInquiryStatus({ userId, inquiryId, newStatus })).unwrap();
@@ -463,13 +462,8 @@ export default function AdminDashboard() {
 
   const filteredUsers = filterStatus
     ? safeUsers.filter((user) =>
-<<<<<<< HEAD
-      (user.inquiries || []).some((inq) => inq.status === filterStatus)
-    )
-=======
         (user.inquiries || []).some((inq) => inq.status === filterStatus)
       )
->>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
     : safeUsers;
 
   const filteredContacts = safeContacts.filter((contact) => {
@@ -481,13 +475,10 @@ export default function AdminDashboard() {
   });
 
   const items = activeTab === 'clients' ? filteredUsers : filteredContacts;
+
   return (
     <div className="min-h-screen bg-[#FBF8F3] pt-24 sm:pt-28 lg:pt-40 pb-12 sm:pb-16 overflow-x-hidden">
       <div className="mx-auto w-full max-w-[90rem] px-4 sm:px-6 lg:px-12">
-<<<<<<< HEAD
-=======
-
->>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
         {/* ================= HEADER ================= */}
         <div className="mb-8 sm:mb-10 lg:mb-12 flex flex-col gap-6 sm:gap-8 xl:flex-row xl:items-end xl:justify-between">
           {/* LEFT CONTENT */}
@@ -539,14 +530,10 @@ export default function AdminDashboard() {
               <Activity className="h-5 w-5 text-emerald-600" />
               Real-Time Pulse
             </h2>
-<<<<<<< HEAD
-            <button onClick={() => setIsLogsOpen(!isLogsOpen)} className="text-[10px] sm:text-xs font-bold text-[#C1A27B] flex items-center gap-1 sm:gap-2 hover:text-[#A98960] transition-colors">
-=======
             <button
               onClick={() => setIsLogsOpen(!isLogsOpen)}
               className="text-[10px] sm:text-xs font-bold text-[#C1A27B] flex items-center gap-1 sm:gap-2 hover:text-[#A98960] transition-colors"
             >
->>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
               {isLogsOpen ? 'HIDE LOGS' : 'VIEW LOGS'}
               <ChevronDown className={`h-4 w-4 transition-transform ${isLogsOpen ? 'rotate-180' : ''}`} />
             </button>
@@ -554,16 +541,12 @@ export default function AdminDashboard() {
 
           <AnimatePresence>
             {isLogsOpen && (
-<<<<<<< HEAD
-              <Motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden mb-6">
-=======
               <Motion.div
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: 'auto', opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
                 className="overflow-hidden mb-6"
               >
->>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 border-t border-[#E8E1D5] pt-6">
                   {[...realtimeActivities, ...recentActivity].map((log, i) => (
                     <div key={log.id || i} className="flex items-center gap-3 sm:gap-4 rounded-xl sm:rounded-2xl border border-[#E8E1D5] bg-[#FBF8F3] p-3 sm:p-4">
@@ -589,16 +572,12 @@ export default function AdminDashboard() {
               const meta = getActivityTypeMeta(act.type);
               const ActivityIcon = meta.icon;
               return (
-<<<<<<< HEAD
-                <Motion.div key={act.id || index} className={`min-w-[280px] sm:min-w-[320px] rounded-2xl border p-4 sm:p-6 transition-all ${act.isRealtime ? 'border-emerald-500/20 bg-emerald-500/5' : 'border-[#E8E1D5] bg-white'}`}>
-=======
                 <Motion.div
                   key={act.id || index}
                   className={`min-w-[280px] sm:min-w-[320px] rounded-2xl border p-4 sm:p-6 transition-all ${
                     act.isRealtime ? 'border-emerald-500/20 bg-emerald-500/5' : 'border-[#E8E1D5] bg-white'
                   }`}
                 >
->>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
                   <div className="mb-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className={`rounded-xl p-2 ${meta.panelClass}`}>
@@ -611,15 +590,11 @@ export default function AdminDashboard() {
                         </p>
                       </div>
                     </div>
-<<<<<<< HEAD
-                    {act.isRealtime && <span className="rounded-full bg-emerald-500 px-2 py-0.5 text-[9px] font-bold text-white animate-pulse">LIVE</span>}
-=======
                     {act.isRealtime && (
                       <span className="rounded-full bg-emerald-500 px-2 py-0.5 text-[9px] font-bold text-white animate-pulse">
                         LIVE
                       </span>
                     )}
->>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
                   </div>
                   <p className="font-serif text-lg font-bold text-[#2F3742] truncate">{act.name}</p>
                   <p className="text-sm text-[#667280] truncate mb-3">{act.event}</p>
@@ -636,18 +611,12 @@ export default function AdminDashboard() {
         <div className="mb-6 sm:mb-8 flex flex-col gap-4 sm:gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="w-full lg:w-auto flex flex-col sm:flex-row gap-2 sm:gap-3 rounded-2xl border border-[#E8E1D5] bg-white p-1.5 shadow-sm">
             {['clients', 'guests'].map((tab) => (
-<<<<<<< HEAD
-              <button key={tab} onClick={() => { setActiveTab(tab); setExpandedItem(null); }}
-                className={`flex-1 sm:flex-none px-4 sm:px-8 py-2.5 sm:py-3 text-[10px] sm:text-xs font-bold uppercase tracking-widest rounded-xl transition-all
-                  ${activeTab === tab ? 'bg-[#C1A27B] text-white shadow-md' : 'text-[#667280] hover:text-[#C1A27B]'}`}>
-=======
               <button
                 key={tab}
                 onClick={() => { setActiveTab(tab); setExpandedItem(null); }}
                 className={`flex-1 sm:flex-none px-4 sm:px-8 py-2.5 sm:py-3 text-[10px] sm:text-xs font-bold uppercase tracking-widest rounded-xl transition-all
                   ${activeTab === tab ? 'bg-[#C1A27B] text-white shadow-md' : 'text-[#667280] hover:text-[#C1A27B]'}`}
               >
->>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
                 {tab === 'clients' ? 'Registered Clients' : 'Guest Inquiries'}
               </button>
             ))}
@@ -656,15 +625,6 @@ export default function AdminDashboard() {
           <div className="w-full lg:w-auto flex flex-col sm:flex-row gap-3 sm:gap-4">
             <div className="relative w-full sm:w-[240px] lg:w-[280px]">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#667280]" />
-<<<<<<< HEAD
-              <input type="text" placeholder="Search database..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full rounded-xl sm:rounded-2xl border border-[#E8E1D5] bg-white py-3 sm:py-3.5 pl-12 pr-4 text-sm font-medium shadow-sm transition-all focus:border-[#C1A27B] focus:outline-none focus:ring-4 focus:ring-[#C1A27B]/10" />
-            </div>
-            <div className="relative w-full sm:w-[180px] lg:w-[220px]">
-              <Filter className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#667280]" />
-              <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}
-                className="w-full appearance-none cursor-pointer rounded-xl sm:rounded-2xl border border-[#E8E1D5] bg-white py-3 sm:py-3.5 pl-12 pr-10 text-sm font-bold shadow-sm transition-all focus:border-[#C1A27B] focus:outline-none focus:ring-4 focus:ring-[#C1A27B]/10">
-=======
               <input
                 type="text"
                 placeholder="Search database..."
@@ -680,7 +640,6 @@ export default function AdminDashboard() {
                 onChange={(e) => setFilterStatus(e.target.value)}
                 className="w-full appearance-none cursor-pointer rounded-xl sm:rounded-2xl border border-[#E8E1D5] bg-white py-3 sm:py-3.5 pl-12 pr-10 text-sm font-bold shadow-sm transition-all focus:border-[#C1A27B] focus:outline-none focus:ring-4 focus:ring-[#C1A27B]/10"
               >
->>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
                 <option value="">All Statuses</option>
                 <option value="Pending">Pending</option>
                 <option value="Checked">Checked</option>
@@ -694,18 +653,11 @@ export default function AdminDashboard() {
 
         {/* ================= DATA AREA ================= */}
         <div className={premiumCardClass}>
-<<<<<<< HEAD
-=======
-
->>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
           {/* MOBILE VIEW (CARDS) */}
           <div className="block lg:hidden divide-y divide-[#E8E1D5]/50">
             <AnimatePresence>
               {items.map((item) => (
                 <Fragment key={item._id}>
-<<<<<<< HEAD
-                  <Motion.div layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="p-4 sm:p-6 space-y-4">
-=======
                   <Motion.div
                     layout
                     initial={{ opacity: 0 }}
@@ -713,7 +665,6 @@ export default function AdminDashboard() {
                     exit={{ opacity: 0 }}
                     className="p-4 sm:p-6 space-y-4"
                   >
->>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3 min-w-0" onClick={() => toggleExpand(item._id)}>
                         <div className={`h-12 w-12 rounded-xl flex items-center justify-center font-serif font-bold text-lg border-2 border-white shadow-md ${activeTab === 'clients' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-[#C1A27B]/10 text-[#C1A27B]'}`}>
@@ -725,12 +676,6 @@ export default function AdminDashboard() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-<<<<<<< HEAD
-                        <button onClick={() => activeTab === 'clients' ? handleDeleteUser(item._id) : handleDeleteContact(item._id)} className="p-2 text-[#667280] hover:text-red-500 transition-colors">
-                          <Trash2 size={18} />
-                        </button>
-                        <button onClick={() => toggleExpand(item._id)} className={`p-2 rounded-lg border transition-all ${expandedItem === item._id ? 'bg-[#C1A27B] text-white' : 'bg-white text-[#667280]'}`}>
-=======
                         <button
                           onClick={() => activeTab === 'clients' ? handleDeleteUser(item._id) : handleDeleteContact(item._id)}
                           className="p-2 text-[#667280] hover:text-red-500 transition-colors"
@@ -741,17 +686,10 @@ export default function AdminDashboard() {
                           onClick={() => toggleExpand(item._id)}
                           className={`p-2 rounded-lg border transition-all ${expandedItem === item._id ? 'bg-[#C1A27B] text-white' : 'bg-white text-[#667280]'}`}
                         >
->>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
                           {expandedItem === item._id ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                         </button>
                       </div>
                     </div>
-<<<<<<< HEAD
-                    <AnimatePresence>
-                      {expandedItem === item._id && (
-                        <Motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="border-t border-[#E8E1D5]/50 pt-4 overflow-hidden">
-                          {/* Expanded Content for Mobile */}
-=======
 
                     <AnimatePresence>
                       {expandedItem === item._id && (
@@ -761,7 +699,6 @@ export default function AdminDashboard() {
                           exit={{ opacity: 0, height: 0 }}
                           className="border-t border-[#E8E1D5]/50 pt-4 overflow-hidden"
                         >
->>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
                           <div className="space-y-4">
                             <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-[#667280]">
                               <span>Volume</span>
@@ -773,16 +710,10 @@ export default function AdminDashboard() {
                                 {activeTab === 'clients' ? 'Active Account' : item.status || 'Pending'}
                               </div>
                             </div>
-<<<<<<< HEAD
-                            {/* Actions / Chat Link */}
-                            <div className="bg-[#FBF8F3] rounded-xl p-3 text-xs italic text-[#2F3742] border border-[#E8E1D5]">
-                              {activeTab === 'clients' ? 'Open desktop to access full communication terminal.' : (item.message || 'No message provided.')}
-=======
                             <div className="bg-[#FBF8F3] rounded-xl p-3 text-xs italic text-[#2F3742] border border-[#E8E1D5]">
                               {activeTab === 'clients'
                                 ? 'Open desktop to access full details & notes.'
                                 : (item.message || 'No message provided.')}
->>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
                             </div>
                           </div>
                         </Motion.div>
@@ -809,9 +740,6 @@ export default function AdminDashboard() {
                 <AnimatePresence>
                   {items.map((item) => (
                     <Fragment key={item._id}>
-<<<<<<< HEAD
-                      <Motion.tr layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className={`group cursor-pointer transition-colors hover:bg-[#C1A27B]/5 ${expandedItem === item._id ? 'bg-[#C1A27B]/10' : ''}`}>
-=======
                       <Motion.tr
                         layout
                         initial={{ opacity: 0 }}
@@ -819,7 +747,6 @@ export default function AdminDashboard() {
                         exit={{ opacity: 0 }}
                         className={`group cursor-pointer transition-colors hover:bg-[#C1A27B]/5 ${expandedItem === item._id ? 'bg-[#C1A27B]/10' : ''}`}
                       >
->>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
                         <td className="px-8 py-6" onClick={() => toggleExpand(item._id)}>
                           <div className="flex items-center gap-4">
                             <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border-2 border-white font-serif text-xl font-bold shadow-lg transition-transform group-hover:scale-110 ${activeTab === 'clients' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-[#C1A27B]/10 text-[#C1A27B]'}`}>
@@ -836,16 +763,14 @@ export default function AdminDashboard() {
                             <span className="text-[10px] font-bold uppercase tracking-widest text-[#667280]">Inquiries</span>
                             <div className="flex items-center gap-2">
                               <div className="h-1.5 w-24 rounded-full bg-[#E8E1D5] overflow-hidden">
-<<<<<<< HEAD
-                                <div className="h-full bg-emerald-500 transition-all duration-1000" style={{ width: `${Math.min(((activeTab === 'clients' ? item.inquiries?.length : 1) || 0) * 20, 100)}%` }} />
-=======
                                 <div
                                   className="h-full bg-emerald-500 transition-all duration-1000"
                                   style={{ width: `${Math.min(((activeTab === 'clients' ? item.inquiries?.length : 1) || 0) * 20, 100)}%` }}
                                 />
->>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
                               </div>
-                              <span className="text-sm font-bold text-[#2F3742]">{(activeTab === 'clients' ? item.inquiries?.length : 1) || 0}</span>
+                              <span className="text-sm font-bold text-[#2F3742]">
+                                {(activeTab === 'clients' ? item.inquiries?.length : 1) || 0}
+                              </span>
                             </div>
                           </div>
                         </td>
@@ -865,12 +790,6 @@ export default function AdminDashboard() {
                         </td>
                         <td className="px-8 py-6 text-right">
                           <div className="flex items-center justify-end gap-3">
-<<<<<<< HEAD
-                            <button onClick={(e) => { e.stopPropagation(); activeTab === 'clients' ? handleDeleteUser(item._id) : handleDeleteContact(item._id); }} className="p-3 text-[#667280] hover:text-red-500 transition-all rounded-xl hover:bg-red-50">
-                              <Trash2 size={20} />
-                            </button>
-                            <button onClick={() => toggleExpand(item._id)} className={`p-3 rounded-xl border transition-all ${expandedItem === item._id ? 'border-[#C1A27B] bg-[#C1A27B] text-white shadow-lg' : 'border-[#E8E1D5] bg-white text-[#667280] hover:border-[#C1A27B] hover:text-[#C1A27B]'}`}>
-=======
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -888,7 +807,6 @@ export default function AdminDashboard() {
                                   : 'border-[#E8E1D5] bg-white text-[#667280] hover:border-[#C1A27B] hover:text-[#C1A27B]'
                               }`}
                             >
->>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
                               {expandedItem === item._id ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                             </button>
                           </div>
@@ -899,13 +817,6 @@ export default function AdminDashboard() {
                         {expandedItem === item._id && (
                           <tr>
                             <td colSpan="4" className="border-b border-[#E8E1D5]/50 p-0">
-<<<<<<< HEAD
-                              <Motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden bg-[#C1A27B]/5">
-                                <div className="p-8 lg:p-12">
-                                  {/* Original Detail View logic - merged here */}
-                                  <div className="grid grid-cols-1 gap-12 xl:grid-cols-2">
-                                    {/* Left: Inquiries */}
-=======
                               <Motion.div
                                 initial={{ opacity: 0, height: 0 }}
                                 animate={{ opacity: 1, height: 'auto' }}
@@ -916,33 +827,12 @@ export default function AdminDashboard() {
                                   <div className="grid grid-cols-1 gap-12 xl:grid-cols-2">
 
                                     {/* ── LEFT: Details & Specifications ── */}
->>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
                                     <div className="space-y-8">
                                       <h4 className="font-serif text-xl font-bold text-[#2F3742] border-b border-[#E8E1D5] pb-4 flex items-center gap-3">
                                         <Calendar className="text-[#C1A27B]" /> Details & Specifications
                                       </h4>
                                       <div className="space-y-6">
                                         {(activeTab === 'clients' ? item.inquiries : [item]).map((inq, idx) => (
-<<<<<<< HEAD
-                                          <div key={inq._id || idx} className="bg-white rounded-3xl border border-[#E8E1D5] p-6 shadow-sm">
-                                            <div className="flex justify-between items-start mb-4">
-                                              <div>
-                                                <h5 className="font-serif text-lg font-bold text-[#2F3742]">{inq.eventType || 'General inquiry'}</h5>
-                                                <p className="text-xs text-[#667280]">{inq.eventDate ? new Date(inq.eventDate).toLocaleDateString() : 'No date set'}</p>
-                                              </div>
-                                              <div className={`px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider ${getStatusColor(inq.status || 'Pending')}`}>
-                                                {inq.status || 'Pending'}
-                                              </div>
-                                            </div>
-                                            <p className="text-sm italic text-[#2F3742] mb-6">"{inq.message}"</p>
-                                            <div className="flex flex-wrap gap-2">
-                                              {['Pending', 'Checked', 'Confirmed', 'Rejected'].map((status) => (
-                                                <button key={status} onClick={() => activeTab === 'clients' ? handleUserStatusUpdate(item._id, inq._id, status) : handleContactStatusUpdate(item._id, status)} className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase transition-all ${inq.status === status ? 'bg-[#C1A27B] text-white shadow-md' : 'bg-white border border-[#E8E1D5] text-[#667280] hover:border-[#C1A27B]'}`}>
-                                                  {status}
-                                                </button>
-                                              ))}
-                                            </div>
-=======
                                           <div key={inq._id || idx} className="bg-white rounded-[2rem] border border-[#E8E1D5] p-6 lg:p-8 shadow-sm hover:shadow-md transition-shadow">
                                             <div className="flex justify-between items-start mb-6">
                                               <div className="flex items-center gap-4">
@@ -1032,58 +922,14 @@ export default function AdminDashboard() {
                                                 </button>
                                               ))}
                                             </div>
->>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
                                           </div>
                                         ))}
                                       </div>
                                     </div>
-<<<<<<< HEAD
-                                    {/* Right: Terminal */}
-                                    <div className="space-y-8">
-                                      <h4 className="font-serif text-xl font-bold text-[#2F3742] border-b border-[#E8E1D5] pb-4 flex items-center gap-3">
-                                        <MessageSquare className="text-[#C1A27B]" /> Communication Terminal
-                                      </h4>
-                                      <div className="bg-white rounded-3xl border border-[#E8E1D5] p-6 h-[400px] flex flex-col shadow-sm">
-                                        <div className="flex-1 overflow-y-auto space-y-4 mb-4 pr-2 custom-scrollbar">
-                                          {activeTab === 'clients' ? (
-                                            (item.chats || []).length > 0 ? (
-                                              item.chats.map((chat, idx) => (
-                                                <div key={idx} className={`flex ${chat.sender === 'Admin' ? 'justify-end' : 'justify-start'}`}>
-                                                  <div className={`max-w-[85%] rounded-2xl p-4 text-sm ${chat.sender === 'Admin' ? 'bg-[#C1A27B] text-white rounded-tr-none' : 'bg-[#FBF8F3] text-[#2F3742] rounded-tl-none border border-[#E8E1D5]'}`}>
-                                                    <p className="font-medium">{chat.message}</p>
-                                                    <span className="text-[9px] block mt-1 opacity-60 uppercase font-bold">{chat.sender}</span>
-                                                  </div>
-                                                </div>
-                                              ))
-                                            ) : (
-                                              <div className="h-full flex flex-col items-center justify-center text-[#667280]/30 italic">
-                                                <MessageSquare size={48} className="mb-2" />
-                                                <p className="text-xs uppercase tracking-widest">No chat history</p>
-                                              </div>
-                                            )
-                                          ) : (
-                                            <div className="space-y-4">
-                                              <p className="text-sm font-medium text-[#2F3742]">Reply to guest via email integration:</p>
-                                              <textarea rows="6" value={adminResponseText[item._id] || ''} onChange={(e) => setAdminResponseText(prev => ({ ...prev, [item._id]: e.target.value }))} placeholder="Compose response..." className="w-full bg-[#FBF8F3] border border-[#E8E1D5] rounded-2xl p-4 text-sm focus:border-[#C1A27B] outline-none" />
-                                            </div>
-                                          )}
-                                        </div>
-                                        {activeTab === 'clients' && (
-                                          <div className="flex gap-2 p-2 bg-[#FBF8F3] rounded-2xl border border-[#E8E1D5]">
-                                            <input type="text" value={replyText[item._id] || ''} onChange={(e) => setReplyText(prev => ({ ...prev, [item._id]: e.target.value }))} onKeyDown={(e) => e.key === 'Enter' && handleReply(item._id)} placeholder="Type message..." className="flex-1 bg-transparent px-4 text-sm outline-none" />
-                                            <button onClick={() => handleReply(item._id)} className="bg-[#C1A27B] text-white p-3 rounded-xl hover:brightness-110 transition-all">
-                                              <Send size={18} />
-                                            </button>
-                                          </div>
-                                        )}
-                                      </div>
-                                    </div>
-=======
 
                                     {/* ── RIGHT: Admin Notes Panel ── */}
                                     <AdminNotesPanel itemId={item._id} />
 
->>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
                                   </div>
                                 </div>
                               </Motion.div>

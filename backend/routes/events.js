@@ -94,11 +94,24 @@ router.put("/events/:id", authMiddleware(["admin"]), upload.array("images", 10),
         }
 
         const updateData = { ...req.body };
+        // Remove immutable or internal fields to prevent MongoDB errors
+        delete updateData._id;
+        delete updateData.__v;
 
         // Handle image deletions
         let currentImages = event.images || [];
         if (req.body.deletedImages) {
             let deletedImages = req.body.deletedImages;
+            
+            // Try to parse if it's a JSON string of an array
+            if (typeof deletedImages === "string" && deletedImages.startsWith("[")) {
+                try {
+                    deletedImages = JSON.parse(deletedImages);
+                } catch (e) {
+                    console.error("Failed to parse deletedImages JSON:", e);
+                }
+            }
+
             if (typeof deletedImages === "string") {
                 deletedImages = [deletedImages]; // Handle single item
             }
@@ -138,7 +151,7 @@ router.put("/events/:id", authMiddleware(["admin"]), upload.array("images", 10),
         event = await Event.findByIdAndUpdate(
             req.params.id,
             { $set: updateData },
-            { new: true } // Return updated document
+            { returnDocument: 'after' } // Return updated document
         );
 
         res.status(200).json({ message: "Event updated successfully", event });

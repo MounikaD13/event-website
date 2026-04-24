@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
   Mail, Phone, MapPin, Send, MessageSquare, User, Calendar,
   Users, Target, DollarSign, HelpCircle, Sparkles, Clock, Globe
@@ -16,21 +16,11 @@ const ContactPage = () => {
   const { user } = useSelector((state) => state.auth);
   const isAuthenticated = !!user;
 
-  const location = useLocation();
   const [inquiryForm, setInquiryForm] = useState({
     eventType: 'Wedding', eventDate: '', guestCount: '', phone: '',
     referredBy: 'Other', budgetRange: '', location: '',
     estimatedDuration: '', specificServices: '', isFlexibleDate: false, message: '',
   });
-
-  useEffect(() => {
-    if (location.state?.message) {
-      setInquiryForm(prev => ({
-        ...prev,
-        message: location.state.message
-      }));
-    }
-  }, [location.state]);
 
   const [contactForm, setContactForm] = useState({ fullName: '', email: '', message: '' });
   const [contactLoading, setContactLoading] = useState(false);
@@ -120,15 +110,9 @@ const ContactPage = () => {
               <h3 className="font-['Playfair_Display'] text-xl font-semibold text-[#2C2828] mb-6">Contact Information</h3>
               <div className="space-y-5">
                 {[
-<<<<<<< HEAD
-                  { icon: Mail, label: 'Email', value: 'concierge@elysium.events' },
-                  { icon: Phone, label: 'Call Us', value: '+91 (80) 4567 8901' },
-                  { icon: MapPin, label: 'Visit Us', value: 'Level 4, Prestige Trade Tower, Bengaluru, KA 560001' },
-=======
                   { icon: Mail, label: 'Email', value: 'Elysium.events.com' },
                   { icon: Phone, label: 'Call Us', value: '+91 9876543210' },
                   { icon: MapPin, label: 'Visit Us', value: 'Siddartha, Mogalrajpuram, Vijayawada, AP' },
->>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
                   { icon: Clock, label: 'Hours', value: 'Mon–Sat: 9AM – 7PM' },
                 ].map(({ icon: Icon, label, value }) => ( // eslint-disable-line no-unused-vars
                   <div key={label} className="flex items-start gap-4">
@@ -180,7 +164,7 @@ const ContactPage = () => {
                   <div>
                     <label className={labelCls}><Target className="w-3 h-3" /> Event Type</label>
                     <select name="eventType" value={inquiryForm.eventType} onChange={handleInquiryChange} className={inputCls}>
-                      {['Wedding', 'Birthday', 'Luxury Gala', 'Graduation', 'Anniversary', 'Other'].map(t => <option key={t} value={t}>{t}</option>)}
+                      {['Wedding','Birthday','Corporate','Graduation','Anniversary','Other'].map(t => <option key={t} value={t}>{t}</option>)}
                     </select>
                   </div>
                   <div>
@@ -208,7 +192,7 @@ const ContactPage = () => {
                 <div className="mb-5">
                   <label className={labelCls}><HelpCircle className="w-3 h-3" /> How did you hear about us?</label>
                   <select name="referredBy" value={inquiryForm.referredBy} onChange={handleInquiryChange} className={inputCls}>
-                    {['Instagram', 'Facebook', 'Google', 'Friend', 'Other'].map(r => <option key={r} value={r}>{r === 'Google' ? 'Google Search' : r === 'Friend' ? 'A Friend' : r}</option>)}
+                    {['Instagram','Facebook','Google','Friend','Other'].map(r => <option key={r} value={r}>{r === 'Google' ? 'Google Search' : r === 'Friend' ? 'A Friend' : r}</option>)}
                   </select>
                 </div>
 
