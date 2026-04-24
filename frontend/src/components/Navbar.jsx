@@ -18,7 +18,7 @@ const userLinks = [
 
 const adminLinks = [
   { name: 'Events', path: '/events' },
-  { name: 'Contact Us', path: '/contact' },
+  // { name: 'Contact Us', path: '/contact' },
   { name: 'Dashboard', path: '/admin/dashboard' },
   { name: 'Manage Events', path: '/admin/events' },
   { name: 'Manage Services', path: '/admin/services' },

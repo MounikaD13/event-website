@@ -108,7 +108,7 @@ export default function LandingPage() {
   useEffect(() => {
     const trackInterest = () => {
       const scores = { weddings: 0, birthdays: 0, milestone: 0, bussiness: 0 };
-      
+
       // 1. Check past inquiries (High weight)
       if (dashboard.inquiries?.length) {
         dashboard.inquiries.forEach(inq => {
@@ -239,7 +239,7 @@ export default function LandingPage() {
                   alt={cat.name}
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                 />
-                
+
                 {/* Overlays */}
                 <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black/90" />
                 <div className="absolute inset-0 bg-[#C1A27B]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -258,7 +258,7 @@ export default function LandingPage() {
                       onClick={() => handleCategoryClick(cat.type)}
                       className="inline-flex items-center gap-3 bg-white text-[#2C2828] px-8 py-3.5 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-2xl hover:bg-[#C1A27B] hover:text-white transition-all"
                     >
-                      Browse {cat.name} <ArrowRight className="w-4 h-4" />
+                      {cat.name} <ArrowRight className="w-4 h-4" />
                     </Link>
                   </div>
                 </div>
@@ -305,9 +305,9 @@ export default function LandingPage() {
               {personalizedGallery.map((img, i) => (
                 <SwiperSlide key={i}>
                   <div className="relative h-[450px] md:h-[600px] w-full rounded-[2rem] overflow-hidden shadow-2xl group border border-[#EBE5DA]">
-                    <img 
-                      src={img} 
-                      alt="Inspiration" 
+                    <img
+                      src={img}
+                      alt="Inspiration"
                       className="absolute inset-0 w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-110"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
@@ -472,8 +472,8 @@ export default function LandingPage() {
             Let our team of expert planners turn your vision into an unforgettable masterpiece. From heritage palaces to backwater retreats, we weave magic into every detail.
           </p>
           <div className="flex justify-center">
-            <Link 
-              to="/contact" 
+            <Link
+              to="/contact"
               className="group relative px-16 py-6 overflow-hidden rounded-full bg-[#C1A27B] text-[#2C2828] font-bold tracking-[0.3em] uppercase text-sm shadow-[0_20px_50px_rgba(193,162,123,0.3)] hover:scale-105 transition-all duration-500"
             >
               <span className="relative z-10">Start Planning Now</span>
