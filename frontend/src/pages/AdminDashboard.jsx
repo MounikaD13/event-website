@@ -4,7 +4,8 @@ import {
   Users, MessageSquare, Calendar, Search,
   ChevronDown, ChevronUp, Send, Trash2, Mail, ShieldCheck,
   Filter, Activity, CheckCircle, Clock, XCircle, Info,
-  Briefcase, Bell, Zap
+  Briefcase, Bell, Zap, MapPin, Banknote, Wrench, Phone, Heart, Layers,
+  StickyNote, PlusCircle, Tag, FileText, Star, AlertTriangle
 } from 'lucide-react';
 import {
   fetchAllUserData, updateInquiryStatus, replyToChat, deleteUser,
@@ -85,6 +86,177 @@ const getActivityTypeMeta = (type) => {
 
 const premiumCardClass =
   'rounded-[2rem] border border-[#E8E1D5] bg-white shadow-[0_18px_50px_rgba(34,37,49,0.06)]';
+<<<<<<< HEAD
+=======
+
+const RequirementItem = ({ icon: Icon, label, value, subValue }) => (
+  <div className="flex items-start gap-3 p-3 rounded-xl hover:bg-[#C1A27B]/5 transition-colors group">
+    <div className="h-9 w-9 rounded-lg bg-white border border-[#E8E1D5] flex items-center justify-center shrink-0 shadow-sm group-hover:border-[#C1A27B]/30 transition-colors">
+      <Icon className="h-4 w-4 text-[#C1A27B]" />
+    </div>
+    <div className="min-w-0">
+      <p className="text-[9px] font-bold text-[#667280] uppercase tracking-widest">{label}</p>
+      <p className="text-xs font-bold text-[#2F3742] truncate mt-0.5">{value}</p>
+      {subValue && <p className="text-[9px] text-[#C1A27B] font-medium mt-0.5">{subValue}</p>}
+    </div>
+  </div>
+);
+
+// ── Admin Notes Panel ──────────────────────────────────────────────────────────
+const NOTE_TAGS = ['Follow-up', 'Priority', 'VIP', 'Caution', 'Confirmed', 'Pending Call'];
+const NOTE_TAG_COLORS = {
+  'Follow-up': 'bg-sky-500/10 text-sky-600 border-sky-500/20',
+  'Priority': 'bg-red-500/10 text-red-600 border-red-500/20',
+  'VIP': 'bg-[#C1A27B]/10 text-[#A98960] border-[#C1A27B]/20',
+  'Caution': 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20',
+  'Confirmed': 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
+  'Pending Call': 'bg-purple-500/10 text-purple-600 border-purple-500/20',
+};
+
+const AdminNotesPanel = ({ itemId }) => {
+  const storageKey = `admin_notes_${itemId}`;
+  const [notes, setNotes] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem(storageKey) || '[]');
+    } catch {
+      return [];
+    }
+  });
+  const [noteText, setNoteText] = useState('');
+  const [selectedTag, setSelectedTag] = useState('Follow-up');
+  const [rating, setRating] = useState(3);
+
+  const saveNotes = (updated) => {
+    setNotes(updated);
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(updated));
+    } catch {
+      // ignore storage errors
+    }
+  };
+
+  const addNote = () => {
+    if (!noteText.trim()) return;
+    const newNote = {
+      id: `${Date.now()}`,
+      text: noteText.trim(),
+      tag: selectedTag,
+      rating,
+      createdAt: new Date().toISOString(),
+    };
+    saveNotes([newNote, ...notes]);
+    setNoteText('');
+  };
+
+  const deleteNote = (id) => {
+    saveNotes(notes.filter((n) => n.id !== id));
+  };
+
+  return (
+    <div className="space-y-6">
+      <h4 className="font-serif text-xl font-bold text-[#2F3742] border-b border-[#E8E1D5] pb-4 flex items-center gap-3">
+        <StickyNote className="text-[#C1A27B]" /> Admin Notes & Tags
+      </h4>
+
+      {/* Composer */}
+      <div className="bg-white rounded-3xl border border-[#E8E1D5] p-5 shadow-sm space-y-4">
+        <textarea
+          rows={3}
+          value={noteText}
+          onChange={(e) => setNoteText(e.target.value)}
+          placeholder="Add an internal note about this client or inquiry…"
+          className="w-full bg-[#FBF8F3] border border-[#E8E1D5] rounded-2xl p-4 text-sm text-[#2F3742] resize-none focus:border-[#C1A27B] focus:ring-4 focus:ring-[#C1A27B]/10 outline-none transition-all placeholder:text-[#667280]/50"
+        />
+
+        {/* Tag selector */}
+        <div className="flex flex-wrap gap-2">
+          {NOTE_TAGS.map((tag) => (
+            <button
+              key={tag}
+              onClick={() => setSelectedTag(tag)}
+              className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border transition-all ${
+                selectedTag === tag
+                  ? NOTE_TAG_COLORS[tag] + ' shadow-sm'
+                  : 'bg-white border-[#E8E1D5] text-[#667280] hover:border-[#C1A27B] hover:text-[#C1A27B]'
+              }`}
+            >
+              {tag}
+            </button>
+          ))}
+        </div>
+
+        {/* Star Rating */}
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-[#667280]">Priority</span>
+          <div className="flex gap-1">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <button
+                key={star}
+                onClick={() => setRating(star)}
+                className={`transition-colors ${star <= rating ? 'text-[#C1A27B]' : 'text-[#E8E1D5]'}`}
+              >
+                <Star className="w-4 h-4 fill-current" />
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <button
+          onClick={addNote}
+          className="flex items-center gap-2 px-5 py-2.5 bg-[#C1A27B] text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-[#A98960] transition-colors shadow-md shadow-[#C1A27B]/20"
+        >
+          <PlusCircle className="w-4 h-4" /> Add Note
+        </button>
+      </div>
+
+      {/* Notes List */}
+      <div className="space-y-3 max-h-[340px] overflow-y-auto pr-1 custom-scrollbar">
+        {notes.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-10 text-[#667280]/30">
+            <FileText size={40} className="mb-2" />
+            <p className="text-xs uppercase tracking-widest">No notes yet</p>
+          </div>
+        ) : (
+          <AnimatePresence>
+            {notes.map((note) => (
+              <Motion.div
+                key={note.id}
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                className="bg-white rounded-2xl border border-[#E8E1D5] p-4 shadow-sm flex gap-4 group"
+              >
+                <div className="flex-1 min-w-0 space-y-2">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest border ${NOTE_TAG_COLORS[note.tag]}`}>
+                      {note.tag}
+                    </span>
+                    <div className="flex gap-0.5">
+                      {[1, 2, 3, 4, 5].map((s) => (
+                        <Star key={s} className={`w-3 h-3 fill-current ${s <= note.rating ? 'text-[#C1A27B]' : 'text-[#E8E1D5]'}`} />
+                      ))}
+                    </div>
+                  </div>
+                  <p className="text-sm text-[#2F3742] leading-relaxed">{note.text}</p>
+                  <p className="text-[9px] text-[#667280] uppercase tracking-widest">
+                    {new Date(note.createdAt).toLocaleString()}
+                  </p>
+                </div>
+                <button
+                  onClick={() => deleteNote(note.id)}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-[#667280] hover:text-red-500"
+                >
+                  <Trash2 size={14} />
+                </button>
+              </Motion.div>
+            ))}
+          </AnimatePresence>
+        )}
+      </div>
+    </div>
+  );
+};
+>>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
 
 export default function AdminDashboard() {
   const dispatch = useDispatch();
@@ -96,8 +268,6 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('clients');
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedItem, setExpandedItem] = useState(null);
-  const [replyText, setReplyText] = useState({});
-  const [adminResponseText, setAdminResponseText] = useState({});
   const [filterStatus, setFilterStatus] = useState('');
   const [realtimeActivities, setRealtimeActivities] = useState([]);
   const [isLogsOpen, setIsLogsOpen] = useState(false);
@@ -260,22 +430,10 @@ export default function AdminDashboard() {
 
   const handleContactStatusUpdate = async (id, newStatus) => {
     try {
-      const response = adminResponseText[id] || '';
-      await dispatch(updateContactStatus({ id, status: newStatus, adminResponse: response })).unwrap();
+      await dispatch(updateContactStatus({ id, status: newStatus })).unwrap();
       toast.success(`Guest inquiry marked as ${newStatus}`);
     } catch (err) {
       toast.error(err || 'Failed to update guest inquiry');
-    }
-  };
-
-  const handleReply = async (userId) => {
-    if (!replyText[userId]?.trim()) return;
-    try {
-      await dispatch(replyToChat({ userId, message: replyText[userId] })).unwrap();
-      setReplyText((prev) => ({ ...prev, [userId]: '' }));
-      toast.success('Reply sent successfully');
-    } catch (err) {
-      toast.error(err || 'Failed to send reply');
     }
   };
 
@@ -305,8 +463,13 @@ export default function AdminDashboard() {
 
   const filteredUsers = filterStatus
     ? safeUsers.filter((user) =>
+<<<<<<< HEAD
       (user.inquiries || []).some((inq) => inq.status === filterStatus)
     )
+=======
+        (user.inquiries || []).some((inq) => inq.status === filterStatus)
+      )
+>>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
     : safeUsers;
 
   const filteredContacts = safeContacts.filter((contact) => {
@@ -321,6 +484,10 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-[#FBF8F3] pt-24 sm:pt-28 lg:pt-40 pb-12 sm:pb-16 overflow-x-hidden">
       <div className="mx-auto w-full max-w-[90rem] px-4 sm:px-6 lg:px-12">
+<<<<<<< HEAD
+=======
+
+>>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
         {/* ================= HEADER ================= */}
         <div className="mb-8 sm:mb-10 lg:mb-12 flex flex-col gap-6 sm:gap-8 xl:flex-row xl:items-end xl:justify-between">
           {/* LEFT CONTENT */}
@@ -372,7 +539,14 @@ export default function AdminDashboard() {
               <Activity className="h-5 w-5 text-emerald-600" />
               Real-Time Pulse
             </h2>
+<<<<<<< HEAD
             <button onClick={() => setIsLogsOpen(!isLogsOpen)} className="text-[10px] sm:text-xs font-bold text-[#C1A27B] flex items-center gap-1 sm:gap-2 hover:text-[#A98960] transition-colors">
+=======
+            <button
+              onClick={() => setIsLogsOpen(!isLogsOpen)}
+              className="text-[10px] sm:text-xs font-bold text-[#C1A27B] flex items-center gap-1 sm:gap-2 hover:text-[#A98960] transition-colors"
+            >
+>>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
               {isLogsOpen ? 'HIDE LOGS' : 'VIEW LOGS'}
               <ChevronDown className={`h-4 w-4 transition-transform ${isLogsOpen ? 'rotate-180' : ''}`} />
             </button>
@@ -380,7 +554,16 @@ export default function AdminDashboard() {
 
           <AnimatePresence>
             {isLogsOpen && (
+<<<<<<< HEAD
               <Motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden mb-6">
+=======
+              <Motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="overflow-hidden mb-6"
+              >
+>>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 border-t border-[#E8E1D5] pt-6">
                   {[...realtimeActivities, ...recentActivity].map((log, i) => (
                     <div key={log.id || i} className="flex items-center gap-3 sm:gap-4 rounded-xl sm:rounded-2xl border border-[#E8E1D5] bg-[#FBF8F3] p-3 sm:p-4">
@@ -406,7 +589,16 @@ export default function AdminDashboard() {
               const meta = getActivityTypeMeta(act.type);
               const ActivityIcon = meta.icon;
               return (
+<<<<<<< HEAD
                 <Motion.div key={act.id || index} className={`min-w-[280px] sm:min-w-[320px] rounded-2xl border p-4 sm:p-6 transition-all ${act.isRealtime ? 'border-emerald-500/20 bg-emerald-500/5' : 'border-[#E8E1D5] bg-white'}`}>
+=======
+                <Motion.div
+                  key={act.id || index}
+                  className={`min-w-[280px] sm:min-w-[320px] rounded-2xl border p-4 sm:p-6 transition-all ${
+                    act.isRealtime ? 'border-emerald-500/20 bg-emerald-500/5' : 'border-[#E8E1D5] bg-white'
+                  }`}
+                >
+>>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
                   <div className="mb-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className={`rounded-xl p-2 ${meta.panelClass}`}>
@@ -419,7 +611,15 @@ export default function AdminDashboard() {
                         </p>
                       </div>
                     </div>
+<<<<<<< HEAD
                     {act.isRealtime && <span className="rounded-full bg-emerald-500 px-2 py-0.5 text-[9px] font-bold text-white animate-pulse">LIVE</span>}
+=======
+                    {act.isRealtime && (
+                      <span className="rounded-full bg-emerald-500 px-2 py-0.5 text-[9px] font-bold text-white animate-pulse">
+                        LIVE
+                      </span>
+                    )}
+>>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
                   </div>
                   <p className="font-serif text-lg font-bold text-[#2F3742] truncate">{act.name}</p>
                   <p className="text-sm text-[#667280] truncate mb-3">{act.event}</p>
@@ -436,9 +636,18 @@ export default function AdminDashboard() {
         <div className="mb-6 sm:mb-8 flex flex-col gap-4 sm:gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="w-full lg:w-auto flex flex-col sm:flex-row gap-2 sm:gap-3 rounded-2xl border border-[#E8E1D5] bg-white p-1.5 shadow-sm">
             {['clients', 'guests'].map((tab) => (
+<<<<<<< HEAD
               <button key={tab} onClick={() => { setActiveTab(tab); setExpandedItem(null); }}
                 className={`flex-1 sm:flex-none px-4 sm:px-8 py-2.5 sm:py-3 text-[10px] sm:text-xs font-bold uppercase tracking-widest rounded-xl transition-all
                   ${activeTab === tab ? 'bg-[#C1A27B] text-white shadow-md' : 'text-[#667280] hover:text-[#C1A27B]'}`}>
+=======
+              <button
+                key={tab}
+                onClick={() => { setActiveTab(tab); setExpandedItem(null); }}
+                className={`flex-1 sm:flex-none px-4 sm:px-8 py-2.5 sm:py-3 text-[10px] sm:text-xs font-bold uppercase tracking-widest rounded-xl transition-all
+                  ${activeTab === tab ? 'bg-[#C1A27B] text-white shadow-md' : 'text-[#667280] hover:text-[#C1A27B]'}`}
+              >
+>>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
                 {tab === 'clients' ? 'Registered Clients' : 'Guest Inquiries'}
               </button>
             ))}
@@ -447,6 +656,7 @@ export default function AdminDashboard() {
           <div className="w-full lg:w-auto flex flex-col sm:flex-row gap-3 sm:gap-4">
             <div className="relative w-full sm:w-[240px] lg:w-[280px]">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#667280]" />
+<<<<<<< HEAD
               <input type="text" placeholder="Search database..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full rounded-xl sm:rounded-2xl border border-[#E8E1D5] bg-white py-3 sm:py-3.5 pl-12 pr-4 text-sm font-medium shadow-sm transition-all focus:border-[#C1A27B] focus:outline-none focus:ring-4 focus:ring-[#C1A27B]/10" />
             </div>
@@ -454,6 +664,23 @@ export default function AdminDashboard() {
               <Filter className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#667280]" />
               <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}
                 className="w-full appearance-none cursor-pointer rounded-xl sm:rounded-2xl border border-[#E8E1D5] bg-white py-3 sm:py-3.5 pl-12 pr-10 text-sm font-bold shadow-sm transition-all focus:border-[#C1A27B] focus:outline-none focus:ring-4 focus:ring-[#C1A27B]/10">
+=======
+              <input
+                type="text"
+                placeholder="Search database..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full rounded-xl sm:rounded-2xl border border-[#E8E1D5] bg-white py-3 sm:py-3.5 pl-12 pr-4 text-sm font-medium shadow-sm transition-all focus:border-[#C1A27B] focus:outline-none focus:ring-4 focus:ring-[#C1A27B]/10"
+              />
+            </div>
+            <div className="relative w-full sm:w-[180px] lg:w-[220px]">
+              <Filter className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#667280]" />
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="w-full appearance-none cursor-pointer rounded-xl sm:rounded-2xl border border-[#E8E1D5] bg-white py-3 sm:py-3.5 pl-12 pr-10 text-sm font-bold shadow-sm transition-all focus:border-[#C1A27B] focus:outline-none focus:ring-4 focus:ring-[#C1A27B]/10"
+              >
+>>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
                 <option value="">All Statuses</option>
                 <option value="Pending">Pending</option>
                 <option value="Checked">Checked</option>
@@ -467,12 +694,26 @@ export default function AdminDashboard() {
 
         {/* ================= DATA AREA ================= */}
         <div className={premiumCardClass}>
+<<<<<<< HEAD
+=======
+
+>>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
           {/* MOBILE VIEW (CARDS) */}
           <div className="block lg:hidden divide-y divide-[#E8E1D5]/50">
             <AnimatePresence>
               {items.map((item) => (
                 <Fragment key={item._id}>
+<<<<<<< HEAD
                   <Motion.div layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="p-4 sm:p-6 space-y-4">
+=======
+                  <Motion.div
+                    layout
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="p-4 sm:p-6 space-y-4"
+                  >
+>>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3 min-w-0" onClick={() => toggleExpand(item._id)}>
                         <div className={`h-12 w-12 rounded-xl flex items-center justify-center font-serif font-bold text-lg border-2 border-white shadow-md ${activeTab === 'clients' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-[#C1A27B]/10 text-[#C1A27B]'}`}>
@@ -484,18 +725,43 @@ export default function AdminDashboard() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
+<<<<<<< HEAD
                         <button onClick={() => activeTab === 'clients' ? handleDeleteUser(item._id) : handleDeleteContact(item._id)} className="p-2 text-[#667280] hover:text-red-500 transition-colors">
                           <Trash2 size={18} />
                         </button>
                         <button onClick={() => toggleExpand(item._id)} className={`p-2 rounded-lg border transition-all ${expandedItem === item._id ? 'bg-[#C1A27B] text-white' : 'bg-white text-[#667280]'}`}>
+=======
+                        <button
+                          onClick={() => activeTab === 'clients' ? handleDeleteUser(item._id) : handleDeleteContact(item._id)}
+                          className="p-2 text-[#667280] hover:text-red-500 transition-colors"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                        <button
+                          onClick={() => toggleExpand(item._id)}
+                          className={`p-2 rounded-lg border transition-all ${expandedItem === item._id ? 'bg-[#C1A27B] text-white' : 'bg-white text-[#667280]'}`}
+                        >
+>>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
                           {expandedItem === item._id ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                         </button>
                       </div>
                     </div>
+<<<<<<< HEAD
                     <AnimatePresence>
                       {expandedItem === item._id && (
                         <Motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="border-t border-[#E8E1D5]/50 pt-4 overflow-hidden">
                           {/* Expanded Content for Mobile */}
+=======
+
+                    <AnimatePresence>
+                      {expandedItem === item._id && (
+                        <Motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="border-t border-[#E8E1D5]/50 pt-4 overflow-hidden"
+                        >
+>>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
                           <div className="space-y-4">
                             <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-[#667280]">
                               <span>Volume</span>
@@ -507,9 +773,16 @@ export default function AdminDashboard() {
                                 {activeTab === 'clients' ? 'Active Account' : item.status || 'Pending'}
                               </div>
                             </div>
+<<<<<<< HEAD
                             {/* Actions / Chat Link */}
                             <div className="bg-[#FBF8F3] rounded-xl p-3 text-xs italic text-[#2F3742] border border-[#E8E1D5]">
                               {activeTab === 'clients' ? 'Open desktop to access full communication terminal.' : (item.message || 'No message provided.')}
+=======
+                            <div className="bg-[#FBF8F3] rounded-xl p-3 text-xs italic text-[#2F3742] border border-[#E8E1D5]">
+                              {activeTab === 'clients'
+                                ? 'Open desktop to access full details & notes.'
+                                : (item.message || 'No message provided.')}
+>>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
                             </div>
                           </div>
                         </Motion.div>
@@ -536,7 +809,17 @@ export default function AdminDashboard() {
                 <AnimatePresence>
                   {items.map((item) => (
                     <Fragment key={item._id}>
+<<<<<<< HEAD
                       <Motion.tr layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className={`group cursor-pointer transition-colors hover:bg-[#C1A27B]/5 ${expandedItem === item._id ? 'bg-[#C1A27B]/10' : ''}`}>
+=======
+                      <Motion.tr
+                        layout
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className={`group cursor-pointer transition-colors hover:bg-[#C1A27B]/5 ${expandedItem === item._id ? 'bg-[#C1A27B]/10' : ''}`}
+                      >
+>>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
                         <td className="px-8 py-6" onClick={() => toggleExpand(item._id)}>
                           <div className="flex items-center gap-4">
                             <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border-2 border-white font-serif text-xl font-bold shadow-lg transition-transform group-hover:scale-110 ${activeTab === 'clients' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-[#C1A27B]/10 text-[#C1A27B]'}`}>
@@ -553,7 +836,14 @@ export default function AdminDashboard() {
                             <span className="text-[10px] font-bold uppercase tracking-widest text-[#667280]">Inquiries</span>
                             <div className="flex items-center gap-2">
                               <div className="h-1.5 w-24 rounded-full bg-[#E8E1D5] overflow-hidden">
+<<<<<<< HEAD
                                 <div className="h-full bg-emerald-500 transition-all duration-1000" style={{ width: `${Math.min(((activeTab === 'clients' ? item.inquiries?.length : 1) || 0) * 20, 100)}%` }} />
+=======
+                                <div
+                                  className="h-full bg-emerald-500 transition-all duration-1000"
+                                  style={{ width: `${Math.min(((activeTab === 'clients' ? item.inquiries?.length : 1) || 0) * 20, 100)}%` }}
+                                />
+>>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
                               </div>
                               <span className="text-sm font-bold text-[#2F3742]">{(activeTab === 'clients' ? item.inquiries?.length : 1) || 0}</span>
                             </div>
@@ -575,10 +865,30 @@ export default function AdminDashboard() {
                         </td>
                         <td className="px-8 py-6 text-right">
                           <div className="flex items-center justify-end gap-3">
+<<<<<<< HEAD
                             <button onClick={(e) => { e.stopPropagation(); activeTab === 'clients' ? handleDeleteUser(item._id) : handleDeleteContact(item._id); }} className="p-3 text-[#667280] hover:text-red-500 transition-all rounded-xl hover:bg-red-50">
                               <Trash2 size={20} />
                             </button>
                             <button onClick={() => toggleExpand(item._id)} className={`p-3 rounded-xl border transition-all ${expandedItem === item._id ? 'border-[#C1A27B] bg-[#C1A27B] text-white shadow-lg' : 'border-[#E8E1D5] bg-white text-[#667280] hover:border-[#C1A27B] hover:text-[#C1A27B]'}`}>
+=======
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                activeTab === 'clients' ? handleDeleteUser(item._id) : handleDeleteContact(item._id);
+                              }}
+                              className="p-3 text-[#667280] hover:text-red-500 transition-all rounded-xl hover:bg-red-50"
+                            >
+                              <Trash2 size={20} />
+                            </button>
+                            <button
+                              onClick={() => toggleExpand(item._id)}
+                              className={`p-3 rounded-xl border transition-all ${
+                                expandedItem === item._id
+                                  ? 'border-[#C1A27B] bg-[#C1A27B] text-white shadow-lg'
+                                  : 'border-[#E8E1D5] bg-white text-[#667280] hover:border-[#C1A27B] hover:text-[#C1A27B]'
+                              }`}
+                            >
+>>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
                               {expandedItem === item._id ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                             </button>
                           </div>
@@ -589,17 +899,31 @@ export default function AdminDashboard() {
                         {expandedItem === item._id && (
                           <tr>
                             <td colSpan="4" className="border-b border-[#E8E1D5]/50 p-0">
+<<<<<<< HEAD
                               <Motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden bg-[#C1A27B]/5">
                                 <div className="p-8 lg:p-12">
                                   {/* Original Detail View logic - merged here */}
                                   <div className="grid grid-cols-1 gap-12 xl:grid-cols-2">
                                     {/* Left: Inquiries */}
+=======
+                              <Motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                exit={{ opacity: 0, height: 0 }}
+                                className="overflow-hidden bg-[#C1A27B]/5"
+                              >
+                                <div className="p-8 lg:p-12">
+                                  <div className="grid grid-cols-1 gap-12 xl:grid-cols-2">
+
+                                    {/* ── LEFT: Details & Specifications ── */}
+>>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
                                     <div className="space-y-8">
                                       <h4 className="font-serif text-xl font-bold text-[#2F3742] border-b border-[#E8E1D5] pb-4 flex items-center gap-3">
                                         <Calendar className="text-[#C1A27B]" /> Details & Specifications
                                       </h4>
                                       <div className="space-y-6">
                                         {(activeTab === 'clients' ? item.inquiries : [item]).map((inq, idx) => (
+<<<<<<< HEAD
                                           <div key={inq._id || idx} className="bg-white rounded-3xl border border-[#E8E1D5] p-6 shadow-sm">
                                             <div className="flex justify-between items-start mb-4">
                                               <div>
@@ -618,10 +942,102 @@ export default function AdminDashboard() {
                                                 </button>
                                               ))}
                                             </div>
+=======
+                                          <div key={inq._id || idx} className="bg-white rounded-[2rem] border border-[#E8E1D5] p-6 lg:p-8 shadow-sm hover:shadow-md transition-shadow">
+                                            <div className="flex justify-between items-start mb-6">
+                                              <div className="flex items-center gap-4">
+                                                <div className="h-14 w-14 rounded-2xl bg-[#C1A27B]/10 flex items-center justify-center">
+                                                  <Heart className="text-[#C1A27B] h-6 w-6" />
+                                                </div>
+                                                <div>
+                                                  <h5 className="font-serif text-xl font-bold text-[#2F3742] leading-tight">
+                                                    {inq.eventType || (activeTab === 'guests' ? 'Guest Inquiry' : 'General Inquiry')}
+                                                  </h5>
+                                                  <p className="text-xs font-bold text-[#C1A27B] uppercase tracking-widest mt-1">
+                                                    {inq.createdAt
+                                                      ? `Received ${new Date(inq.createdAt).toLocaleDateString()}`
+                                                      : 'New Lead'}
+                                                  </p>
+                                                </div>
+                                              </div>
+                                              <div className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.1em] border ${getStatusColor(inq.status || 'Pending')}`}>
+                                                {inq.status || 'Pending'}
+                                              </div>
+                                            </div>
+
+                                            {activeTab === 'clients' ? (
+                                              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 mb-8">
+                                                <div className="space-y-4">
+                                                  <h6 className="text-[10px] font-bold text-[#667280] uppercase tracking-[0.2em] mb-4">Event Logistics</h6>
+                                                  <div className="grid grid-cols-1 gap-3">
+                                                    <RequirementItem
+                                                      icon={Calendar}
+                                                      label="Date"
+                                                      value={inq.eventDate ? new Date(inq.eventDate).toLocaleDateString() : 'TBD'}
+                                                      subValue={inq.isFlexibleDate ? 'Flexible (+/- 7 days)' : 'Fixed Date'}
+                                                    />
+                                                    <RequirementItem icon={Users} label="Guests" value={inq.guestCount || 'Not specified'} />
+                                                    <RequirementItem icon={MapPin} label="Location" value={inq.location || 'Consultation Required'} />
+                                                  </div>
+                                                </div>
+                                                <div className="space-y-4">
+                                                  <h6 className="text-[10px] font-bold text-[#667280] uppercase tracking-[0.2em] mb-4">Financials & Reach</h6>
+                                                  <div className="grid grid-cols-1 gap-3">
+                                                    <RequirementItem icon={Banknote} label="Budget" value={inq.budgetRange || 'Pending Discussion'} />
+                                                    <RequirementItem icon={Phone} label="Contact" value={inq.phone || item.mobileNumber || 'Use Email'} />
+                                                    <RequirementItem icon={Zap} label="Source" value={inq.referredBy || 'Direct Request'} />
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            ) : (
+                                              <div className="mb-8">
+                                                <div className="bg-[#FBF8F3] rounded-2xl p-5 border border-[#E8E1D5]/50">
+                                                  <div className="flex items-center gap-3 mb-3">
+                                                    <Info className="h-4 w-4 text-[#C1A27B]" />
+                                                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#667280]">Guest Identification</span>
+                                                  </div>
+                                                  <p className="text-sm font-medium text-[#2F3742]">{item.fullName} ({item.email})</p>
+                                                </div>
+                                              </div>
+                                            )}
+
+                                            <div className="space-y-3">
+                                              <div className="flex items-center gap-2 text-[10px] font-bold text-[#667280] uppercase tracking-[0.2em]">
+                                                <Layers className="h-3 w-3" /> Requirements & Vision
+                                              </div>
+                                              <div className="bg-white rounded-2xl border border-[#E8E1D5] p-5 shadow-inner">
+                                                <p className="text-sm leading-relaxed text-[#2F3742] italic">
+                                                  "{inq.message || 'No specific message provided.'}"
+                                                </p>
+                                              </div>
+                                            </div>
+
+                                            {/* Status Buttons */}
+                                            <div className="mt-8 flex flex-wrap gap-2 pt-6 border-t border-[#E8E1D5]/50">
+                                              {['Pending', 'Checked', 'Confirmed', 'Rejected'].map((status) => (
+                                                <button
+                                                  key={status}
+                                                  onClick={() =>
+                                                    activeTab === 'clients'
+                                                      ? handleUserStatusUpdate(item._id, inq._id, status)
+                                                      : handleContactStatusUpdate(item._id, status)
+                                                  }
+                                                  className={`px-5 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ${
+                                                    (activeTab === 'clients' ? inq.status : item.status) === status
+                                                      ? 'bg-[#C1A27B] text-white shadow-lg shadow-[#C1A27B]/20'
+                                                      : 'bg-white border border-[#E8E1D5] text-[#667280] hover:border-[#C1A27B] hover:text-[#C1A27B]'
+                                                  }`}
+                                                >
+                                                  {status}
+                                                </button>
+                                              ))}
+                                            </div>
+>>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
                                           </div>
                                         ))}
                                       </div>
                                     </div>
+<<<<<<< HEAD
                                     {/* Right: Terminal */}
                                     <div className="space-y-8">
                                       <h4 className="font-serif text-xl font-bold text-[#2F3742] border-b border-[#E8E1D5] pb-4 flex items-center gap-3">
@@ -662,6 +1078,12 @@ export default function AdminDashboard() {
                                         )}
                                       </div>
                                     </div>
+=======
+
+                                    {/* ── RIGHT: Admin Notes Panel ── */}
+                                    <AdminNotesPanel itemId={item._id} />
+
+>>>>>>> 2b5c3761c73631523e733b7d95c869205cc9c391
                                   </div>
                                 </div>
                               </Motion.div>
