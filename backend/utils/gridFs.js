@@ -46,26 +46,28 @@ const uploadImageStream = (fileBuffer, filename, mimetype) => {
     });
 };
 
-const deleteImage = (fileId) => {
-    return new Promise((resolve, reject) => {
-        if (!gfsBucket) {
-            return reject(new Error("GridFS not initialized"));
-        }
+const deleteImage = async (fileId) => {
+    if (!gfsBucket) {
+        throw new Error("GridFS not initialized");
+    }
 
-        let id;
-        try {
-            id = new mongoose.Types.ObjectId(fileId);
-        } catch (err) {
-            return reject(new Error("Invalid image ID format"));
-        }
+    let id;
+    try {
+        id = new mongoose.Types.ObjectId(fileId);
+    } catch (err) {
+        throw new Error("Invalid image ID format");
+    }
 
-        gfsBucket.delete(id, (err) => {
-            if (err) {
-                return reject(err);
-            }
-            resolve();
-        });
-    });
+    try {
+        await gfsBucket.delete(id);
+    } catch (err) {
+        // If the error is "File not found", we can consider it "deleted" already
+        if (err.message.includes("File not found")) {
+            console.warn(`Image ${fileId} already deleted or not found in GridFS`);
+            return;
+        }
+        throw err;
+    }
 };
 
 module.exports = {

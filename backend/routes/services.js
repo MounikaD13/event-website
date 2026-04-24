@@ -136,6 +136,7 @@ router.put("/services/:id", authMiddleware(["admin"]), upload.array("images", 10
             }
         }
 
+        delete updateData.deletedImages; // Remove from database update object
         updateData.images = currentImages;
 
         service = await Service.findByIdAndUpdate(
