@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import {
   Mail, Phone, MapPin, Send, MessageSquare, User, Calendar,
-  Users, Target, DollarSign, HelpCircle, Sparkles, Clock, Globe
+  Users, Target, IndianRupee, HelpCircle, Sparkles, Clock, Globe
 } from 'lucide-react';
 import { submitInquiry } from '../store/slices/userAccountSlice';
 import api from '../utils/api';
@@ -164,7 +164,7 @@ const ContactPage = () => {
                   <div>
                     <label className={labelCls}><Target className="w-3 h-3" /> Event Type</label>
                     <select name="eventType" value={inquiryForm.eventType} onChange={handleInquiryChange} className={inputCls}>
-                      {['Wedding','Birthday','Corporate','Graduation','Anniversary','Other'].map(t => <option key={t} value={t}>{t}</option>)}
+                      {['Wedding', 'Birthday', 'Corporate', 'Graduation', 'Anniversary', 'Other'].map(t => <option key={t} value={t}>{t}</option>)}
                     </select>
                   </div>
                   <div>
@@ -180,7 +180,7 @@ const ContactPage = () => {
                     <input type="tel" name="phone" value={inquiryForm.phone} onChange={handleInquiryChange} required placeholder="+91 90000 00000" className={inputCls} />
                   </div>
                   <div>
-                    <label className={labelCls}><DollarSign className="w-3 h-3" /> Budget Range</label>
+                    <label className={labelCls}><IndianRupee className="w-3 h-3" /> Budget Range</label>
                     <input type="text" name="budgetRange" value={inquiryForm.budgetRange} onChange={handleInquiryChange} placeholder="e.g. ₹20 Lakhs - ₹50 Lakhs" className={inputCls} />
                   </div>
                   <div>
@@ -192,7 +192,7 @@ const ContactPage = () => {
                 <div className="mb-5">
                   <label className={labelCls}><HelpCircle className="w-3 h-3" /> How did you hear about us?</label>
                   <select name="referredBy" value={inquiryForm.referredBy} onChange={handleInquiryChange} className={inputCls}>
-                    {['Instagram','Facebook','Google','Friend','Other'].map(r => <option key={r} value={r}>{r === 'Google' ? 'Google Search' : r === 'Friend' ? 'A Friend' : r}</option>)}
+                    {['Instagram', 'Facebook', 'Google', 'Friend', 'Other'].map(r => <option key={r} value={r}>{r === 'Google' ? 'Google Search' : r === 'Friend' ? 'A Friend' : r}</option>)}
                   </select>
                 </div>
 
@@ -201,11 +201,11 @@ const ContactPage = () => {
                   <textarea name="message" value={inquiryForm.message} onChange={handleInquiryChange} required rows={4} placeholder="Tell us about the atmosphere, theme, and key goals..." className={inputCls + " h-auto py-3.5 resize-none"} />
                 </div>
 
-                <div className="flex items-center gap-3 mb-8">
+                {/* <div className="flex items-center gap-3 mb-8">
                   <input type="checkbox" id="isFlexibleDate" name="isFlexibleDate" checked={inquiryForm.isFlexibleDate} onChange={handleInquiryChange}
                     className="w-4 h-4 accent-[#C1A27B] rounded" />
                   <label htmlFor="isFlexibleDate" className="text-sm text-[#8B7355]">Our dates are flexible (within ± 7 days)</label>
-                </div>
+                </div> */}
 
                 <button type="submit" disabled={loading}
                   className="w-full py-4 btn-earthy rounded-xl text-sm font-bold tracking-[0.25em] uppercase flex items-center justify-center gap-3 disabled:opacity-50">

@@ -85,7 +85,7 @@ export default function Navbar() {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group shrink-0">
             <img
-              src="/logo.svg"
+              src="/images/icon.jpg"
               alt="Elysium Logo"
               className="w-8 h-8 md:w-10 md:h-10 transition-transform duration-300 group-hover:scale-105"
             />

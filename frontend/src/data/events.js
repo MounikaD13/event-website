@@ -11,7 +11,7 @@ export const heroSlides = [
     id: 2,
     cursiveTitle: 'corporate',
     mainTitle: 'EXCELLENCE',
-    image: '/images/hero_corporate_aesthetic.png',
+    image: '/images/business.avif',
     cta: 'Book a Retreat',
     ctaPath: '/events?type=bussiness',
   },
