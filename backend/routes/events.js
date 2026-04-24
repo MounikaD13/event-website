@@ -145,6 +145,7 @@ router.put("/events/:id", authMiddleware(["admin"]), upload.array("images", 10),
             }
         }
 
+        delete updateData.deletedImages; // Remove from database update object
         updateData.images = currentImages;
 
         event = await Event.findByIdAndUpdate(
