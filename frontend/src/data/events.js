@@ -1,95 +1,120 @@
 export const heroSlides = [
   {
     id: 1,
-    image: "/images/hero_indian_wedding.png",
-    title: "Elysian Events",
-    subtitle: "DESTINATION EXPERIENCES",
-    accent: "Where Heritage Meets Luxury"
+    cursiveTitle: 'Make Your Dream',
+    mainTitle: 'WEDDING A REALITY',
+    image: '/images/hero_wedding_aesthetic.png',
+    cta: 'Plan Your Wedding',
+    ctaPath: '/events?type=weddings',
   },
   {
     id: 2,
-    image: "/images/about_gala.jpg",
-    title: "Royal Galas",
-    subtitle: "IMPECCABLE PLANNING",
-    accent: "Crafting Timeless Moments"
+    cursiveTitle: 'corporate',
+    mainTitle: 'EXCELLENCE',
+    image: '/images/hero_corporate_aesthetic.png',
+    cta: 'Book a Retreat',
+    ctaPath: '/events?type=bussiness',
   },
   {
     id: 3,
-    image: "/images/contact_bg.jpg",
-    title: "Palatial Venues",
-    subtitle: "BEYOND EXPECTATIONS",
-    accent: "Your Dream, Our Canvas"
-  }
+    cursiveTitle: 'traditional',
+    mainTitle: 'INDIAN WEDDING',
+    image: '/images/hero_indian_wedding.png',
+    cta: 'Plan Your Shaadi',
+    ctaPath: '/events?type=weddings',
+  },
+  {
+    id: 4,
+    cursiveTitle: 'unforgettable',
+    mainTitle: 'BIRTHDAY PARTY',
+    image: '/images/hero_birthday_party.png',
+    cta: 'Celebrate With Us',
+    ctaPath: '/events?type=birthdays',
+  },
 ];
 
 export const destinations = [
   {
     id: 1,
-    name: "Hyderabad",
-    tagline: "The City of Pearls & Palaces",
-    image: "/images/hero_indian_wedding.png",
-    dest: "hyderabad"
+    name: 'Taj Falaknuma Palace',
+    tagline: 'Mirror of the Sky',
+    eventsCount: 42,
+    image: '/images/places/hyderabad.jpg',
+    dest: 'hyderabad',
   },
   {
     id: 2,
-    name: "Bali",
-    tagline: "Island of the Gods",
-    image: "/images/dest_bali.jpg",
-    dest: "bali"
+    name: 'Kerala Backwaters',
+    tagline: "God's Own Country",
+    eventsCount: 38,
+    image: '/images/places/kerala.jpg',
+    dest: 'kerala',
   },
   {
     id: 3,
-    name: "Dubai",
-    tagline: "Modern Luxury & Desert Dreams",
-    image: "/images/dest_dubai.jpg",
-    dest: "dubai"
+    name: 'Goa Beach Resorts',
+    tagline: 'Pearl of the Orient',
+    eventsCount: 85,
+    image: '/images/event_beach_wedding.jpg',
+    dest: 'goa',
   },
   {
     id: 4,
-    name: "Maldives",
-    tagline: "Tropical Paradise",
-    image: "/images/dest_maldives.jpg",
-    dest: "maldives"
+    name: 'Heritage Hampi',
+    tagline: 'The Forgotten Empire',
+    eventsCount: 15,
+    image: '/images/places/karnataka.jpg',
+    dest: 'hampi',
   },
   {
     id: 5,
-    name: "Paris",
-    tagline: "The City of Love",
-    image: "/images/dest_paris.jpg",
-    dest: "paris"
+    name: 'Mahabalipuram',
+    tagline: 'Shore Temple Serenity',
+    eventsCount: 24,
+    image: '/images/places/chennai.jpg',
+    dest: 'chennai',
   },
   {
     id: 6,
-    name: "Tokyo",
-    tagline: "Tradition Meets Future",
-    image: "/images/dest_tokyo.jpg",
-    dest: "tokyo"
-  }
+    name: 'Udaipur City Palace',
+    tagline: 'Venice of the East',
+    eventsCount: 56,
+    image: '/images/hero_indian_wedding.png',
+    dest: 'udaipur',
+  },
 ];
 
 export const testimonials = [
   {
     id: 1,
-    name: "Arjun & Sneha",
-    event: "Wedding at Taj Falaknuma",
-    text: "Overseas Events turned our wedding into a literal fairytale. The attention to detail with the South Indian rituals was breathtaking."
+    name: 'Arjun & Lakshmi Iyer',
+    event: 'Tamil Brahmin Wedding - Chennai',
+    text: 'Elysium perfectly captured the essence of our traditional Vivaham. The attention to detail in the floral arrangements and the smooth execution of rituals was beyond words. Truly the best in South India.',
+    avatar: '/images/avatar_priya.jpg',
+    rating: 5,
   },
   {
     id: 2,
-    name: "Sarah Jenkins",
-    event: "Corporate Gala, Dubai",
-    text: "Professional, creative, and completely reliable. They managed our international executive retreat with absolute perfection."
+    name: 'Kiran & Meera Reddy',
+    event: 'Grand Telugu Wedding - Hyderabad',
+    text: 'Planning a wedding for 2,000 guests at Falaknuma seemed impossible, but Elysium made it look effortless. Our families were awestruck by the hospitality and the royal decor.',
+    avatar: '/images/avatar_emma.jpg',
+    rating: 5,
   },
   {
     id: 3,
-    name: "The Reddys",
-    event: "Milestone Anniversary, Bali",
-    text: "From the sunset mehendi to the grand reception, every moment was woven with magic. Truly the masters of destination events."
+    name: 'Pranav & Anjali Nair',
+    event: 'Traditional Kerala Wedding - Alleppey',
+    text: 'The backwater boat procession they organized for our mehendi was a masterstroke. Authentic Kerala flavors and soulful music—everything was exactly how we imagined our dream wedding.',
+    avatar: '/images/avatar_priya.jpg',
+    rating: 5,
   },
   {
     id: 4,
-    name: "Vikram Seth",
-    event: "Birthday Bash, Goa",
-    text: "The energy and decor were unmatched. They took my simple vision and elevated it to a world-class celebration."
-  }
+    name: 'Siddharth Rao',
+    event: 'Luxury Housewarming - Bangalore',
+    text: 'Elegant, sophisticated, and handled with utmost care. My housewarming gala was a seamless blend of tradition and modern luxury. Highly recommend their bespoke services.',
+    avatar: '/images/avatar_james.jpg',
+    rating: 5,
+  },
 ];

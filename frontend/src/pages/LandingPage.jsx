@@ -39,41 +39,43 @@ const stats = [
 ];
 
 const categories = [
-  { name: 'Weddings', type: 'weddings', image: '/images/hero_indian_wedding.png', desc: 'Curating royal unions and timeless romantic tales.' },
+  { name: 'Weddings', type: 'weddings', image: '/images/events/wedding.jpg', desc: 'Curating royal unions and timeless romantic tales.' },
   { name: 'Birthdays', type: 'birthdays', image: '/images/hero_birthday_party.png', desc: 'Crafting vibrant celebrations for every age and joy.' },
-  { name: 'Milestones', type: 'milestone', image: '/images/hero_wedding_aesthetic.png', desc: 'Marking legendary achievements with grand productions.' },
-  { name: 'Businesses', type: 'bussiness', image: '/images/about_gala.jpg', desc: 'Elevating corporate visions through high-end networking.' },
+  { name: 'Milestones', type: 'milestone', image: '/images/events/stage.jpg', desc: 'Marking legendary achievements with grand productions.' },
+  { name: 'Businesses', type: 'bussiness', image: '/images/event_dubai_gala.jpg', desc: 'Elevating corporate visions through high-end networking.' },
 ];
 
 const interestImages = {
   weddings: [
-    '/images/hero_indian_wedding.png',
-    '/images/hero_wedding_aesthetic.png',
+    '/images/events/wedding.jpg',
+    '/images/events/mehendi.jpg',
+    '/images/event_beach_wedding.jpg',
     '/images/about_ceremony.jpg',
-    '/images/about_gala.jpg'
+    '/images/events/decor.jpg'
   ],
   birthdays: [
     '/images/hero_birthday_party.png',
-    '/images/hero_wedding_aesthetic.png',
-    '/images/about_ceremony.jpg',
+    '/images/event_beach_wedding.jpg',
+    '/images/events/decor.jpg',
     '/images/about_gala.jpg'
   ],
   milestone: [
-    '/images/about_gala.jpg',
-    '/images/contact_bg.jpg',
-    '/images/dest_dubai.jpg',
-    '/images/about_ceremony.jpg'
+    '/images/events/stage.jpg',
+    '/images/events/conference.jpg',
+    '/images/event_dubai_gala.jpg',
+    '/images/about_gala.jpg'
   ],
   bussiness: [
-    '/images/dest_dubai.jpg',
-    '/images/about_gala.jpg',
-    '/images/contact_bg.jpg'
+    '/images/event_dubai_gala.jpg',
+    '/images/event_tokyo_conf.jpg',
+    '/images/events/conference.jpg',
+    '/images/about_gala.jpg'
   ],
   default: [
-    '/images/hero_indian_wedding.png',
+    '/images/events/wedding.jpg',
     '/images/hero_birthday_party.png',
-    '/images/dest_bali.jpg',
-    '/images/dest_dubai.jpg',
+    '/images/events/stage.jpg',
+    '/images/event_dubai_gala.jpg',
     '/images/about_ceremony.jpg',
     '/images/about_gala.jpg'
   ]
