@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
-const { getGridFSBucket } = require("../utils/GridFs");
+const { getGridFSBucket } = require("../utils/gridFs");
 
 // @route   GET /api/images/:id
 // @desc    Get an image by ID from GridFS
@@ -9,7 +9,7 @@ const { getGridFSBucket } = require("../utils/GridFs");
 router.get("/images/:id", async (req, res) => {
     try {
         const bucket = getGridFSBucket();
-        
+
         let fileId;
         try {
             fileId = new mongoose.Types.ObjectId(req.params.id);
@@ -29,7 +29,7 @@ router.get("/images/:id", async (req, res) => {
 
         // Stream the file directly from MongoDB to the response
         const downloadStream = bucket.openDownloadStream(fileId);
-        
+
         downloadStream.on("error", (error) => {
             console.error("GridFS download error:", error);
             if (!res.headersSent) {

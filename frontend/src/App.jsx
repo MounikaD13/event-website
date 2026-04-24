@@ -11,6 +11,7 @@ import ManageEvents from './pages/ManageEvents';
 import ManageServices from './pages/ManageServices';
 import ContactPage from './pages/ContactPage';
 import UserDashboard from './pages/UserDashboard';
+import ServicesPage from './pages/ServicesPage';
 
 const ProtectedRoute = ({ children }) => {
   const { user } = useSelector((state) => state.auth);
@@ -73,6 +74,7 @@ const AppContent = () => {
               </AdminRoute>
             }
           />
+          <Route path="/services" element={<ServicesPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

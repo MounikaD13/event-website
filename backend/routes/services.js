@@ -4,7 +4,7 @@ const Service = require("../models/Service");
 const Event = require("../models/Event");
 const authMiddleware = require("../middleware/middleware");
 const multer = require("multer");
-const { uploadImageStream, deleteImage } = require("../utils/GridFs");
+const { uploadImageStream, deleteImage } = require("../utils/gridFs");
 
 // Set up Multer for memory storage
 const storage = multer.memoryStorage();
@@ -136,6 +136,7 @@ router.put("/services/:id", authMiddleware(["admin"]), upload.array("images", 10
             }
         }
 
+        delete updateData.deletedImages; // Remove from database update object
         updateData.images = currentImages;
 
         service = await Service.findByIdAndUpdate(

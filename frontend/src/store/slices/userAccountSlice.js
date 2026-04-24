@@ -48,6 +48,15 @@ export const cancelInquiry = createAsyncThunk('userAccount/cancelInquiry', async
   }
 });
 
+export const bookEvent = createAsyncThunk('userAccount/bookEvent', async (bookingData, { rejectWithValue }) => {
+  try {
+    const { data } = await api.post('/dashboard/book-event', bookingData);
+    return bookingData;
+  } catch (err) {
+    return rejectWithValue(err.response?.data?.message || err.message || 'Failed to book event');
+  }
+});
+
 const userAccountSlice = createSlice({
   name: 'userAccount',
   initialState,
@@ -85,6 +94,16 @@ const userAccountSlice = createSlice({
       // Cancel Inquiry
       .addCase(cancelInquiry.fulfilled, (state, action) => {
         state.dashboard.inquiries = action.payload;
+      })
+      // Book Event
+      .addCase(bookEvent.fulfilled, (state, action) => {
+        // We push the booking data to the local state, or rely on fetching dashboard data again.
+        // The backend schema expects { eventType, eventDate, venue, status, createdAt }
+        state.dashboard.bookings.push({
+          ...action.payload,
+          status: "Upcoming",
+          createdAt: new Date().toISOString()
+        });
       });
   },
 });

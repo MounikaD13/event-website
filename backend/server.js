@@ -30,7 +30,7 @@ app.use(cookieParser())
 mongoose.connect(process.env.MONGODB_URL)
     .then(() => {
         console.log("DB connected successfully");
-        initGridFS(mongoose.connection.db);
+        initGridFS();
     })
     .catch(err => console.log(err));
 app.get("/", (req, res) => res.json({ "message": 'dummy route' }))
