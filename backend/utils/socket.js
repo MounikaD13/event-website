@@ -10,7 +10,7 @@ const getUserRoom = (userId) => `${USER_ROOM_PREFIX}${userId}`;
 const initSocket = (server) => {
     io = socketIo(server, {
         cors: {
-            origin: "*",
+            origin: ["http://localhost:5173"],
             methods: ["GET", "POST"],
             credentials: true
         }
