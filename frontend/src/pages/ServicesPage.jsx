@@ -24,42 +24,73 @@ export default function ServicesPage() {
   }, [dispatch, eventId]);
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6] pt-32 pb-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#FAF9F6] pb-20">
 
-        {/* Back Button */}
-        <Link
-          to="/events"
-          className="inline-flex items-center gap-2 text-[#C29B5F] font-semibold hover:gap-3 transition-all mb-12"
-        >
-          <ArrowLeft size={18} /> Back to Events
-        </Link>
+      {/* FULL WIDTH HERO SECTION */}
+      <div className="relative w-full min-h-[500px] flex items-center justify-center overflow-hidden">
+        {/* Background Image */}
+        {event?.images?.[0] ? (
+          <img
+            src={event.images[0].startsWith('http') ? event.images[0] : `${BASE_URL}${event.images[0]}`}
+            alt={event?.title || 'Event'}
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 hover:scale-105"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-[#2C2828] to-[#4A4F4D]" />
+        )}
 
-        {/* Header Section */}
-        <div className="mb-20">
+        {/* Dark Overlay for Text Readability */}
+        <div className="absolute inset-0 bg-black/65" />
+
+        {/* Back Button positioned at the top left of the Hero Section */}
+        <div className="absolute top-0 left-0 w-full z-20 pt-28 pb-4 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto">
+            <Link
+              to="/events"
+              className="inline-flex items-center gap-2 font-bold hover:scale-105 hover:gap-3 transition-all"
+              style={{ color: '#ffffff', textShadow: '0 2px 4px rgba(0,0,0,0.5)', zIndex: 100 }}
+            >
+              <ArrowLeft size={18} color="#ffffff" /> <span className="text-white opacity-100">Back to Events</span>
+            </Link>
+          </div>
+        </div>
+
+        {/* Header Content */}
+        <div className="relative z-10 max-w-5xl mx-auto text-center w-full pt-40 pb-16 px-4">
           {event && (
-            <div className="mb-6 flex flex-wrap gap-4">
-              <span className="px-4 py-1.5 rounded-full bg-[#C29B5F]/10 text-[#C29B5F] text-[10px] font-bold tracking-widest uppercase border border-[#C29B5F]/20">
+            <div className="mb-6 flex justify-center">
+              <span className="px-5 py-2 rounded-full bg-white/10 backdrop-blur-md text-white text-[10px] sm:text-xs font-bold tracking-[0.2em] uppercase border border-white/20 shadow-lg">
                 {event.category}
               </span>
             </div>
           )}
-          <h1 className="font-['Playfair_Display'] text-center text-2xl md:text-5xl text-[#1f2322] font-bold mb-6 leading-tight">
-            {event ? `${event.title} Services` : "Event Services"}
+          <h1 className="font-['Playfair_Display'] text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-white font-medium mb-6 leading-tight drop-shadow-lg px-4">
+            {event ? `${event.title}` : "Event Services"}
           </h1>
-          <p className="text-[#667280] text-lg leading-relaxed text-center">
+          <p className="text-white/90 text-sm sm:text-base md:text-lg leading-relaxed text-center drop-shadow-md max-w-4xl mx-auto font-light px-4">
             Discover our curated range of professional services designed to make your {event?.category || "event"} truly exceptional.
-            We believe that {event?.category || "event"} are experiences that create unforgettable moments,
-            bond friends and family, and transport guests to paradise even if it’s
-            for a few hours. <span className="hidden md:block">We know that no two {event?.category || "event"} are alike, nor should they
-              be. We impart contemporary yet traditional styles to any type of {event?.category || "event"}
-              including lavish outdoor ceremonies, elegant indoor events, breathtaking
-              destination {event?.category || "event"}, to even the smallest backyard affairs.
-              We understand that love is in the details and that they should be
-              planned with the utmost care. We are driven to bring
-              your personal style and flare to your event.</span>
+            We believe that {event?.category || "events"} are experiences that create unforgettable moments,
+            bond friends and family, and transport guests to paradise even if it’s for a few hours.
+            <span className="hidden sm:inline"> We know that no two {event?.category || "events"} are alike, nor should they be.
+              We impart contemporary yet traditional styles to any type of {event?.category || "event"},
+              including lavish outdoor ceremonies, elegant indoor events, breathtaking destination {event?.category || "events"},
+              to even the smallest backyard affairs. We understand that love is in the details and that they should be planned with the utmost care.</span>
           </p>
         </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16">
+
+        {/* Services List Catchy Heading */}
+        {!loading && services.length > 0 && (
+          <div className="text-center mb-16">
+            <span className="text-[#C29B5F] text-xs uppercase tracking-[5px] font-semibold">Bespoke Experiences</span>
+            <h2 className="font-['Playfair_Display'] text-4xl md:text-5xl text-[#2C2828] mt-3 font-medium">
+              Signature Offerings
+            </h2>
+            <div className="w-20 h-1 bg-[#C29B5F] mx-auto mt-6 rounded-full" />
+          </div>
+        )}
 
         {/* Services List */}
         {loading ? (

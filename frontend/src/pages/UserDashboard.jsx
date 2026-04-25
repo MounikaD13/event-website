@@ -193,29 +193,36 @@ const UserDashboard = () => {
   }, [chats.length]);
 
   useEffect(() => {
-    const socket = createSocket();
-    socket.on('connect', () => user?._id && socket.emit('join_room', user._id));
+    let socket;
+    try {
+      socket = createSocket();
+      socket.on('connect', () => user?._id && socket.emit('join_user_room', user._id));
 
-    const refresh = () => dispatch(fetchDashboardData());
-    const onMsg   = (d) => {
-      refresh();
-      if (d.sender === 'Admin')
-        toast('New message from Executive Support', {
-          icon: '💬',
-          style: { borderRadius: '12px', background: '#3F4A50', color: '#fff' },
-        });
-    };
+      const refresh = () => dispatch(fetchDashboardData());
+      const onMsg   = (d) => {
+        refresh();
+        if (d.sender === 'Admin')
+          toast('New message from Executive Support', {
+            icon: '💬',
+            style: { borderRadius: '12px', background: '#3F4A50', color: '#fff' },
+          });
+      };
 
-    socket.on('receive_message',           onMsg);
-    socket.on('dashboard:inquiry-updated', refresh);
-    socket.on('dashboard:booking-created', refresh);
+      socket.on('receive_message',           onMsg);
+      socket.on('dashboard:inquiry-updated', refresh);
+      socket.on('dashboard:booking-created', refresh);
 
-    return () => {
-      socket.off('receive_message',           onMsg);
-      socket.off('dashboard:inquiry-updated', refresh);
-      socket.off('dashboard:booking-created', refresh);
-      socket.disconnect();
-    };
+      return () => {
+        if (socket) {
+          socket.off('receive_message',           onMsg);
+          socket.off('dashboard:inquiry-updated', refresh);
+          socket.off('dashboard:booking-created', refresh);
+          socket.disconnect();
+        }
+      };
+    } catch (err) {
+      console.warn('Socket error in UserDashboard:', err);
+    }
   }, [dispatch, user?._id]);
 
   const handleSend = async (e) => {

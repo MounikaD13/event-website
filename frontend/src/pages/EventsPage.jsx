@@ -177,7 +177,7 @@ export default function EventsPage() {
                       effect="fade"
                       autoplay={{ delay: 3000, disableOnInteraction: false }}
                       pagination={{ clickable: true }}
-                      loop={true}
+                      loop={event.allImages.length > 1}
                       className="w-full h-full"
                     >
                       {event.allImages.map((img, i) => (

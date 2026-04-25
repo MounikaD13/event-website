@@ -158,7 +158,7 @@ export default function LandingPage() {
           autoplay={{ delay: 5000, disableOnInteraction: false }}
           pagination={{ clickable: true }}
           onSlideChange={(s) => setActiveSlide(s.activeIndex)}
-          loop
+          loop={heroSlides.length > 1}
           className="h-full"
         >
           {heroSlides.map((slide, i) => (

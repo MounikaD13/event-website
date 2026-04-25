@@ -4,7 +4,7 @@ import {
   Users, MessageSquare, Calendar, Search,
   ChevronDown, ChevronUp, Send, Trash2, Mail, ShieldCheck,
   Filter, Activity, CheckCircle, Clock, XCircle, Info,
-  Zap, MapPin, Banknote, Heart, Layers,
+  Zap, MapPin, Banknote, Heart, Layers, Phone,
   StickyNote, PlusCircle, FileText, Star
 } from 'lucide-react';
 import {
@@ -280,6 +280,8 @@ export default function AdminDashboard() {
   }, [dispatch, searchTerm]);
 
   useEffect(() => {
+    let socket;
+    
     const refreshAdminData = () => {
       dispatch(fetchAllUserData({ search: searchTermRef.current }));
       dispatch(fetchAllContacts());
@@ -298,90 +300,89 @@ export default function AdminDashboard() {
       ].slice(0, 10));
     };
 
-    const socket = createSocket();
+    try {
+      socket = createSocket();
 
-    socket.on('connect', () => {
-      socket.emit('join_admin_room');
-    });
-
-    socket.on('dashboard:inquiry-created', (data) => {
-      pushRealtimeActivity({
-        type: 'User Inquiry',
-        name: data.userName,
-        email: data.userEmail,
-        event: data.inquiry?.eventType || 'New inquiry',
-        status: data.inquiry?.status || 'Pending',
-        timestamp: data.timestamp,
+      socket.on('connect', () => {
+        socket.emit('join_admin_room');
       });
-      toast.success(`New inquiry from ${data.userName}`);
-      refreshAdminData();
-    });
 
-    socket.on('dashboard:inquiry-cancelled', (data) => {
-      pushRealtimeActivity({
-        type: 'User Inquiry',
-        name: data.userName,
-        email: data.userEmail,
-        event: data.inquiry?.eventType || 'Inquiry cancelled',
-        status: 'Rejected',
-        timestamp: data.timestamp,
+      socket.on('dashboard:inquiry-created', (data) => {
+        pushRealtimeActivity({
+          type: 'User Inquiry',
+          name: data.userName,
+          email: data.userEmail,
+          event: data.inquiry?.eventType || 'New inquiry',
+          status: data.inquiry?.status || 'Pending',
+          timestamp: data.timestamp,
+        });
+        toast.success(`New inquiry from ${data.userName}`);
+        refreshAdminData();
       });
-      toast.success(`${data.userName} cancelled an inquiry`);
-      refreshAdminData();
-    });
 
-    socket.on('dashboard:inquiry-updated', (data) => {
-      pushRealtimeActivity({
-        type: 'User Inquiry',
-        name: data.userName,
-        event: data.inquiry?.eventType || 'Inquiry updated',
-        status: data.inquiry?.status || 'Checked',
-        timestamp: data.timestamp,
+      socket.on('dashboard:inquiry-cancelled', (data) => {
+        pushRealtimeActivity({
+          type: 'User Inquiry',
+          name: data.userName,
+          email: data.userEmail,
+          event: data.inquiry?.eventType || 'Inquiry cancelled',
+          status: 'Rejected',
+          timestamp: data.timestamp,
+        });
+        toast.success(`${data.userName} cancelled an inquiry`);
+        refreshAdminData();
       });
-      refreshAdminData();
-    });
 
-    socket.on('dashboard:chat-message', (data) => {
-      pushRealtimeActivity({
-        type: 'Live Chat',
-        name: data.userName,
-        event: data.chat?.message || 'New chat message',
-        status: 'Checked',
-        timestamp: data.timestamp,
+      socket.on('dashboard:inquiry-updated', (data) => {
+        pushRealtimeActivity({
+          type: 'User Inquiry',
+          name: data.userName,
+          event: data.inquiry?.eventType || 'Inquiry updated',
+          status: data.inquiry?.status || 'Checked',
+          timestamp: data.timestamp,
+        });
+        refreshAdminData();
       });
-      refreshAdminData();
-    });
 
-    socket.on('dashboard:booking-created', refreshAdminData);
-    socket.on('dashboard:user-deleted', refreshAdminData);
-
-    socket.on('contact:created', (data) => {
-      pushRealtimeActivity({
-        type: 'Guest Inquiry',
-        name: data.contact?.fullName,
-        email: data.contact?.email,
-        event: 'General Inquiry',
-        status: data.contact?.status || 'Pending',
-        timestamp: data.timestamp,
+      socket.on('dashboard:chat-message', (data) => {
+        pushRealtimeActivity({
+          type: 'Live Chat',
+          name: data.userName,
+          event: data.chat?.message || 'New chat message',
+          status: 'Checked',
+          timestamp: data.timestamp,
+        });
+        refreshAdminData();
       });
-      toast.success(`New guest inquiry from ${data.contact?.fullName || 'Guest'}`);
-      refreshAdminData();
-    });
 
-    socket.on('contact:updated', refreshAdminData);
-    socket.on('contact:deleted', refreshAdminData);
+      socket.on('dashboard:booking-created', refreshAdminData);
+      socket.on('dashboard:user-deleted', refreshAdminData);
+
+      socket.on('contact:created', (data) => {
+        pushRealtimeActivity({
+          type: 'Guest Inquiry',
+          name: data.contact?.fullName,
+          email: data.contact?.email,
+          event: 'General Inquiry',
+          status: data.contact?.status || 'Pending',
+          timestamp: data.timestamp,
+        });
+        toast.success(`New guest inquiry from ${data.contact?.fullName || 'Guest'}`);
+        refreshAdminData();
+      });
+
+      socket.on('contact:updated', refreshAdminData);
+      socket.on('contact:deleted', refreshAdminData);
+
+    } catch (err) {
+      console.error("Socket initialization failed:", err);
+    }
 
     return () => {
-      socket.off('dashboard:inquiry-created');
-      socket.off('dashboard:inquiry-cancelled');
-      socket.off('dashboard:inquiry-updated');
-      socket.off('dashboard:chat-message');
-      socket.off('dashboard:booking-created');
-      socket.off('dashboard:user-deleted');
-      socket.off('contact:created');
-      socket.off('contact:updated');
-      socket.off('contact:deleted');
-      socket.disconnect();
+      if (socket) {
+        socket.removeAllListeners();
+        socket.disconnect();
+      }
     };
   }, [dispatch]);
 

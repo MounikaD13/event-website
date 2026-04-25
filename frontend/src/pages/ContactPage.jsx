@@ -27,22 +27,30 @@ const ContactPage = () => {
   const [liveChannelReady, setLiveChannelReady] = useState(false);
 
   useEffect(() => {
-    const socket = createSocket();
+    let socket;
+    
+    try {
+      socket = createSocket();
 
-    const handleConnect = () => setLiveChannelReady(true);
-    const handleDisconnect = () => setLiveChannelReady(false);
+      const handleConnect = () => setLiveChannelReady(true);
+      const handleDisconnect = () => setLiveChannelReady(false);
 
-    socket.on('connect', handleConnect);
-    socket.on('disconnect', handleDisconnect);
+      socket.on('connect', handleConnect);
+      socket.on('disconnect', handleDisconnect);
 
-    if (socket.connected) {
-      setLiveChannelReady(true);
+      if (socket.connected) {
+        setLiveChannelReady(true);
+      }
+    } catch (err) {
+      console.warn('Socket initialization failed:', err);
     }
 
     return () => {
-      socket.off('connect', handleConnect);
-      socket.off('disconnect', handleDisconnect);
-      socket.disconnect();
+      if (socket) {
+        socket.off('connect');
+        socket.off('disconnect');
+        socket.disconnect();
+      }
     };
   }, []);
 
