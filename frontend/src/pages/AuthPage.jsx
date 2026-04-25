@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  Eye, EyeOff, Mail, Lock, User, Globe, Phone, CheckCircle2, RefreshCcw,
+  Eye, EyeOff, Mail, Lock, User, Globe, Phone, CheckCircle, RefreshCcw,
 } from 'lucide-react';
 import {
   login, register, sendSignupOtp, verifySignupOtp,
@@ -11,63 +11,67 @@ import {
 import toast from 'react-hot-toast';
 
 /* ─── Color Palette ───────────────────────────────────────────
-   Dusty Rose / Mauve — warm, elegant, clearly visible on white
+   Golden / Champagne — warm, luxury, executive feel
 ──────────────────────────────────────────────────────────────── */
 const C = {
-  primary: '#B5737A',   // dusty rose — buttons
-  primaryHover: '#9E5E65',   // darker rose
-  primaryLight: 'rgba(181,115,122,0.10)',
-  border: 'rgba(181,115,122,0.30)',
-  borderFocus: 'rgba(181,115,122,0.65)',
-  label: '#8B5560',
-  placeholder: '#C4A0A5',
-  inputBg: '#FBF8F8',
-  tabBg: '#F5EFEF',
+  primary: '#C1A27B',   // brand gold
+  primaryHover: '#A88D68',   // darker gold
+  primaryLight: 'rgba(193,162,123,0.12)',
+  border: 'rgba(193,162,123,0.25)',
+  borderFocus: 'rgba(193,162,123,0.60)',
+  label: '#5D5449',
+  placeholder: '#A8A298',
+  inputBg: '#FCFAF7',
+  tabBg: '#F7F2EB',
   text: '#2C2828',
 };
 
 /* ─── Shared style atoms ─── */
 const S = {
   label: {
-    display: 'block', fontSize: '10px', fontWeight: '700',
-    color: C.label, textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: '5px',
+    display: 'block', fontSize: '10px', fontWeight: '800',
+    color: C.label, textTransform: 'uppercase', letterSpacing: '0.22em', marginBottom: '6px',
+    transition: 'color 0.3s ease',
   },
   input: {
-    width: '100%', height: '40px', padding: '0 14px 0 38px',
-    background: C.inputBg, border: `1.5px solid ${C.border}`,
-    borderRadius: '9px', fontSize: '13px', color: C.text,
-    outline: 'none', boxSizing: 'border-box', transition: 'border-color 0.18s, background 0.18s',
+    width: '100%', height: '46px', padding: '0 16px 0 44px',
+    background: C.inputBg, border: `1px solid ${C.border}`,
+    borderRadius: '12px', fontSize: '14px', color: C.text,
+    outline: 'none', boxSizing: 'border-box', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     fontFamily: 'inherit',
   },
   plainInput: {
-    width: '100%', height: '40px', padding: '0 14px',
-    background: C.inputBg, border: `1.5px solid ${C.border}`,
-    borderRadius: '9px', fontSize: '13px', color: C.text,
-    outline: 'none', boxSizing: 'border-box', transition: 'border-color 0.18s, background 0.18s',
+    width: '100%', height: '46px', padding: '0 16px',
+    background: C.inputBg, border: `1px solid ${C.border}`,
+    borderRadius: '12px', fontSize: '14px', color: C.text,
+    outline: 'none', boxSizing: 'border-box', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     fontFamily: 'inherit',
   },
   icon: {
-    position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)',
-    width: '15px', height: '15px', color: C.primary, opacity: 0.55, pointerEvents: 'none',
+    position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)',
+    width: '18px', height: '18px', color: C.primary, opacity: 0.65, pointerEvents: 'none',
+    transition: 'all 0.3s ease',
   },
   eye: {
-    position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
+    position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)',
     background: 'none', border: 'none', cursor: 'pointer', padding: '0', color: C.placeholder,
+    transition: 'color 0.3s ease',
   },
   primaryBtn: {
-    width: '100%', height: '42px', background: C.primary, color: '#fff',
-    border: 'none', borderRadius: '9px', fontWeight: '700', fontSize: '11px',
-    textTransform: 'uppercase', letterSpacing: '0.2em', cursor: 'pointer',
-    transition: 'background 0.18s', fontFamily: 'inherit',
+    width: '100%', height: '48px', background: C.primary, color: '#fff',
+    border: 'none', borderRadius: '12px', fontWeight: '800', fontSize: '12px',
+    textTransform: 'uppercase', letterSpacing: '0.25em', cursor: 'pointer',
+    transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)', fontFamily: 'inherit',
+    boxShadow: '0 10px 20px -5px rgba(193,162,123,0.3)',
   },
   secondaryBtn: {
-    width: '100%', height: '42px', background: '#fff', color: C.primary,
-    border: `2px solid ${C.border}`, borderRadius: '9px', fontWeight: '700',
-    fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.18em',
-    cursor: 'pointer', transition: 'all 0.18s', fontFamily: 'inherit',
+    width: '100%', height: '48px', background: 'transparent', color: C.primary,
+    border: `1.5px solid ${C.border}`, borderRadius: '12px', fontWeight: '800',
+    fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.22em',
+    cursor: 'pointer', transition: 'all 0.3s ease', fontFamily: 'inherit',
   },
-  field: { marginBottom: '11px' },
-  error: { fontSize: '10.5px', color: '#d45a5a', fontWeight: '500', marginTop: '3px' },
+  field: { marginBottom: '16px' },
+  error: { fontSize: '11px', color: '#E53E3E', fontWeight: '600', marginTop: '4px', paddingLeft: '2px' },
 };
 
 /* ─── Sub-components ──────────────────────────────────────────────── */
@@ -101,13 +105,13 @@ const StepBar = ({ steps, step }) => (
   <div style={{ display: 'grid', gridTemplateColumns: `repeat(${steps.length}, 1fr)`, gap: '6px', marginBottom: '16px' }}>
     {steps.map((label, i) => (
       <div key={label} style={{
-        borderRadius: '7px', border: `1.5px solid ${i <= step ? C.border : 'rgba(181,115,122,0.12)'}`,
-        background: i === step ? C.primaryLight : i < step ? 'rgba(181,115,122,0.06)' : '#FAF8F8',
+        borderRadius: '7px', border: `1.5px solid ${i <= step ? C.border : 'rgba(193,162,123,0.12)'}`,
+        background: i === step ? C.primaryLight : i < step ? 'rgba(193,162,123,0.06)' : '#FAF8F8',
         padding: '6px 4px', textAlign: 'center',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
           {i < step
-            ? <CheckCircle2 style={{ width: 11, height: 11, color: C.primary, flexShrink: 0 }} />
+            ? <CheckCircle style={{ width: 11, height: 11, color: C.primary, flexShrink: 0 }} />
             : <span style={{ fontSize: '9px', fontWeight: '800', color: i <= step ? C.primary : C.placeholder, flexShrink: 0 }}>0{i + 1}</span>
           }
           <span style={{ fontSize: '9px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em', color: i <= step ? C.primary : C.placeholder }}>
@@ -267,15 +271,28 @@ export default function AuthPage() {
   /* ─── Render ─────────────────────────────────────────────────── */
   return (
     <div style={{
-      height: '100vh', width: '100%', overflow: 'hidden',
+      minHeight: '100vh', width: '100%', overflowY: 'auto',
       backgroundImage: "url('/images/hero_wedding_aesthetic.png')",
       backgroundSize: 'cover', backgroundPosition: 'center',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      padding: '72px 16px 16px', boxSizing: 'border-box', position: 'relative',
+      padding: '80px 16px 40px', boxSizing: 'border-box', position: 'relative',
     }}>
       {/* Overlays */}
-      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(160deg,rgba(0,0,0,0.70) 0%,rgba(0,0,0,0.30) 50%,rgba(0,0,0,0.55) 100%)' }} />
-      <div style={{ position: 'absolute', inset: 0, backdropFilter: 'blur(5px)', WebkitBackdropFilter: 'blur(5px)' }} />
+      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(160deg,rgba(0,0,0,0.60) 0%,rgba(0,0,0,0.20) 50%,rgba(0,0,0,0.45) 100%)' }} />
+      <div style={{ position: 'absolute', inset: 0, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }} />
+      <style>{`
+        @keyframes card-reveal {
+          from { opacity: 0; transform: translateY(30px) scale(0.98); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        button:hover {
+          filter: brightness(1.05);
+        }
+        input:focus + svg {
+          color: ${C.primary} !important;
+          opacity: 1 !important;
+        }
+      `}</style>
 
       {/* Content wrapper — single column, no gap so we control spacing manually */}
       <div style={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: '460px' }}>
@@ -287,8 +304,8 @@ export default function AuthPage() {
               <Globe style={{ width: 19, height: 19, color: '#fff', opacity: 0.88 }} />
             </div>
             <div style={{ textAlign: 'left' }}>
-              <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: '18px', fontWeight: '700', letterSpacing: '0.28em', color: '#fff', display: 'block', lineHeight: 1.1 }}>OVERSEAS</span>
-              <span style={{ fontSize: '8px', color: 'rgba(255,255,255,0.45)', letterSpacing: '3.5px', textTransform: 'uppercase', fontWeight: '600' }}>Destination Planners</span>
+              <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: '18px', fontWeight: '700', letterSpacing: '0.28em', color: '#fff', display: 'block', lineHeight: 1.1 }}>ELYSIUM</span>
+              <span style={{ fontSize: '8px', color: 'rgba(255,255,255,0.45)', letterSpacing: '3.5px', textTransform: 'uppercase', fontWeight: '600' }}>Event Planners</span>
             </div>
           </Link>
           <h1 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: '24px', fontWeight: '700', color: '#fff', margin: '0 0 4px', lineHeight: 1.2, textAlign: 'center' }}>
@@ -300,19 +317,28 @@ export default function AuthPage() {
         </div>
 
         {/* ── Card ── */}
-        <div style={{ background: 'rgba(255,255,255,0.97)', borderRadius: '22px', border: '1px solid rgba(255,255,255,0.45)', padding: '22px 24px 18px', boxShadow: '0 20px 60px rgba(0,0,0,0.28)' }}>
+        <div style={{ 
+          background: 'rgba(255, 255, 255, 0.92)', 
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          borderRadius: '32px', 
+          border: '1px solid rgba(255, 255, 255, 0.5)', 
+          padding: '32px', 
+          boxShadow: '0 40px 100px -20px rgba(0,0,0,0.35)',
+          animation: 'card-reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) both'
+        }}>
 
           {/* Tab switcher */}
           {authMode !== 'forgotpassword' && (
-            <div style={{ display: 'flex', background: C.tabBg, borderRadius: '10px', padding: '4px', marginBottom: '16px', border: `1.5px solid ${C.border}` }}>
+            <div style={{ display: 'flex', background: C.tabBg, borderRadius: '14px', padding: '5px', marginBottom: '24px', border: `1px solid ${C.border}` }}>
               {[['signup', 'Sign Up'], ['signin', 'Sign In']].map(([m, label]) => (
                 <button key={m} type="button" onClick={() => switchMode(m)} style={{
-                  flex: 1, height: '34px', borderRadius: '7px', border: 'none', cursor: 'pointer',
-                  fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.2em',
+                  flex: 1, height: '38px', borderRadius: '10px', border: 'none', cursor: 'pointer',
+                  fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.2em',
                   background: authMode === m ? '#fff' : 'transparent',
                   color: authMode === m ? C.primary : C.placeholder,
-                  boxShadow: authMode === m ? '0 2px 6px rgba(181,115,122,0.15)' : 'none',
-                  transition: 'all 0.22s', fontFamily: 'inherit',
+                  boxShadow: authMode === m ? '0 4px 12px rgba(193,162,123,0.2)' : 'none',
+                  transition: 'all 0.3s ease', fontFamily: 'inherit',
                 }}>
                   {label}
                 </button>
@@ -382,7 +408,7 @@ export default function AuthPage() {
                   <div style={{ maxHeight: 'calc(100vh - 360px)', overflowY: 'auto', paddingRight: '4px' }}>
 
                     {/* Name + Mobile */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
                       <div style={S.field}>
                         <label style={S.label}>Full Name</label>
                         <div style={{ position: 'relative' }}>
@@ -402,7 +428,7 @@ export default function AuthPage() {
                     </div>
 
                     {/* Password + Confirm */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
                       <div style={S.field}>
                         <label style={S.label}>Password</label>
                         <div style={{ position: 'relative' }}>

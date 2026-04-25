@@ -18,7 +18,7 @@ const userLinks = [
 
 const adminLinks = [
   { name: 'Events', path: '/events' },
-  { name: 'Contact Us', path: '/contact' },
+  // { name: 'Contact Us', path: '/contact' },
   { name: 'Dashboard', path: '/admin/dashboard' },
   { name: 'Manage Events', path: '/admin/events' },
   { name: 'Manage Services', path: '/admin/services' },
@@ -85,12 +85,12 @@ export default function Navbar() {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group shrink-0">
             <img
-              src="/logo.svg"
+              src="/images/icon.jpg"
               alt="Elysium Logo"
               className="w-8 h-8 md:w-10 md:h-10 transition-transform duration-300 group-hover:scale-105"
             />
-            <span className="font-['Playfair_Display'] text-2xl md:text-3xl lg:text-4xl tracking-[0.2em] text-[#252938] uppercase transition-all duration-300">
-              ELYSIUM
+            <span className="font-cursive text-2xl md:text-3xl lg:text-4xl tracking-[0.2em] text-[#252938] transition-all duration-300">
+              Elysium
             </span>
           </Link>
 
@@ -150,7 +150,7 @@ export default function Navbar() {
                     </div>
 
                     {/* Menu Items */}
-                    <div className="p-2">
+                    {/*<div className="p-2">
                       {!isAdmin && (
                         <>
                           <Link
@@ -183,7 +183,7 @@ export default function Navbar() {
                           </Link>
                         </>
                       )}
-                    </div>
+                    </div>*/}
 
                     {/* Logout */}
                     <div className="p-2 border-t border-[#EFE7DA]">

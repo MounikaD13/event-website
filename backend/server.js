@@ -3,24 +3,21 @@ const { initGridFS } = require("./utils/gridFs");
 const mongoose = require("mongoose")
 const cors = require("cors")
 const express = require("express")
-const http = require("http");
 const app = express()
-const server = http.createServer(app);
-const { initSocket } = require("./utils/socket");
-
-// Initialize Socket.io
-initSocket(server);
 const authRoutes = require("./routes/auth")
 const contactRoutes = require("./routes/contact")
 const eventRoutes = require("./routes/events")
 const userAccountRoutes = require("./routes/userAccount")
 const adminDashboardRoutes = require("./routes/adminDashboard")
 const imageRoutes = require("./routes/images")
-const servicesRoutes = require("./routes/services")
 const cookieParser = require("cookie-parser")
 
+const http = require("http");
+const { initSocket } = require("./utils/socket");
+const servicesRoutes = require("./routes/services")
+
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173"],
     credentials: true,
 }))
 app.use(express.urlencoded({ extended: true }))
@@ -42,4 +39,7 @@ app.use("/api", adminDashboardRoutes)
 app.use("/api", imageRoutes)
 app.use("/api", servicesRoutes)
 
-app.listen(process.env.PORT, () => { console.log("server started successfully") })
+const server = http.createServer(app);
+initSocket(server);
+
+server.listen(process.env.PORT, () => { console.log("server started successfully") })
