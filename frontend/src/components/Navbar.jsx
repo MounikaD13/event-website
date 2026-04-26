@@ -7,6 +7,7 @@ import { Menu, X, LogOut, User, LayoutDashboard, Settings, Calendar } from 'luci
 /* ─── Link configs by role ─── */
 const publicLinks = [
   { name: 'Events', path: '/events' },
+  { name: 'About', path: '/about' },
   { name: 'Contact Us', path: '/contact' },
 ];
 
@@ -18,7 +19,7 @@ const userLinks = [
 
 const adminLinks = [
   { name: 'Events', path: '/events' },
-  { name: 'Contact Us', path: '/contact' },
+  // { name: 'Contact Us', path: '/contact' },
   { name: 'Dashboard', path: '/admin/dashboard' },
   { name: 'Manage Events', path: '/admin/events' },
   { name: 'Manage Services', path: '/admin/services' },
@@ -85,7 +86,7 @@ export default function Navbar() {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group shrink-0">
             <img
-              src="/logo.svg"
+              src="/images/icon.jpg"
               alt="Elysium Logo"
               className="w-8 h-8 md:w-10 md:h-10 transition-transform duration-300 group-hover:scale-105"
             />
@@ -202,18 +203,13 @@ export default function Navbar() {
                 to="/signin"
                 className="text-[#252938] font-['Playfair_Display'] tracking-[0.15em] text-[13px] md:text-[14px] uppercase hover:text-[#C29B5F] transition-all duration-300 w-[120px] md:w-[130px] h-[44px] md:h-[48px] flex items-center justify-center leading-none"
               >
-                LOGIN
+                SIGN IN
               </Link>
             )}
           </div>
 
-          {/* Mobile — Right Side: Profile + Hamburger */}
+          {/* Mobile — Right Side: Hamburger */}
           <div className="flex items-center gap-3 lg:hidden">
-            {isAuthenticated && (
-              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#C29B5F] to-[#A97F3D] flex items-center justify-center">
-                <span className="text-xs font-bold text-white">{initials}</span>
-              </div>
-            )}
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
               className="p-2 text-[#252938]"
@@ -276,7 +272,7 @@ export default function Navbar() {
                 onClick={() => setMobileOpen(false)}
                 className="text-[#252938] font-['Playfair_Display'] text-lg text-center font-bold py-4 px-6 border border-[#E7DDCF] rounded-xl hover:border-[#C29B5F]/50 hover:bg-[#FAF6EF] transition-all uppercase tracking-widest"
               >
-                LOGIN
+                SIGN IN
               </Link>
             )}
           </div>

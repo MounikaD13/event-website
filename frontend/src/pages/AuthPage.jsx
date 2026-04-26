@@ -317,13 +317,13 @@ export default function AuthPage() {
         </div>
 
         {/* ── Card ── */}
-        <div style={{ 
-          background: 'rgba(255, 255, 255, 0.92)', 
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.92)',
           backdropFilter: 'blur(20px)',
           WebkitBackdropFilter: 'blur(20px)',
-          borderRadius: '32px', 
-          border: '1px solid rgba(255, 255, 255, 0.5)', 
-          padding: '32px', 
+          borderRadius: '32px',
+          border: '1px solid rgba(255, 255, 255, 0.5)',
+          padding: '32px',
           boxShadow: '0 40px 100px -20px rgba(0,0,0,0.35)',
           animation: 'card-reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) both'
         }}>
@@ -361,8 +361,8 @@ export default function AuthPage() {
                   Forgot Password?
                 </button>
               </div>
-              <button type="submit" disabled={isSubmitting} style={{ ...S.primaryBtn, marginTop: 0 }}>
-                {isSubmitting ? 'Processing…' : 'Enter Destination'}
+              <button type="submit" disabled={isSubmitting} className="text-[10px] sm:text-xs" style={{ ...S.primaryBtn, marginTop: 0, fontSize: undefined }}>
+                {isSubmitting ? 'Processing…' : 'LETS GET PLANNING'}
               </button>
             </form>
           )}

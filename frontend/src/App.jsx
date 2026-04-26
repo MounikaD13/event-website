@@ -13,6 +13,7 @@ import ManageServices from './pages/ManageServices';
 import ContactPage from './pages/ContactPage';
 import UserDashboard from './pages/UserDashboard';
 import ServicesPage from './pages/ServicesPage';
+import AboutPage from './pages/AboutPage';
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -47,6 +48,7 @@ const AppContent = () => {
       <main className="flex-grow">
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/about" element={<AboutPage />} />
           <Route path="/events" element={<EventsPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/signin" element={<AuthPage />} />

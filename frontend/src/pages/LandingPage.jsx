@@ -177,7 +177,7 @@ export default function LandingPage() {
                     {slide.mainTitle}
                   </h1>
                   <div className="flex items-center justify-center gap-4 mt-10 md:mt-16">
-                    <Link to="/events" className="btn-earthy px-12 py-5 rounded-full text-sm font-bold tracking-[0.25em] uppercase shadow-2xl hover:scale-105 transition-transform">
+                    <Link to="/events" className="btn-earthy px-8 py-3 md:px-12 md:py-5 rounded-full text-xs md:text-sm font-bold tracking-[0.25em] uppercase shadow-2xl hover:scale-105 transition-transform">
                       EXPLORE MORE
                     </Link>
                   </div>
@@ -258,7 +258,7 @@ export default function LandingPage() {
                       onClick={() => handleCategoryClick(cat.type)}
                       className="inline-flex items-center gap-3 bg-white text-[#2C2828] px-8 py-3.5 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-2xl hover:bg-[#C1A27B] hover:text-white transition-all"
                     >
-                      Browse {cat.name} <ArrowRight className="w-4 h-4" />
+                      {cat.name} <ArrowRight className="w-4 h-4" />
                     </Link>
                   </div>
                 </div>
@@ -417,7 +417,7 @@ export default function LandingPage() {
             ))}
           </div>
           <div className="flex justify-center mt-16">
-            <Link to="/events" className="btn-earthy px-12 py-5 font-bold rounded-full text-sm tracking-[0.25em] uppercase shadow-lg">
+            <Link to="/events" className="btn-earthy px-8 py-3 md:px-12 md:py-5 font-bold rounded-full text-xs md:text-sm tracking-[0.25em] uppercase shadow-lg">
               Explore All Destinations
             </Link>
           </div>
@@ -474,7 +474,7 @@ export default function LandingPage() {
           <div className="flex justify-center">
             <Link
               to="/contact"
-              className="group relative px-16 py-6 overflow-hidden rounded-full bg-[#C1A27B] text-[#2C2828] font-bold tracking-[0.3em] uppercase text-sm shadow-[0_20px_50px_rgba(193,162,123,0.3)] hover:scale-105 transition-all duration-500"
+              className="group relative px-10 py-4 md:px-16 md:py-6 overflow-hidden rounded-full bg-[#C1A27B] text-[#2C2828] font-bold tracking-[0.3em] uppercase text-xs md:text-sm shadow-[0_20px_50px_rgba(193,162,123,0.3)] hover:scale-105 transition-all duration-500"
             >
               <span className="relative z-10">Start Planning Now</span>
               <div className="absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
