@@ -121,13 +121,13 @@ router.post("/login", async (req, res) => {
             return res.status(400).json({ message: "All fields required" });
         let user = null;
         let role = null;
-        //user
-        user = await User.findOne({ email })
-        if (user) role = "user";
         //admin
+        user = await Admin.findOne({ email })
+        if (user) role = "admin";
+        //user
         if (!user) {
-            user = await Admin.findOne({ email });
-            if (user) role = "admin";
+            user = await User.findOne({ email });
+            if (user) role = "user";
         }
         if (!user)
             return res.status(400).json({ message: "User not found" });

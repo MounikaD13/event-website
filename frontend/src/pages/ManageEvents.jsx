@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { Edit2, Trash2, Users, Upload, RefreshCw, Image as ImageIcon, X, CheckCircle, PlusCircle } from 'lucide-react';
 import { fetchEvents, deleteEvent } from '../store/slices/eventsSlice';
 import api from '../utils/api';
@@ -60,6 +61,7 @@ const toastConfirm = (message) =>
 
 const ManageEvents = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { events, loading } = useSelector((state) => state.events);
   const [editingEvent, setEditingEvent] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
@@ -105,7 +107,15 @@ const ManageEvents = () => {
 
   const handleImageChange = (e) => {
     if (!e.target.files || e.target.files.length === 0) return;
-    const files = Array.from(e.target.files);
+    const allowed = ['image/webp', 'image/png'];
+    const files = Array.from(e.target.files).filter((f) => {
+      if (!allowed.includes(f.type)) {
+        toast.error(`"${f.name}" rejected — only WebP & PNG are allowed.`);
+        return false;
+      }
+      return true;
+    });
+    if (files.length === 0) return;
     setForm((prev) => ({ ...prev, imageFiles: [...prev.imageFiles, ...files] }));
     const newPreviews = files.map((file) => ({ file, url: URL.createObjectURL(file) }));
     setImagePreviews((prev) => [...prev, ...newPreviews]);
@@ -246,7 +256,7 @@ const ManageEvents = () => {
               </div>
               <div>
                 <label style={lbl}>Event Images</label>
-                <input ref={fileInputRef} type="file" multiple accept="image/*" onChange={handleImageChange} id="imgInput" style={{ display: 'none' }} />
+                <input ref={fileInputRef} type="file" multiple accept=".webp,.png,image/webp,image/png" onChange={handleImageChange} id="imgInput" style={{ display: 'none' }} />
                 <label htmlFor="imgInput" style={{ ...inp, display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', justifyContent: 'center', color: '#667280', margin: 0 }}>
                   <Upload size={15} color="#C1A27B" />
                   Choose Images
@@ -256,6 +266,7 @@ const ManageEvents = () => {
                     </span>
                   )}
                 </label>
+                <p style={{ fontSize: '0.68rem', color: '#9B8E7E', marginTop: '0.35rem', fontStyle: 'italic' }}>Accepted formats: WebP, PNG</p>
               </div>
             </div>
 
@@ -306,7 +317,7 @@ const ManageEvents = () => {
             <span style={{ background: 'rgba(193,162,123,0.15)', color: '#C1A27B', borderRadius: '999px', fontSize: '0.72rem', fontWeight: '700', padding: '0.15rem 0.6rem' }}>{events.length}</span>
           </div>
 
-          <div style={{ overflowX: 'auto' }}>
+          <div style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: '450px' }}>
             {loading && events.length === 0 ? (
               <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}>
                 <RefreshCw size={28} color="#C1A27B" style={{ animation: 'spin 1s linear infinite' }} />
@@ -345,7 +356,7 @@ const ManageEvents = () => {
                           <Users size={14} color="#C1A27B" />{event.totalTickets}
                         </span>
                       </td>
-                      <td style={{ padding: '0.9rem 1.25rem' }}>
+                      <td style={{ padding: '0.9rem 1.25rem', minWidth: '160px' }}>
                         {event.images?.length > 0 ? (
                           <div style={{ display: 'flex', gap: '4px' }}>
                             {event.images.slice(0, 3).map((img, i) => (
@@ -355,13 +366,20 @@ const ManageEvents = () => {
                           </div>
                         ) : <span style={{ color: '#ccc' }}>—</span>}
                       </td>
-                      <td style={{ padding: '0.9rem 1.25rem' }}>
+                      <td style={{ padding: '0.9rem 1.25rem 0.9rem 1.75rem' }}>
                         <div style={{ display: 'flex', gap: '0.5rem' }}>
-                          <button onClick={() => handleEdit(event)} title="Edit" style={actBtn('#C1A27B', 'rgba(193,162,123,0.1)')}
+                          <button onClick={() => handleEdit(event)} title="Edit Event" style={actBtn('#C1A27B', 'rgba(193,162,123,0.1)')}
                             onMouseOver={(e) => e.currentTarget.style.background = 'rgba(193,162,123,0.22)'}
                             onMouseOut={(e) => e.currentTarget.style.background = 'rgba(193,162,123,0.1)'}
                           ><Edit2 size={15} /></button>
-                          <button onClick={() => handleDelete(event._id)} title="Delete" disabled={deletingId === event._id} style={actBtn('#ef4444', 'rgba(239,68,68,0.08)')}
+                          <button
+                            onClick={() => navigate(`/admin/services?eventId=${event._id}`)}
+                            title="Manage Services for this Event"
+                            style={actBtn('#667280', 'rgba(102,114,128,0.08)')}
+                            onMouseOver={(e) => e.currentTarget.style.background = 'rgba(102,114,128,0.18)'}
+                            onMouseOut={(e) => e.currentTarget.style.background = 'rgba(102,114,128,0.08)'}
+                          ><PlusCircle size={15} /></button>
+                          <button onClick={() => handleDelete(event._id)} title="Delete Event" disabled={deletingId === event._id} style={actBtn('#ef4444', 'rgba(239,68,68,0.08)')}
                             onMouseOver={(e) => e.currentTarget.style.background = 'rgba(239,68,68,0.18)'}
                             onMouseOut={(e) => e.currentTarget.style.background = 'rgba(239,68,68,0.08)'}
                           >

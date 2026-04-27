@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useSearchParams } from 'react-router-dom';
 import { Edit2, Trash2, Upload, RefreshCw, Image as ImageIcon, X, CheckCircle, PlusCircle, Settings } from 'lucide-react';
 import { fetchEvents } from '../store/slices/eventsSlice';
 import { fetchServicesByEvent, deleteService, clearServices } from '../store/slices/servicesSlice';
@@ -51,6 +52,7 @@ const toastConfirm = (message) =>
 
 const ManageServices = () => {
   const dispatch = useDispatch();
+  const [searchParams] = useSearchParams();
   const { events, loading: eventsLoading } = useSelector((state) => state.events);
   const { services, loading: servicesLoading } = useSelector((state) => state.services);
 
@@ -66,6 +68,15 @@ const ManageServices = () => {
   useEffect(() => {
     dispatch(fetchEvents());
   }, [dispatch]);
+
+  // Auto-select event from URL query param (e.g. ?eventId=xxx)
+  useEffect(() => {
+    const paramId = searchParams.get('eventId');
+    if (paramId) {
+      setSelectedEventId(paramId);
+      setForm((prev) => ({ ...prev, eventId: paramId }));
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (selectedEventId) {
@@ -113,7 +124,15 @@ const ManageServices = () => {
 
   const handleImageChange = (e) => {
     if (!e.target.files || e.target.files.length === 0) return;
-    const files = Array.from(e.target.files);
+    const allowed = ['image/webp', 'image/png'];
+    const files = Array.from(e.target.files).filter((f) => {
+      if (!allowed.includes(f.type)) {
+        toast.error(`"${f.name}" rejected — only WebP & PNG are allowed.`);
+        return false;
+      }
+      return true;
+    });
+    if (files.length === 0) return;
     setForm((prev) => ({ ...prev, imageFiles: [...prev.imageFiles, ...files] }));
     const newPreviews = files.map((file) => ({ file, url: URL.createObjectURL(file) }));
     setImagePreviews((prev) => [...prev, ...newPreviews]);
@@ -260,7 +279,7 @@ const ManageServices = () => {
               </div>
               <div>
                 <label style={lbl}>Service Images</label>
-                <input ref={fileInputRef} type="file" multiple accept="image/*" onChange={handleImageChange} id="imgInput" style={{ display: 'none' }} />
+                <input ref={fileInputRef} type="file" multiple accept=".webp,.png,image/webp,image/png" onChange={handleImageChange} id="imgInput" style={{ display: 'none' }} />
                 <label htmlFor="imgInput" style={{ ...inp, display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', justifyContent: 'center', color: '#667280', margin: 0 }}>
                   <Upload size={15} color="#C1A27B" />
                   Choose Images
@@ -270,6 +289,7 @@ const ManageServices = () => {
                     </span>
                   )}
                 </label>
+                <p style={{ fontSize: '0.68rem', color: '#9B8E7E', marginTop: '0.35rem', fontStyle: 'italic' }}>Accepted formats: WebP, PNG</p>
               </div>
             </div>
 
@@ -321,7 +341,7 @@ const ManageServices = () => {
               <span style={{ background: 'rgba(193,162,123,0.15)', color: '#C1A27B', borderRadius: '999px', fontSize: '0.72rem', fontWeight: '700', padding: '0.15rem 0.6rem' }}>{services.length}</span>
             </div>
 
-            <div style={{ overflowX: 'auto' }}>
+            <div style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: '450px' }}>
               {servicesLoading ? (
                 <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}>
                   <RefreshCw size={28} color="#C1A27B" style={{ animation: 'spin 1s linear infinite' }} />
@@ -352,7 +372,7 @@ const ManageServices = () => {
                         <td style={{ padding: '0.9rem 1.25rem' }}>
                           <span style={{ color: '#667280', fontSize: '0.85rem', display: 'block', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{service.description}</span>
                         </td>
-                        <td style={{ padding: '0.9rem 1.25rem' }}>
+                        <td style={{ padding: '0.9rem 1.25rem', minWidth: '160px' }}>
                           {service.images?.length > 0 ? (
                             <div style={{ display: 'flex', gap: '4px' }}>
                               {service.images.slice(0, 3).map((img, i) => (
@@ -362,7 +382,7 @@ const ManageServices = () => {
                             </div>
                           ) : <span style={{ color: '#ccc' }}>—</span>}
                         </td>
-                        <td style={{ padding: '0.9rem 1.25rem' }}>
+                        <td style={{ padding: '0.9rem 1.25rem 0.9rem 1.75rem' }}>
                           <div style={{ display: 'flex', gap: '0.5rem' }}>
                             <button onClick={() => handleEdit(service)} title="Edit" style={actBtn('#C1A27B', 'rgba(193,162,123,0.1)')}
                               onMouseOver={(e) => e.currentTarget.style.background = 'rgba(193,162,123,0.22)'}
