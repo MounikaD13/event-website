@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchServicesByEvent } from "../store/slices/servicesSlice";
@@ -15,7 +15,7 @@ export default function ServicesPage() {
   const queryParams = new URLSearchParams(location.search);
   const eventId = queryParams.get("eventId");
 
-  const event = events.find((e) => e._id === eventId);
+  const event = useMemo(() => events.find((e) => e._id === eventId), [events, eventId]);
 
   useEffect(() => {
     if (eventId) {
@@ -33,6 +33,7 @@ export default function ServicesPage() {
           <img
             src={event.images[0].startsWith('http') ? event.images[0] : `${BASE_URL}${event.images[0]}`}
             alt={event?.title || 'Event'}
+            fetchPriority="high"
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 hover:scale-105"
           />
         ) : (
@@ -117,6 +118,7 @@ export default function ServicesPage() {
                     <img
                       src={service.images[0].startsWith('http') ? service.images[0] : `${BASE_URL}${service.images[0]}`}
                       alt={service.title}
+                      loading="lazy"
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     />
                   ) : (

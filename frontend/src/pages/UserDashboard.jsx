@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, memo, useMemo, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import {
@@ -26,7 +26,7 @@ const fmt = (d) =>
   });
 
 /* ─── Stat Card ──────────────────────────────────────────────────── */
-const StatCard = ({ label, value, Icon, color, bg, sub, delay }) => (
+const StatCard = memo(({ label, value, Icon, color, bg, sub, delay }) => (
   <motion.div
     initial={{ opacity: 0, y: 16 }}
     animate={{ opacity: 1, y: 0 }}
@@ -48,10 +48,10 @@ const StatCard = ({ label, value, Icon, color, bg, sub, delay }) => (
     </p>
     <p className="text-[10px] font-bold text-[#636A78] uppercase tracking-[0.2em]">{label}</p>
   </motion.div>
-);
+));
 
 /* ─── Booking Card ───────────────────────────────────────────────── */
-const BookingCard = ({ book, idx }) => (
+const BookingCard = memo(({ book, idx }) => (
   <motion.div
     layout
     initial={{ opacity: 0, y: 12 }}
@@ -95,10 +95,10 @@ const BookingCard = ({ book, idx }) => (
       </div>
     </div>
   </motion.div>
-);
+));
 
 /* ─── Inquiry Card ───────────────────────────────────────────────── */
-const InquiryCard = ({ inq, onCancel }) => (
+const InquiryCard = memo(({ inq, onCancel }) => (
   <motion.div
     layout
     initial={{ opacity: 0, y: 12 }}
@@ -146,10 +146,10 @@ const InquiryCard = ({ inq, onCancel }) => (
       </div>
     )}
   </motion.div>
-);
+));
 
 /* ─── Chat Bubble ────────────────────────────────────────────────── */
-const ChatBubble = ({ chat, idx }) => {
+const ChatBubble = memo(({ chat, idx }) => {
   const isUser = chat.sender === 'User';
   return (
     <motion.div
@@ -172,7 +172,7 @@ const ChatBubble = ({ chat, idx }) => {
       </div>
     </motion.div>
   );
-};
+});
 
 /* ─── Main Dashboard ─────────────────────────────────────────────── */
 const UserDashboard = () => {
@@ -225,7 +225,7 @@ const UserDashboard = () => {
     }
   }, [dispatch, user?._id]);
 
-  const handleSend = async (e) => {
+  const handleSend = useCallback(async (e) => {
     e.preventDefault();
     if (!chatMsg.trim()) return;
     try {
@@ -234,9 +234,9 @@ const UserDashboard = () => {
     } catch (err) {
       toast.error(err || 'Failed to send message');
     }
-  };
+  }, [dispatch, chatMsg]);
 
-  const handleCancel = async (id) => {
+  const handleCancel = useCallback(async (id) => {
     if (!window.confirm('Withdraw this inquiry?')) return;
     try {
       await dispatch(cancelInquiry(id)).unwrap();
@@ -244,7 +244,7 @@ const UserDashboard = () => {
     } catch (err) {
       toast.error(err || 'Failed to withdraw');
     }
-  };
+  }, [dispatch]);
 
   const hasContent = inquiries.length > 0 || bookings.length > 0;
   const firstName  = user?.name?.split(' ')[0] || 'Guest';

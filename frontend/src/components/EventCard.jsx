@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, Calendar, Users, Star, ArrowRight, Heart } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
 
-export default function EventCard({ event }) {
+const EventCard = memo(({ event }) => {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
   const isAuthenticated = Boolean(user);
@@ -26,6 +26,7 @@ export default function EventCard({ event }) {
         <img
           src={event.image}
           alt={event.title}
+          loading="lazy"
           onError={(e) => {
             e.currentTarget.src = '/images/events_gallery_bg.png';
           }}
@@ -98,4 +99,6 @@ export default function EventCard({ event }) {
       </div>
     </article>
   );
-}
+});
+
+export default EventCard;

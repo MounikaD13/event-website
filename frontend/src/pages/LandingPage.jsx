@@ -237,6 +237,7 @@ export default function LandingPage() {
                 <img
                   src={cat.image}
                   alt={cat.name}
+                  loading="lazy"
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                 />
 
@@ -308,6 +309,7 @@ export default function LandingPage() {
                     <img
                       src={img}
                       alt="Inspiration"
+                      loading="lazy"
                       className="absolute inset-0 w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-110"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
@@ -364,11 +366,13 @@ export default function LandingPage() {
               <img
                 src="/images/hero_indian_wedding.png"
                 alt="Traditional Indian Wedding"
+                loading="lazy"
                 className="h-80 w-full object-cover rounded-[2.5rem] shadow-xl border-4 border-white"
               />
               <img
                 src="/images/places/hyderabad.jpg"
                 alt="Taj Falaknuma Palace"
+                loading="lazy"
                 className="h-80 w-full object-cover rounded-[2.5rem] shadow-xl mt-12 border-4 border-white"
               />
             </div>
@@ -398,6 +402,7 @@ export default function LandingPage() {
                 <img
                   src={dest.image}
                   alt={dest.name}
+                  loading="lazy"
                   className="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-1000"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />

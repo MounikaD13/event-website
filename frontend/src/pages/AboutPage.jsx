@@ -88,7 +88,7 @@ export default function AboutPage() {
 
           <div className={`relative transition-all duration-1000 delay-300 ${storyVisible ? 'translate-x-0 opacity-100' : 'translate-x-12 opacity-0'}`}>
             <div className="relative rounded-[2.5rem] overflow-hidden border border-[#EBE5DA] shadow-2xl h-[400px] md:h-[600px]">
-              <img src="/images/hero_indian_wedding.png" alt="Elysium Event" className="absolute inset-0 w-full h-full object-cover" />
+              <img src="/images/hero_indian_wedding.png" alt="Elysium Event" loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               <div className="absolute bottom-8 left-8 right-8">
                 <p className="text-white font-['Playfair_Display'] text-xl md:text-2xl italic">"Perfection is not an act, but a habit."</p>
@@ -147,7 +147,7 @@ export default function AboutPage() {
               className={`flex flex-col sm:flex-row items-center sm:items-start gap-6 bg-white p-6 md:p-8 rounded-[2rem] border border-[#EBE5DA] shadow-sm hover:shadow-xl transition-all duration-700 ${teamVisible ? 'translate-y-0 opacity-100' : 'translate-y-16 opacity-0'}`}
               style={{ transitionDelay: `${i * 200}ms` }}
             >
-              <img src={member.img} alt={member.name} className="w-24 h-24 md:w-28 md:h-28 rounded-full object-cover shadow-md border-4 border-[#FAF9F6] shrink-0" />
+              <img src={member.img} alt={member.name} loading="lazy" className="w-24 h-24 md:w-28 md:h-28 rounded-full object-cover shadow-md border-4 border-[#FAF9F6] shrink-0" />
               <div className="text-center sm:text-left">
                 <h4 className="font-['Playfair_Display'] text-xl md:text-2xl font-bold text-[#2C2828]">{member.name}</h4>
                 <p className="text-[#C1A27B] text-[10px] md:text-xs font-bold uppercase tracking-widest mt-1 mb-3">{member.role}</p>

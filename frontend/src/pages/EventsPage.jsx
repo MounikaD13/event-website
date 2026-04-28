@@ -202,7 +202,7 @@ export default function EventsPage() {
     <div className="min-h-screen bg-[#FBF8F3]">
       {/* Hero Section */}
       <section className="relative h-[55vh] sm:h-[78vh] sm:min-h-[640px] overflow-hidden flex items-center">
-        <img src="/images/events/outdoor.jpg" alt="events hero" fetchPriority="high" crossOrigin="anonymous" width="1920" height="1080" className="absolute inset-0 w-full h-full object-cover" />
+        <img src="/images/events/outdoor.jpg" alt="events hero" fetchPriority="high" width="1920" height="1080" className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-r from-[#151722]/90 via-[#1a1d2d]/75 to-black/55" />
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 w-full mt-16">
           <div className="max-w-3xl">

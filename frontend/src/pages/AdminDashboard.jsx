@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useRef, useState, memo, useMemo, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   Users, MessageSquare, Calendar, Search,
@@ -87,7 +87,7 @@ const getActivityTypeMeta = (type) => {
 const premiumCardClass =
   'rounded-[2rem] border border-[#E8E1D5] bg-white shadow-[0_18px_50px_rgba(34,37,49,0.06)]';
 
-const RequirementItem = ({ icon: Icon, label, value, subValue }) => (
+const RequirementItem = memo(({ icon: Icon, label, value, subValue }) => (
   <div className="flex items-start gap-3 p-3 rounded-xl hover:bg-[#C1A27B]/5 transition-colors group">
     <div className="h-9 w-9 rounded-lg bg-white border border-[#E8E1D5] flex items-center justify-center shrink-0 shadow-sm group-hover:border-[#C1A27B]/30 transition-colors">
       <Icon className="h-4 w-4 text-[#C1A27B]" />
@@ -98,7 +98,7 @@ const RequirementItem = ({ icon: Icon, label, value, subValue }) => (
       {subValue && <p className="text-[9px] text-[#C1A27B] font-medium mt-0.5">{subValue}</p>}
     </div>
   </div>
-);
+));
 
 // ── Admin Notes Panel ──────────────────────────────────────────────────────────
 const NOTE_TAGS = ['Follow-up', 'Priority', 'VIP', 'Caution', 'Confirmed', 'Pending Call'];
@@ -111,7 +111,7 @@ const NOTE_TAG_COLORS = {
   'Pending Call': 'bg-purple-500/10 text-purple-600 border-purple-500/20',
 };
 
-const AdminNotesPanel = ({ itemId }) => {
+const AdminNotesPanel = memo(({ itemId }) => {
   const storageKey = `admin_notes_${itemId}`;
   const [notes, setNotes] = useState(() => {
     try {
@@ -124,16 +124,16 @@ const AdminNotesPanel = ({ itemId }) => {
   const [selectedTag, setSelectedTag] = useState('Follow-up');
   const [rating, setRating] = useState(3);
 
-  const saveNotes = (updated) => {
+  const saveNotes = useCallback((updated) => {
     setNotes(updated);
     try {
       localStorage.setItem(storageKey, JSON.stringify(updated));
     } catch {
       // ignore storage errors
     }
-  };
+  }, [storageKey]);
 
-  const addNote = () => {
+  const addNote = useCallback(() => {
     if (!noteText.trim()) return;
     const newNote = {
       id: `${Date.now()}`,
@@ -144,11 +144,11 @@ const AdminNotesPanel = ({ itemId }) => {
     };
     saveNotes([newNote, ...notes]);
     setNoteText('');
-  };
+  }, [noteText, selectedTag, rating, notes, saveNotes]);
 
-  const deleteNote = (id) => {
+  const deleteNote = useCallback((id) => {
     saveNotes(notes.filter((n) => n.id !== id));
-  };
+  }, [notes, saveNotes]);
 
   return (
     <div className="space-y-6">
@@ -253,7 +253,7 @@ const AdminNotesPanel = ({ itemId }) => {
       </div>
     </div>
   );
-};
+});
 
 export default function AdminDashboard() {
   const dispatch = useDispatch();
@@ -386,7 +386,7 @@ export default function AdminDashboard() {
     };
   }, [dispatch]);
 
-  const recentActivity = (() => {
+  const recentActivity = useMemo(() => {
     const activities = [];
 
     safeUsers.forEach((user) => {
@@ -417,27 +417,27 @@ export default function AdminDashboard() {
 
     activities.sort((a, b) => b.date - a.date);
     return [...realtimeActivities, ...activities].slice(0, 5);
-  })();
+  }, [safeUsers, safeContacts, realtimeActivities]);
 
-  const handleUserStatusUpdate = async (userId, inquiryId, newStatus) => {
+  const handleUserStatusUpdate = useCallback(async (userId, inquiryId, newStatus) => {
     try {
       await dispatch(updateInquiryStatus({ userId, inquiryId, newStatus })).unwrap();
       toast.success(`Status updated to ${newStatus}`);
     } catch (err) {
       toast.error(err || 'Failed to update status');
     }
-  };
+  }, [dispatch]);
 
-  const handleContactStatusUpdate = async (id, newStatus) => {
+  const handleContactStatusUpdate = useCallback(async (id, newStatus) => {
     try {
       await dispatch(updateContactStatus({ id, status: newStatus })).unwrap();
       toast.success(`Guest inquiry marked as ${newStatus}`);
     } catch (err) {
       toast.error(err || 'Failed to update guest inquiry');
     }
-  };
+  }, [dispatch]);
 
-  const handleDeleteUser = async (id) => {
+  const handleDeleteUser = useCallback(async (id) => {
     if (!window.confirm('Are you sure you want to delete this user?')) return;
     try {
       await dispatch(deleteUser(id)).unwrap();
@@ -445,9 +445,9 @@ export default function AdminDashboard() {
     } catch (err) {
       toast.error(err || 'Failed to delete user');
     }
-  };
+  }, [dispatch]);
 
-  const handleDeleteContact = async (id) => {
+  const handleDeleteContact = useCallback(async (id) => {
     if (!window.confirm('Delete this guest inquiry?')) return;
     try {
       await dispatch(deleteContact(id)).unwrap();
@@ -455,27 +455,31 @@ export default function AdminDashboard() {
     } catch (err) {
       toast.error(err || 'Failed to delete inquiry');
     }
-  };
+  }, [dispatch]);
 
-  const toggleExpand = (id) => {
-    setExpandedItem(expandedItem === id ? null : id);
-  };
+  const toggleExpand = useCallback((id) => {
+    setExpandedItem((prev) => (prev === id ? null : id));
+  }, []);
 
-  const filteredUsers = filterStatus
-    ? safeUsers.filter((user) =>
-        (user.inquiries || []).some((inq) => inq.status === filterStatus)
-      )
-    : safeUsers;
+  const filteredUsers = useMemo(() => {
+    return filterStatus
+      ? safeUsers.filter((user) =>
+          (user.inquiries || []).some((inq) => inq.status === filterStatus)
+        )
+      : safeUsers;
+  }, [safeUsers, filterStatus]);
 
-  const filteredContacts = safeContacts.filter((contact) => {
-    const matchesSearch =
-      contact.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      contact.email?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = filterStatus ? contact.status === filterStatus : true;
-    return matchesSearch && matchesStatus;
-  });
+  const filteredContacts = useMemo(() => {
+    return safeContacts.filter((contact) => {
+      const matchesSearch =
+        contact.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        contact.email?.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesStatus = filterStatus ? contact.status === filterStatus : true;
+      return matchesSearch && matchesStatus;
+    });
+  }, [safeContacts, searchTerm, filterStatus]);
 
-  const items = activeTab === 'clients' ? filteredUsers : filteredContacts;
+  const items = useMemo(() => (activeTab === 'clients' ? filteredUsers : filteredContacts), [activeTab, filteredUsers, filteredContacts]);
 
   return (
     <div className="min-h-screen bg-[#FBF8F3] pt-24 sm:pt-28 lg:pt-40 pb-12 sm:pb-16 overflow-x-hidden">
