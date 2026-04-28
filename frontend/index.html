@@ -4,6 +4,13 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/jpeg" href="/images/icon.jpg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Preload LCP hero image so browser fetches it before JS executes -->
+    <link rel="preload" as="image" href="/images/events/outdoor.jpg" fetchpriority="high" crossorigin="anonymous" />
+    <!-- Preconnect to Google Fonts to reduce font latency -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="anonymous" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+    <!-- Preconnect to API origin to reduce connection latency -->
+    <link rel="preconnect" href="http://localhost:5000" crossorigin="anonymous" />
     <meta name="description" content="Elysium Events — Premium destination event planners. Weddings, corporate events, galas, and more across 120+ global destinations." />
     <meta name="keywords" content="destination events, event planning, elysium events, luxury weddings, corporate events, Bali, Santorini, Maldives" />
     <meta property="og:title" content="Elysium Events — Destination Event Planners" />

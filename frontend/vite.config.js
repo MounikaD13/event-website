@@ -16,4 +16,22 @@ export default defineConfig({
       }
     }
   },
+  build: {
+    target: 'esnext',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // React core — cached separately, changes rarely
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          // Redux — cached separately
+          'vendor-redux': ['@reduxjs/toolkit', 'react-redux'],
+          // Swiper — largest lib, lazy-loaded anyway, keep isolated
+          'vendor-swiper': ['swiper'],
+          // Lucide icons
+          'vendor-lucide': ['lucide-react'],
+        },
+      },
+    },
+  },
 })
+

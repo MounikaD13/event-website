@@ -1,13 +1,8 @@
-import { useState, useEffect, useMemo } from "react";
-import { useLocation, useNavigate, Link } from "react-router-dom";
+import { useState, useEffect, useMemo, memo, useCallback, useRef } from "react";
+import { useLocation, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchEvents } from "../store/slices/eventsSlice";
-import { Search, X, MapPin, Loader2, Star, Sparkles, ChevronRight, ArrowRight } from "lucide-react";
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay, Pagination, EffectFade } from 'swiper/modules';
-import 'swiper/css';
-import 'swiper/css/pagination';
-import 'swiper/css/effect-fade';
+import { Loader2, Star, Sparkles, ArrowRight } from "lucide-react";
 
 const BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:5000/api").replace("/api", "");
 
@@ -21,16 +16,138 @@ const categoryMap = {
 const categoryKeys = Object.keys(categoryMap);
 const fallbackImage = "/images/events/decor.jpg";
 
+// Lazy-load Swiper only when needed (code-split)
+let SwiperComponents = null;
+const loadSwiper = () => {
+  if (SwiperComponents) return Promise.resolve(SwiperComponents);
+  return Promise.all([
+    import('swiper/react'),
+    import('swiper/modules'),
+    import('swiper/css'),
+    import('swiper/css/pagination'),
+    import('swiper/css/effect-fade'),
+  ]).then(([swiperReact, swiperModules]) => {
+    SwiperComponents = {
+      Swiper: swiperReact.Swiper,
+      SwiperSlide: swiperReact.SwiperSlide,
+      modules: [swiperModules.Autoplay, swiperModules.Pagination, swiperModules.EffectFade],
+    };
+    return SwiperComponents;
+  });
+};
+
+// Hook: only returns true when element is visible in viewport
+function useInView(ref, rootMargin = '200px') {
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setInView(true); obs.disconnect(); } },
+      { rootMargin }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [ref, rootMargin]);
+  return inView;
+}
+
+// Image carousel: shows static image first, mounts Swiper only when visible
+const LazyCarousel = memo(({ images, title }) => {
+  const ref = useRef(null);
+  const inView = useInView(ref);
+  const [swiperReady, setSwiperReady] = useState(false);
+  const [swiper, setSwiper] = useState(null);
+
+  useEffect(() => {
+    if (inView && !swiperReady) {
+      loadSwiper().then((c) => { setSwiper(c); setSwiperReady(true); });
+    }
+  }, [inView, swiperReady]);
+
+  return (
+    <div ref={ref} className="relative aspect-[4/3] overflow-hidden rounded-[1rem] shadow-2xl">
+      {swiperReady && swiper ? (
+        <swiper.Swiper
+          modules={swiper.modules}
+          effect="fade"
+          autoplay={{ delay: 3000, disableOnInteraction: false }}
+          pagination={{ clickable: true }}
+          loop={images.length > 1}
+          className="w-full h-full"
+        >
+          {images.map((img, i) => (
+            <swiper.SwiperSlide key={i}>
+              <img
+                src={img}
+                alt={`${title} ${i + 1}`}
+                loading="lazy"
+                decoding="async"
+                className="w-full h-full object-cover"
+              />
+            </swiper.SwiperSlide>
+          ))}
+        </swiper.Swiper>
+      ) : (
+        <img
+          src={images[0]}
+          alt={title}
+          loading="lazy"
+          decoding="async"
+          className="w-full h-full object-cover"
+        />
+      )}
+      <div className="absolute inset-0 bg-black/5 pointer-events-none group-hover:bg-transparent transition-colors z-10" />
+    </div>
+  );
+});
+
+// Memoized event row
+const EventRow = memo(({ event, index }) => (
+  <div
+    className={`flex flex-col md:flex-row items-center gap-12 lg:gap-24 ${index % 2 === 0 ? "" : "md:flex-row-reverse"}`}
+  >
+    <div className="w-full md:w-1/2 group">
+      <LazyCarousel images={event.allImages} title={event.title} />
+    </div>
+
+    <div className="w-full md:w-1/2">
+      <div className="max-w-lg">
+        <p className="text-[#C29B5F] text-xs font-bold tracking-[0.2em] uppercase mb-4">
+          {categoryMap[event.category] || event.category}
+        </p>
+        <h2 className="font-['Playfair_Display'] text-3xl md:text-5xl font-bold text-[#1f2322] mb-6 leading-tight">
+          {event.title}
+        </h2>
+        <p className="text-[#667280] text-lg leading-relaxed mb-10">
+          {event.description}
+        </p>
+
+        <div className="flex flex-wrap gap-6 mb-10">
+          <div className="flex items-center gap-2">
+            <Star size={18} className="text-[#C29B5F] fill-[#C29B5F]" />
+            <span className="text-sm font-medium text-[#222531]">{event.rating} ({event.reviews} reviews)</span>
+          </div>
+        </div>
+
+        <Link
+          to={`/services?eventId=${event.id}`}
+          className="inline-flex items-center gap-3 text-white px-8 py-4 bg-[#C29B5F] rounded-full font-bold tracking-widest uppercase text-sm hover:bg-[#D4AD72] transition-all group"
+        >
+          View Insights
+          <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
+        </Link>
+      </div>
+    </div>
+  </div>
+));
+
 export default function EventsPage() {
   const dispatch = useDispatch();
   const location = useLocation();
-  const navigate = useNavigate();
   const { events, loading } = useSelector((state) => state.events);
 
-  const [search, setSearch] = useState("");
   const [selectedType, setSelectedType] = useState("All");
-  const [filtered, setFiltered] = useState([]);
-  const [selectedDestination, setSelectedDestination] = useState("");
 
   useEffect(() => {
     dispatch(fetchEvents());
@@ -39,9 +156,7 @@ export default function EventsPage() {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const type = params.get("type");
-    const dest = params.get("dest");
     setSelectedType(type && categoryMap[type] ? type : "All");
-    setSelectedDestination(dest || "");
   }, [location.search]);
 
   const mappedBackendEvents = useMemo(
@@ -58,7 +173,7 @@ export default function EventsPage() {
           price: e.price ? `₹${Number(e.price).toLocaleString()}` : "Free",
           date: e.date ? new Date(e.date).toLocaleDateString() : "",
           image: allImages[0],
-          allImages: allImages.slice(0, 3), // Ensure we have 3 images for the carousel if requested
+          allImages: allImages.slice(0, 3),
           rating: Number((4.6 + Math.random() * 0.35).toFixed(1)),
           reviews: 80 + Math.floor(Math.random() * 170),
         };
@@ -66,35 +181,28 @@ export default function EventsPage() {
     [events]
   );
 
-  useEffect(() => {
-    let result = [...mappedBackendEvents];
-    if (search) {
-      const q = search.toLowerCase();
-      result = result.filter((e) => e.title?.toLowerCase().includes(q) || e.location?.toLowerCase().includes(q));
-    }
-    if (selectedType !== "All") result = result.filter((e) => e.type === selectedType);
-    if (selectedDestination) {
-      const d = selectedDestination.toLowerCase();
-      result = result.filter((e) => e.location?.toLowerCase().includes(d) || e.title?.toLowerCase().includes(d));
-    }
-    setFiltered(result);
-  }, [mappedBackendEvents, search, selectedType, selectedDestination]);
+  const filtered = useMemo(() => {
+    if (selectedType === "All") return mappedBackendEvents;
+    return mappedBackendEvents.filter((e) => e.type === selectedType);
+  }, [mappedBackendEvents, selectedType]);
 
   const topStats = useMemo(
     () => [
       { label: "Live Listings", value: String(mappedBackendEvents.length).padStart(2, "0") },
       { label: "Avg Rating", value: (mappedBackendEvents.reduce((a, e) => a + (e.rating || 0), 0) / (mappedBackendEvents.length || 1)).toFixed(1) },
-      // { label: "Destinations", value: String(new Set(mappedBackendEvents.map((e) => e.location)).size).padStart(2, "0") },
-      // { label: "Seats Available", value: (mappedBackendEvents.reduce((a, e) => a + (e.totalTickets - (e.booked || 0)), 0)).toLocaleString() },
     ],
     [mappedBackendEvents]
   );
 
+  const handleCategoryClick = useCallback((type) => {
+    setSelectedType(type);
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#FBF8F3]">
       {/* Hero Section */}
-      <section className="relative h-[78vh] min-h-[640px] overflow-hidden flex items-center">
-        <img src="/images/events/outdoor.jpg" alt="events hero" className="absolute inset-0 w-full h-full object-cover" />
+      <section className="relative h-[55vh] sm:h-[78vh] sm:min-h-[640px] overflow-hidden flex items-center">
+        <img src="/images/events/outdoor.jpg" alt="events hero" fetchPriority="high" crossOrigin="anonymous" width="1920" height="1080" className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-r from-[#151722]/90 via-[#1a1d2d]/75 to-black/55" />
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 w-full mt-16">
           <div className="max-w-3xl">
@@ -111,7 +219,7 @@ export default function EventsPage() {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-5 mb-10 md:mb-0 ">
             {topStats.map((s) => (
-              <div key={s.label} className="bg-white/10 border border-white/20 backdrop-blur-md rounded-2xl p-4">
+              <div key={s.label} className="bg-black/40 border border-white/20 rounded-2xl p-4">
                 <p className="text-2xl md:text-3xl font-bold text-white">{s.value}</p>
                 <p className="text-[11px] uppercase tracking-[0.18em] text-white/70 mt-1">{s.label}</p>
               </div>
@@ -123,14 +231,9 @@ export default function EventsPage() {
       {/* Search and Filters */}
       <section className="mt-10 relative z-20 max-w-7xl mx-auto px-4 sm:px-6 pb-8">
         <div className="bg-white rounded-3xl border border-[#E7DDCF] shadow-[0_26px_50px_rgba(34,37,49,0.11)] p-5 md:p-6">
-          {/* <div className="flex items-center gap-3 bg-[#FBF8F3] rounded-2xl px-4 py-3 border border-[#E7DDCF]">
-            <Search className="text-[#7B8292]" />
-            <input placeholder="Search by event title or destination..." className="flex-1 outline-none bg-transparent text-[#222531]" value={search} onChange={(e) => setSearch(e.target.value)} />
-            {search && <X onClick={() => setSearch("")} className="cursor-pointer text-[#7B8292]" />}
-          </div> */}
           <div className="flex gap-2 flex-wrap">
             <button
-              onClick={() => setSelectedType("All")}
+              onClick={() => handleCategoryClick("All")}
               className={`px-4 py-2 rounded-full text-sm border transition ${selectedType === "All" ? "bg-[#C29B5F] text-white border-[#C29B5F]" : "bg-white border-[#E7DDCF] text-[#667280] hover:border-[#C29B5F]/45"}`}
             >
               All Events
@@ -138,7 +241,7 @@ export default function EventsPage() {
             {categoryKeys.map((key) => (
               <button
                 key={key}
-                onClick={() => setSelectedType(key)}
+                onClick={() => handleCategoryClick(key)}
                 className={`px-4 py-2 rounded-full text-sm border transition ${selectedType === key ? "bg-[#C29B5F] text-white border-[#C29B5F]" : "bg-white border-[#E7DDCF] text-[#667280] hover:border-[#C29B5F]/45"}`}
               >
                 {categoryMap[key]}
@@ -162,72 +265,9 @@ export default function EventsPage() {
             <p className="text-[#667280] mt-2">Try adjusting your search or category filters.</p>
           </div>
         ) : (
-          <div className="space-y-32">
+          <div className="space-y-20 md:space-y-32">
             {filtered.map((event, index) => (
-              <div
-                key={event.id}
-                className={`flex flex-col md:flex-row items-center gap-12 lg:gap-24 ${index % 2 === 0 ? "" : "md:flex-row-reverse"
-                  }`}
-              >
-                {/* Image Section - Carousel of 3 images */}
-                <div className="w-full md:w-1/2 group">
-                  <div className="relative aspect-[4/3] overflow-hidden rounded-[1rem] shadow-2xl">
-                    <Swiper
-                      modules={[Autoplay, Pagination, EffectFade]}
-                      effect="fade"
-                      autoplay={{ delay: 3000, disableOnInteraction: false }}
-                      pagination={{ clickable: true }}
-                      loop={event.allImages.length > 1}
-                      className="w-full h-full"
-                    >
-                      {event.allImages.map((img, i) => (
-                        <SwiperSlide key={i}>
-                          <img
-                            src={img}
-                            alt={`${event.title} ${i + 1}`}
-                            className="w-full h-full object-cover transition-transform duration-100 "
-                          />
-                        </SwiperSlide>
-                      ))}
-                    </Swiper>
-                    <div className="absolute inset-0 bg-black/5 pointer-events-none group-hover:bg-transparent transition-colors z-10" />
-                  </div>
-                </div>
-
-                {/* Content Section */}
-                <div className="w-full md:w-1/2">
-                  <div className="max-w-lg">
-                    <p className="text-[#C29B5F] text-xs font-bold tracking-[0.2em] uppercase mb-4">
-                      {categoryMap[event.category] || event.category}
-                    </p>
-                    <h2 className="font-['Playfair_Display'] text-3xl md:text-5xl font-bold text-[#1f2322] mb-6 leading-tight">
-                      {event.title}
-                    </h2>
-                    <p className="text-[#667280] text-lg leading-relaxed mb-10">
-                      {event.description}
-                    </p>
-
-                    <div className="flex flex-wrap gap-6 mb-10">
-                      {/* <div className="flex items-center gap-2">
-                        <MapPin size={18} className="text-[#C29B5F]" />
-                        <span className="text-sm font-medium text-[#222531]">{event.location}</span>
-                      </div> */}
-                      <div className="flex items-center gap-2">
-                        <Star size={18} className="text-[#C29B5F] fill-[#C29B5F]" />
-                        <span className="text-sm font-medium text-[#222531]">{event.rating} ({event.reviews} reviews)</span>
-                      </div>
-                    </div>
-
-                    <Link
-                      to={`/services?eventId=${event.id}`}
-                      className="inline-flex items-center gap-3 text-white px-8 py-4 bg-[#C29B5F] rounded-full font-bold tracking-widest uppercase text-sm hover:bg-[#D4AD72] transition-all group"
-                    >
-                      View Insights
-                      <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
-                    </Link>
-                  </div>
-                </div>
-              </div>
+              <EventRow key={event.id} event={event} index={index} />
             ))}
           </div>
         )}

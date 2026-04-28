@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { Edit2, Trash2, Users, Upload, RefreshCw, Image as ImageIcon, X, CheckCircle, PlusCircle } from 'lucide-react';
@@ -29,26 +29,18 @@ const toastConfirm = (message) =>
   new Promise((resolve) => {
     toast(
       (t) => (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          <span style={{ fontWeight: '600', color: '#1f2322' }}>{message}</span>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <div className="flex flex-col gap-3">
+          <span className="font-semibold text-[#1f2322]">{message}</span>
+          <div className="flex gap-2">
             <button
               onClick={() => { toast.dismiss(t.id); resolve(true); }}
-              style={{
-                flex: 1, background: '#ef4444', color: '#fff', border: 'none',
-                borderRadius: '8px', padding: '0.4rem 0.8rem', fontWeight: '700',
-                cursor: 'pointer', fontSize: '0.82rem',
-              }}
+              className="flex-1 bg-red-500 text-white border-none rounded-lg py-1.5 px-3 font-bold cursor-pointer text-[0.82rem]"
             >
               Yes, Delete
             </button>
             <button
               onClick={() => { toast.dismiss(t.id); resolve(false); }}
-              style={{
-                flex: 1, background: '#f3f4f6', color: '#374151', border: 'none',
-                borderRadius: '8px', padding: '0.4rem 0.8rem', fontWeight: '700',
-                cursor: 'pointer', fontSize: '0.82rem',
-              }}
+              className="flex-1 bg-gray-100 text-gray-700 border-none rounded-lg py-1.5 px-3 font-bold cursor-pointer text-[0.82rem]"
             >
               Cancel
             </button>
@@ -58,6 +50,64 @@ const toastConfirm = (message) =>
       { duration: Infinity, style: { padding: '1rem', maxWidth: '320px' } }
     );
   });
+
+// Memoized table row — only re-renders when its own event or deletingId changes
+const EventRow = memo(({ event, idx, deletingId, onEdit, onDelete, onNavigateServices }) => (
+  <tr
+    key={event._id}
+    className="border-b border-[#F0EAE0] transition-colors hover:bg-[#FFF8F0] odd:bg-white even:bg-[#FDFAF6]"
+  >
+    <td className="p-3.5 px-5">
+      <span className="font-bold text-[#1f2322] text-sm block max-w-[180px] truncate">{event.title}</span>
+    </td>
+    <td className="p-3.5 px-5">
+      <span className="bg-[#C1A27B]/10 text-[#C1A27B] rounded-md py-1 px-2.5 text-[0.75rem] font-bold capitalize whitespace-nowrap">{event.category}</span>
+    </td>
+    <td className="p-3.5 px-5">
+      <span className="text-[#C1A27B] font-bold text-[0.95rem]">₹ {event.price?.toLocaleString('en-IN')}</span>
+    </td>
+    <td className="p-3.5 px-5">
+      <span className="flex items-center gap-1.5 text-[#1f2322] font-semibold text-[0.85rem]">
+        <Users size={14} className="text-[#C1A27B]" />{event.totalTickets}
+      </span>
+    </td>
+    <td className="p-3.5 px-5 min-w-[160px]">
+      {event.images?.length > 0 ? (
+        <div className="flex gap-1">
+          {event.images.slice(0, 3).map((img, i) => (
+            <img key={i} src={img} alt="" loading="lazy" decoding="async" className="w-[34px] h-[34px] rounded-md object-cover border-2 border-[#EFE8DC]" />
+          ))}
+          {event.images.length > 3 && <div className="w-[34px] h-[34px] rounded-md bg-[#F0EAE0] flex items-center justify-center text-[0.7rem] font-bold text-[#667280]">+{event.images.length - 3}</div>}
+        </div>
+      ) : <span className="text-gray-300">—</span>}
+    </td>
+    <td className="p-3.5 pl-7">
+      <div className="flex gap-2">
+        <button 
+          onClick={() => onEdit(event)} 
+          title="Edit Event" 
+          className="bg-[#C1A27B]/10 text-[#C1A27B] border-none rounded-lg p-2 flex items-center justify-center cursor-pointer transition-colors hover:bg-[#C1A27B]/20"
+        >
+          <Edit2 size={15} />
+        </button>
+        <button
+          onClick={() => onNavigateServices(event._id)}
+          title="Manage Services for this Event"
+          className="bg-[#667280]/10 text-[#667280] border-none rounded-lg p-2 flex items-center justify-center cursor-pointer transition-colors hover:bg-[#667280]/20"
+        ><PlusCircle size={15} /></button>
+        <button 
+          onClick={() => onDelete(event._id)} 
+          title="Delete Event" 
+          disabled={deletingId === event._id} 
+          className="bg-red-500/10 text-red-500 border-none rounded-lg p-2 flex items-center justify-center cursor-pointer transition-colors hover:bg-red-500/20 disabled:cursor-not-allowed"
+        >
+          {deletingId === event._id ? <RefreshCw size={15} className="animate-spin" /> : <Trash2 size={15} />}
+        </button>
+      </div>
+    </td>
+  </tr>
+));
+
 
 const ManageEvents = () => {
   const dispatch = useDispatch();
@@ -73,13 +123,16 @@ const ManageEvents = () => {
 
   useEffect(() => { dispatch(fetchEvents()); }, [dispatch]);
 
+  // Cleanup blob URLs only on unmount (not on every preview change)
+  const imagePreviewsRef = useRef(imagePreviews);
+  imagePreviewsRef.current = imagePreviews;
   useEffect(() => {
-    return () => { imagePreviews.forEach((p) => URL.revokeObjectURL(p.url)); };
-  }, [imagePreviews]);
+    return () => { imagePreviewsRef.current.forEach((p) => URL.revokeObjectURL(p.url)); };
+  }, []);
 
-  const scrollToForm = () => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const scrollToForm = useCallback(() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), []);
 
-  const handleEdit = (event) => {
+  const handleEdit = useCallback((event) => {
     setEditingEvent(event);
     setForm({
       title: event.title || '',
@@ -94,18 +147,18 @@ const ManageEvents = () => {
     setImagePreviews([]);
     if (fileInputRef.current) fileInputRef.current.value = '';
     scrollToForm();
-  };
+  }, [scrollToForm]);
 
-  const handleCancelEdit = () => {
+  const handleCancelEdit = useCallback(() => {
     setEditingEvent(null);
     setForm(EMPTY_FORM);
     setImagePreviews([]);
     if (fileInputRef.current) fileInputRef.current.value = '';
-  };
+  }, []);
 
-  const handleChange = (e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  const handleChange = useCallback((e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value })), []);
 
-  const handleImageChange = (e) => {
+  const handleImageChange = useCallback((e) => {
     if (!e.target.files || e.target.files.length === 0) return;
     const allowed = ['image/webp', 'image/png'];
     const files = Array.from(e.target.files).filter((f) => {
@@ -119,11 +172,10 @@ const ManageEvents = () => {
     setForm((prev) => ({ ...prev, imageFiles: [...prev.imageFiles, ...files] }));
     const newPreviews = files.map((file) => ({ file, url: URL.createObjectURL(file) }));
     setImagePreviews((prev) => [...prev, ...newPreviews]);
-    // Reset input so same files can be re-selected if removed
     e.target.value = '';
-  };
+  }, []);
 
-  const removeNewImage = (index) => {
+  const removeNewImage = useCallback((index) => {
     setForm((prev) => {
       const updated = [...prev.imageFiles];
       updated.splice(index, 1);
@@ -135,15 +187,15 @@ const ManageEvents = () => {
       updated.splice(index, 1);
       return updated;
     });
-  };
+  }, []);
 
-  const removeExistingImage = (imgUrl) => {
+  const removeExistingImage = useCallback((imgUrl) => {
     setForm((prev) => ({
       ...prev,
       existingImages: prev.existingImages.filter((img) => img !== imgUrl),
       deletedImages: [...prev.deletedImages, imgUrl],
     }));
-  };
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -178,7 +230,7 @@ const ManageEvents = () => {
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = useCallback(async (id) => {
     const confirmed = await toastConfirm('Delete this event? This cannot be undone.');
     if (!confirmed) return;
     setDeletingId(id);
@@ -190,109 +242,170 @@ const ManageEvents = () => {
     } finally {
       setDeletingId(null);
     }
-  };
+  }, [dispatch]);
+
+  const handleNavigateServices = useCallback((eventId) => {
+    navigate(`/admin/services?eventId=${eventId}`);
+  }, [navigate]);
 
   return (
-    <div className="min-h-screen pt-28 pb-16" style={{ background: '#FAF9F6' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 1.5rem' }}>
+    <div className="min-h-screen pt-28 pb-16 bg-[#FAF9F6]">
+      <div className="max-w-[1200px] mx-auto px-6">
 
         {/* Page Title */}
-        <div style={{ marginBottom: '2rem' }}>
-          <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(1.8rem,4vw,2.5rem)', fontWeight: '700', color: '#C1A27B', marginBottom: '0.25rem' }}>
+        <div className="mb-8">
+          <h1 className="font-['Playfair_Display'] text-4xl md:text-5xl font-bold text-[#C1A27B] mb-1">
             Manage Events
           </h1>
-          <p style={{ color: '#667280', fontSize: '0.9rem' }}>Create, edit and manage your luxury event experiences.</p>
+          <p className="text-[#667280] text-sm">Create, edit and manage your luxury event experiences.</p>
         </div>
 
         {/* ── FORM CARD ── */}
-        <div ref={formRef} style={{ background: '#fff', borderRadius: '16px', border: '1px solid #E8E1D5', boxShadow: '0 2px 16px rgba(193,162,123,0.08)', marginBottom: '2.5rem', overflow: 'hidden' }}>
+        <div ref={formRef} className="bg-white rounded-2xl border border-[#E8E1D5] shadow-sm mb-10 overflow-hidden">
 
           {/* Header */}
-          <div style={{ padding: '1.25rem 1.75rem', borderBottom: '1px solid #EFE8DC', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(193,162,123,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <PlusCircle size={18} color="#C1A27B" />
+          <div className="p-5 px-7 border-b border-[#EFE8DC] flex items-center justify-between bg-white">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-[#C1A27B]/10 flex items-center justify-center">
+                <PlusCircle size={18} className="text-[#C1A27B]" />
               </div>
-              <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.2rem', fontWeight: '700', color: '#1f2322', margin: 0 }}>
+              <h2 className="font-['Playfair_Display'] text-xl font-bold text-[#1f2322] m-0">
                 {editingEvent ? 'Edit Event' : 'Add New Event'}
               </h2>
             </div>
             {editingEvent && (
-              <button onClick={handleCancelEdit} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'transparent', border: '1px solid #E8E1D5', borderRadius: '8px', padding: '0.4rem 0.85rem', color: '#667280', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '600' }}>
+              <button 
+                onClick={handleCancelEdit} 
+                className="flex items-center gap-1.5 bg-transparent border border-[#E8E1D5] rounded-lg py-1.5 px-3.5 text-[#667280] cursor-pointer text-xs font-semibold hover:bg-gray-50 transition-colors"
+              >
                 <X size={14} /> Cancel
               </button>
             )}
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} style={{ padding: '1.75rem' }}>
+          <form onSubmit={handleSubmit} className="p-7">
 
             {/* Row 1: Title | Category */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: '1.25rem', marginBottom: '1.25rem' }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
               <div>
-                <label style={lbl}>Event Title *</label>
-                <input type="text" name="title" value={form.title} onChange={handleChange} required placeholder="e.g. Royal Venetian Masquerade" style={inp} onFocus={(e) => e.target.style.borderColor = '#C1A27B'} onBlur={(e) => e.target.style.borderColor = '#E8E1D5'} />
+                <label className="block text-[0.72rem] font-bold text-[#667280] uppercase tracking-wider mb-1.5">Event Title *</label>
+                <input 
+                  type="text" 
+                  name="title" 
+                  value={form.title} 
+                  onChange={handleChange} 
+                  required 
+                  placeholder="e.g. Royal Venetian Masquerade" 
+                  className="w-full bg-[#FAF9F6] border border-[#E8E1D5] rounded-xl p-2.5 px-3.5 text-sm text-[#1f2322] outline-none transition-colors focus:border-[#C1A27B]" 
+                />
               </div>
               <div>
-                <label style={lbl}>Category *</label>
-                <select name="category" value={form.category} onChange={handleChange} style={inp} onFocus={(e) => e.target.style.borderColor = '#C1A27B'} onBlur={(e) => e.target.style.borderColor = '#E8E1D5'}>
+                <label className="block text-[0.72rem] font-bold text-[#667280] uppercase tracking-wider mb-1.5">Category *</label>
+                <select 
+                  name="category" 
+                  value={form.category} 
+                  onChange={handleChange} 
+                  className="w-full bg-[#FAF9F6] border border-[#E8E1D5] rounded-xl p-2.5 px-3.5 text-sm text-[#1f2322] outline-none transition-colors focus:border-[#C1A27B]"
+                >
                   {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
                 </select>
               </div>
             </div>
 
             {/* Row 2: Price | Tickets | Images */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(160px,1fr))', gap: '1.25rem', marginBottom: '1.25rem' }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 mb-5">
               <div>
-                <label style={lbl}>Estimated Price (₹) *</label>
-                <div style={{ position: 'relative' }}>
-                  <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#667280', fontWeight: '600', pointerEvents: 'none' }}>₹</span>
-                  <input type="number" name="price" value={form.price} onChange={handleChange} required min="0" placeholder="50000" style={{ ...inp, paddingLeft: '1.8rem' }} onFocus={(e) => e.target.style.borderColor = '#C1A27B'} onBlur={(e) => e.target.style.borderColor = '#E8E1D5'} />
+                <label className="block text-[0.72rem] font-bold text-[#667280] uppercase tracking-wider mb-1.5">Estimated Price (₹) *</label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#667280] font-semibold pointer-events-none text-sm">₹</span>
+                  <input 
+                    type="number" 
+                    name="price" 
+                    value={form.price} 
+                    onChange={handleChange} 
+                    required 
+                    min="0" 
+                    placeholder="50000" 
+                    className="w-full bg-[#FAF9F6] border border-[#E8E1D5] rounded-xl p-2.5 px-3.5 pl-7 text-sm text-[#1f2322] outline-none transition-colors focus:border-[#C1A27B]" 
+                  />
                 </div>
               </div>
               <div>
-                <label style={lbl}>Total Capacity *</label>
-                <input type="number" name="totalTickets" value={form.totalTickets} onChange={handleChange} required min="1" placeholder="500" style={inp} onFocus={(e) => e.target.style.borderColor = '#C1A27B'} onBlur={(e) => e.target.style.borderColor = '#E8E1D5'} />
+                <label className="block text-[0.72rem] font-bold text-[#667280] uppercase tracking-wider mb-1.5">Total Capacity *</label>
+                <input 
+                  type="number" 
+                  name="totalTickets" 
+                  value={form.totalTickets} 
+                  onChange={handleChange} 
+                  required 
+                  min="1" 
+                  placeholder="500" 
+                  className="w-full bg-[#FAF9F6] border border-[#E8E1D5] rounded-xl p-2.5 px-3.5 text-sm text-[#1f2322] outline-none transition-colors focus:border-[#C1A27B]" 
+                />
               </div>
               <div>
-                <label style={lbl}>Event Images</label>
-                <input ref={fileInputRef} type="file" multiple accept=".webp,.png,image/webp,image/png" onChange={handleImageChange} id="imgInput" style={{ display: 'none' }} />
-                <label htmlFor="imgInput" style={{ ...inp, display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', justifyContent: 'center', color: '#667280', margin: 0 }}>
-                  <Upload size={15} color="#C1A27B" />
+                <label className="block text-[0.72rem] font-bold text-[#667280] uppercase tracking-wider mb-1.5">Event Images</label>
+                <input ref={fileInputRef} type="file" multiple accept=".webp,.png,image/webp,image/png" onChange={handleImageChange} id="imgInput" className="hidden" />
+                <label 
+                  htmlFor="imgInput" 
+                  className="w-full bg-[#FAF9F6] border border-[#E8E1D5] rounded-xl p-2.5 px-3.5 text-sm text-[#667280] outline-none transition-colors focus:border-[#C1A27B] flex items-center justify-center gap-2 cursor-pointer m-0"
+                >
+                  <Upload size={15} className="text-[#C1A27B]" />
                   Choose Images
                   {(form.imageFiles.length + form.existingImages.length) > 0 && (
-                    <span style={{ background: '#C1A27B', color: '#fff', borderRadius: '999px', fontSize: '0.7rem', padding: '0.1rem 0.5rem', fontWeight: '700' }}>
+                    <span className="bg-[#C1A27B] text-white rounded-full text-[0.7rem] py-0.5 px-2 font-bold">
                       {form.imageFiles.length + form.existingImages.length}
                     </span>
                   )}
                 </label>
-                <p style={{ fontSize: '0.68rem', color: '#9B8E7E', marginTop: '0.35rem', fontStyle: 'italic' }}>Accepted formats: WebP, PNG</p>
+                <p className="text-[0.68rem] text-[#9B8E7E] mt-1.5 italic">Accepted: WebP, PNG</p>
               </div>
             </div>
 
             {/* Description */}
-            <div style={{ marginBottom: '1.25rem' }}>
-              <label style={lbl}>Description *</label>
-              <textarea name="description" value={form.description} onChange={handleChange} required rows={3} placeholder="Describe the atmosphere and specific offerings..." style={{ ...inp, resize: 'vertical', minHeight: '80px', lineHeight: '1.5' }} onFocus={(e) => e.target.style.borderColor = '#C1A27B'} onBlur={(e) => e.target.style.borderColor = '#E8E1D5'} />
+            <div className="mb-5">
+              <label className="block text-[0.72rem] font-bold text-[#667280] uppercase tracking-wider mb-1.5">Description *</label>
+              <textarea 
+                name="description" 
+                value={form.description} 
+                onChange={handleChange} 
+                required 
+                rows={3} 
+                placeholder="Describe the atmosphere and specific offerings..." 
+                className="w-full bg-[#FAF9F6] border border-[#E8E1D5] rounded-xl p-2.5 px-3.5 text-sm text-[#1f2322] outline-none transition-colors focus:border-[#C1A27B] resize-vertical min-h-[80px] leading-relaxed" 
+              />
             </div>
 
             {/* Image Previews */}
             {(form.existingImages.length > 0 || imagePreviews.length > 0) && (
-              <div style={{ marginBottom: '1.25rem' }}>
-                <label style={lbl}>Selected Images ({form.existingImages.length + imagePreviews.length})</label>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.65rem', marginTop: '0.5rem' }}>
+              <div className="mb-5">
+                <label className="block text-[0.72rem] font-bold text-[#667280] uppercase tracking-wider mb-1.5">Selected Images ({form.existingImages.length + imagePreviews.length})</label>
+                <div className="flex flex-wrap gap-2.5 mt-2">
                   {form.existingImages.map((url, i) => (
-                    <div key={`ex-${i}`} style={{ position: 'relative', width: '70px', height: '70px' }}>
-                      <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px', border: '2px solid #E8E1D5' }} />
-                      <button type="button" onClick={() => removeExistingImage(url)} style={rmBtn}><X size={10} /></button>
-                      <span style={badge('#667280')}>Saved</span>
+                    <div key={`ex-${i}`} className="relative w-[70px] h-[70px]">
+                      <img src={url} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover rounded-lg border-2 border-[#E8E1D5]" />
+                      <button 
+                        type="button" 
+                        onClick={() => removeExistingImage(url)} 
+                        className="absolute -top-1.5 -right-1.5 bg-red-500 text-white border-none rounded-full w-4.5 h-4.5 flex items-center justify-center cursor-pointer p-0 z-10"
+                      >
+                        <X size={10} />
+                      </button>
+                      <span className="absolute bottom-0 left-0 right-0 bg-[#667280] text-white text-[0.58rem] font-bold text-center py-0.5 uppercase rounded-b-[6px]">Saved</span>
                     </div>
                   ))}
                   {imagePreviews.map((p, i) => (
-                    <div key={`nw-${i}`} style={{ position: 'relative', width: '70px', height: '70px' }}>
-                      <img src={p.url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px', border: '2px solid #C1A27B' }} />
-                      <button type="button" onClick={() => removeNewImage(i)} style={rmBtn}><X size={10} /></button>
-                      <span style={badge('#C1A27B')}>New</span>
+                    <div key={`nw-${i}`} className="relative w-[70px] h-[70px]">
+                      <img src={p.url} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover rounded-lg border-2 border-[#C1A27B]" />
+                      <button 
+                        type="button" 
+                        onClick={() => removeNewImage(i)} 
+                        className="absolute -top-1.5 -right-1.5 bg-red-500 text-white border-none rounded-full w-4.5 h-4.5 flex items-center justify-center cursor-pointer p-0 z-10"
+                      >
+                        <X size={10} />
+                      </button>
+                      <span className="absolute bottom-0 left-0 right-0 bg-[#C1A27B] text-white text-[0.58rem] font-bold text-center py-0.5 uppercase rounded-b-[6px]">New</span>
                     </div>
                   ))}
                 </div>
@@ -300,94 +413,54 @@ const ManageEvents = () => {
             )}
 
             {/* Submit */}
-            <button type="submit" disabled={submitting} style={{ background: submitting ? '#aaa' : '#1f2322', color: '#fff', border: 'none', borderRadius: '10px', padding: '0.7rem 2rem', fontWeight: '700', fontSize: '0.9rem', cursor: submitting ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', transition: 'background 0.2s' }}
-              onMouseOver={(e) => { if (!submitting) e.currentTarget.style.background = '#C1A27B'; }}
-              onMouseOut={(e) => { if (!submitting) e.currentTarget.style.background = '#1f2322'; }}
+            <button 
+              type="submit" 
+              disabled={submitting} 
+              className={`border-none rounded-xl py-3 px-8 font-bold text-sm cursor-pointer flex items-center gap-2 transition-colors ${submitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#1f2322] text-white hover:bg-[#C1A27B]'}`}
             >
-              {submitting ? <RefreshCw size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <CheckCircle size={16} />}
+              {submitting ? <RefreshCw size={16} className="animate-spin" /> : <CheckCircle size={16} />}
               {submitting ? 'Please wait...' : editingEvent ? 'Update Event' : 'Add Event'}
             </button>
           </form>
         </div>
 
         {/* ── EVENTS HISTORY TABLE ── */}
-        <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid #E8E1D5', boxShadow: '0 2px 16px rgba(193,162,123,0.08)', overflow: 'hidden' }}>
-          <div style={{ padding: '1.1rem 1.75rem', borderBottom: '1px solid #EFE8DC', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.1rem', fontWeight: '700', color: '#1f2322', margin: 0 }}>Events History</h2>
-            <span style={{ background: 'rgba(193,162,123,0.15)', color: '#C1A27B', borderRadius: '999px', fontSize: '0.72rem', fontWeight: '700', padding: '0.15rem 0.6rem' }}>{events.length}</span>
+        <div className="bg-white rounded-2xl border border-[#E8E1D5] shadow-sm overflow-hidden">
+          <div className="p-4 px-7 border-b border-[#EFE8DC] flex items-center gap-3">
+            <h2 className="font-['Playfair_Display'] text-[1.1rem] font-bold text-[#1f2322] m-0">Events History</h2>
+            <span className="bg-[#C1A27B]/15 text-[#C1A27B] rounded-full text-[0.72rem] font-bold py-0.5 px-2.5">{events.length}</span>
           </div>
 
-          <div style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: '450px' }}>
+          <div className="overflow-auto max-h-[450px]">
             {loading && events.length === 0 ? (
-              <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}>
-                <RefreshCw size={28} color="#C1A27B" style={{ animation: 'spin 1s linear infinite' }} />
+              <div className="flex justify-center p-16">
+                <RefreshCw size={28} className="text-[#C1A27B] animate-spin" />
               </div>
             ) : events.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '4rem', color: '#667280' }}>
-                <ImageIcon size={36} style={{ opacity: 0.2, marginBottom: '1rem' }} />
-                <p style={{ fontWeight: '600' }}>No events yet. Create your first event above.</p>
+              <div className="text-center p-16 text-[#667280]">
+                <ImageIcon size={36} className="opacity-20 mb-4 inline-block" />
+                <p className="font-semibold">No events yet. Create your first event above.</p>
               </div>
             ) : (
-              <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '700px' }}>
+              <table className="w-full border-collapse min-w-[700px]">
                 <thead>
-                  <tr style={{ background: '#1f2322' }}>
+                  <tr className="bg-[#1f2322]">
                     {['Event', 'Category', 'Estimated Price', 'Capacity', 'Images', 'Actions'].map((h) => (
-                      <th key={h} style={{ padding: '0.9rem 1.25rem', textAlign: 'left', color: '#fff', fontSize: '0.72rem', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{h}</th>
+                      <th key={h} className="p-3.5 px-5 text-left text-white text-[0.72rem] font-bold tracking-widest uppercase whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {events.map((event, idx) => (
-                    <tr key={event._id} style={{ background: idx % 2 === 0 ? '#fff' : '#FDFAF6', borderBottom: '1px solid #F0EAE0' }}
-                      onMouseOver={(e) => e.currentTarget.style.background = '#FFF8F0'}
-                      onMouseOut={(e) => e.currentTarget.style.background = idx % 2 === 0 ? '#fff' : '#FDFAF6'}
-                    >
-                      <td style={{ padding: '0.9rem 1.25rem' }}>
-                        <span style={{ fontWeight: '700', color: '#1f2322', fontSize: '0.9rem', display: 'block', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{event.title}</span>
-                      </td>
-                      <td style={{ padding: '0.9rem 1.25rem' }}>
-                        <span style={{ background: 'rgba(193,162,123,0.12)', color: '#C1A27B', borderRadius: '6px', padding: '0.2rem 0.65rem', fontSize: '0.75rem', fontWeight: '700', textTransform: 'capitalize', whiteSpace: 'nowrap' }}>{event.category}</span>
-                      </td>
-                      <td style={{ padding: '0.9rem 1.25rem' }}>
-                        <span style={{ color: '#C1A27B', fontWeight: '700', fontSize: '0.95rem' }}>₹ {event.price?.toLocaleString('en-IN')}</span>
-                      </td>
-                      <td style={{ padding: '0.9rem 1.25rem' }}>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#1f2322', fontWeight: '600', fontSize: '0.85rem' }}>
-                          <Users size={14} color="#C1A27B" />{event.totalTickets}
-                        </span>
-                      </td>
-                      <td style={{ padding: '0.9rem 1.25rem', minWidth: '160px' }}>
-                        {event.images?.length > 0 ? (
-                          <div style={{ display: 'flex', gap: '4px' }}>
-                            {event.images.slice(0, 3).map((img, i) => (
-                              <img key={i} src={img} alt="" style={{ width: '34px', height: '34px', borderRadius: '6px', objectFit: 'cover', border: '2px solid #EFE8DC' }} />
-                            ))}
-                            {event.images.length > 3 && <div style={{ width: '34px', height: '34px', borderRadius: '6px', background: '#F0EAE0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: '700', color: '#667280' }}>+{event.images.length - 3}</div>}
-                          </div>
-                        ) : <span style={{ color: '#ccc' }}>—</span>}
-                      </td>
-                      <td style={{ padding: '0.9rem 1.25rem 0.9rem 1.75rem' }}>
-                        <div style={{ display: 'flex', gap: '0.5rem' }}>
-                          <button onClick={() => handleEdit(event)} title="Edit Event" style={actBtn('#C1A27B', 'rgba(193,162,123,0.1)')}
-                            onMouseOver={(e) => e.currentTarget.style.background = 'rgba(193,162,123,0.22)'}
-                            onMouseOut={(e) => e.currentTarget.style.background = 'rgba(193,162,123,0.1)'}
-                          ><Edit2 size={15} /></button>
-                          <button
-                            onClick={() => navigate(`/admin/services?eventId=${event._id}`)}
-                            title="Manage Services for this Event"
-                            style={actBtn('#667280', 'rgba(102,114,128,0.08)')}
-                            onMouseOver={(e) => e.currentTarget.style.background = 'rgba(102,114,128,0.18)'}
-                            onMouseOut={(e) => e.currentTarget.style.background = 'rgba(102,114,128,0.08)'}
-                          ><PlusCircle size={15} /></button>
-                          <button onClick={() => handleDelete(event._id)} title="Delete Event" disabled={deletingId === event._id} style={actBtn('#ef4444', 'rgba(239,68,68,0.08)')}
-                            onMouseOver={(e) => e.currentTarget.style.background = 'rgba(239,68,68,0.18)'}
-                            onMouseOut={(e) => e.currentTarget.style.background = 'rgba(239,68,68,0.08)'}
-                          >
-                            {deletingId === event._id ? <RefreshCw size={15} style={{ animation: 'spin 1s linear infinite' }} /> : <Trash2 size={15} />}
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
+                    <EventRow
+                      key={event._id}
+                      event={event}
+                      idx={idx}
+                      deletingId={deletingId}
+                      onEdit={handleEdit}
+                      onDelete={handleDelete}
+                      onNavigateServices={handleNavigateServices}
+                    />
                   ))}
                 </tbody>
               </table>
@@ -399,11 +472,5 @@ const ManageEvents = () => {
     </div>
   );
 };
-
-const lbl = { display: 'block', fontSize: '0.72rem', fontWeight: '700', color: '#667280', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.4rem' };
-const inp = { width: '100%', background: '#FAF9F6', border: '1px solid #E8E1D5', borderRadius: '10px', padding: '0.6rem 0.9rem', fontSize: '0.88rem', color: '#1f2322', outline: 'none', transition: 'border-color 0.2s', boxSizing: 'border-box' };
-const rmBtn = { position: 'absolute', top: '-6px', right: '-6px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '50%', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0, zIndex: 1 };
-const badge = (bg) => ({ position: 'absolute', bottom: 0, left: 0, right: 0, background: bg, color: '#fff', fontSize: '0.58rem', fontWeight: '700', textAlign: 'center', padding: '0.1rem 0', textTransform: 'uppercase', borderBottomLeftRadius: '6px', borderBottomRightRadius: '6px' });
-const actBtn = (color, bg) => ({ background: bg, color, border: 'none', borderRadius: '8px', padding: '0.45rem 0.55rem', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'background 0.2s' });
 
 export default ManageEvents;

@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback, memo, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
-import { Edit2, Trash2, Upload, RefreshCw, Image as ImageIcon, X, CheckCircle, PlusCircle, Settings } from 'lucide-react';
+import { Edit2, Trash2, Upload, RefreshCw, X, CheckCircle, PlusCircle, Settings, Calendar } from 'lucide-react';
 import { fetchEvents } from '../store/slices/eventsSlice';
 import { fetchServicesByEvent, deleteService, clearServices } from '../store/slices/servicesSlice';
 import api from '../utils/api';
@@ -16,30 +16,33 @@ const EMPTY_FORM = {
   deletedImages: [],
 };
 
+const CATEGORY_COLORS = {
+  weddings: { bg: 'bg-pink-500/10', text: 'text-pink-600', label: 'Weddings' },
+  birthdays: { bg: 'bg-amber-500/10', text: 'text-amber-600', label: 'Birthdays' },
+  milestone: { bg: 'bg-indigo-500/10', text: 'text-indigo-600', label: 'Milestones' },
+  business: { bg: 'bg-teal-500/10', text: 'text-teal-600', label: 'Business & Office' },
+};
+
+const CATEGORY_ORDER = ['weddings', 'birthdays', 'milestone', 'business'];
+const DEFAULT_CAT = { bg: 'bg-[#C1A27B]/10', text: 'text-[#C1A27B]', label: '' };
+
+/* Custom toast-based confirm — returns a Promise<boolean> */
 const toastConfirm = (message) =>
   new Promise((resolve) => {
     toast(
       (t) => (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          <span style={{ fontWeight: '600', color: '#1f2322' }}>{message}</span>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <div className="flex flex-col gap-3">
+          <span className="font-semibold text-[#1f2322]">{message}</span>
+          <div className="flex gap-2">
             <button
               onClick={() => { toast.dismiss(t.id); resolve(true); }}
-              style={{
-                flex: 1, background: '#ef4444', color: '#fff', border: 'none',
-                borderRadius: '8px', padding: '0.4rem 0.8rem', fontWeight: '700',
-                cursor: 'pointer', fontSize: '0.82rem',
-              }}
+              className="flex-1 bg-red-500 text-white border-none rounded-lg py-1.5 px-3 font-bold cursor-pointer text-[0.82rem]"
             >
               Yes, Delete
             </button>
             <button
               onClick={() => { toast.dismiss(t.id); resolve(false); }}
-              style={{
-                flex: 1, background: '#f3f4f6', color: '#374151', border: 'none',
-                borderRadius: '8px', padding: '0.4rem 0.8rem', fontWeight: '700',
-                cursor: 'pointer', fontSize: '0.82rem',
-              }}
+              className="flex-1 bg-gray-100 text-gray-700 border-none rounded-lg py-1.5 px-3 font-bold cursor-pointer text-[0.82rem]"
             >
               Cancel
             </button>
@@ -49,6 +52,40 @@ const toastConfirm = (message) =>
       { duration: Infinity, style: { padding: '1rem', maxWidth: '320px' } }
     );
   });
+
+// Memoized table row — only re-renders when its own service or deletingId changes
+const ServiceRow = memo(({ service, idx, deletingId, onEdit, onDelete }) => (
+  <tr className="border-b border-[#F0EAE0] transition-colors hover:bg-[#FFF8F0] odd:bg-white even:bg-[#FDFAF6]">
+    <td className="p-3.5 px-5">
+      <span className="font-bold text-[#1f2322] text-sm block max-w-[200px] truncate">{service.title}</span>
+    </td>
+    <td className="p-3.5 px-5">
+      <span className="text-[#667280] text-[0.85rem] block max-w-[300px] truncate">{service.description}</span>
+    </td>
+    <td className="p-3.5 px-5 min-w-[160px]">
+      {service.images?.length > 0 ? (
+        <div className="flex gap-1">
+          {service.images.slice(0, 3).map((img, i) => (
+            <img key={i} src={img} alt="" loading="lazy" decoding="async" className="w-[34px] h-[34px] rounded-md object-cover border-2 border-[#EFE8DC]" />
+          ))}
+          {service.images.length > 3 && (
+            <div className="w-[34px] h-[34px] rounded-md bg-[#F0EAE0] flex items-center justify-center text-[0.7rem] font-bold text-[#667280]">+{service.images.length - 3}</div>
+          )}
+        </div>
+      ) : <span className="text-gray-300">—</span>}
+    </td>
+    <td className="p-3.5 pr-7">
+      <div className="flex gap-2">
+        <button onClick={() => onEdit(service)} title="Edit" className="bg-[#C1A27B]/10 text-[#C1A27B] border-none rounded-lg p-1.5 flex items-center justify-center cursor-pointer transition-colors hover:bg-[#C1A27B]/22">
+          <Edit2 size={15} />
+        </button>
+        <button onClick={() => onDelete(service._id)} title="Delete" disabled={deletingId === service._id} className="bg-red-500/10 text-red-500 border-none rounded-lg p-1.5 flex items-center justify-center cursor-pointer transition-colors hover:bg-red-500/18 disabled:cursor-not-allowed">
+          {deletingId === service._id ? <RefreshCw size={15} className="animate-spin" /> : <Trash2 size={15} />}
+        </button>
+      </div>
+    </td>
+  </tr>
+));
 
 const ManageServices = () => {
   const dispatch = useDispatch();
@@ -62,8 +99,21 @@ const ManageServices = () => {
   const [imagePreviews, setImagePreviews] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const formRef = useRef(null);
   const fileInputRef = useRef(null);
+  const dropdownRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, []);
 
   useEffect(() => {
     dispatch(fetchEvents());
@@ -87,16 +137,33 @@ const ManageServices = () => {
     handleCancelEdit();
   }, [selectedEventId, dispatch]);
 
+  // Cleanup blob URLs only on unmount (not on every preview change)
+  const imagePreviewsRef = useRef(imagePreviews);
+  imagePreviewsRef.current = imagePreviews;
   useEffect(() => {
-    return () => { imagePreviews.forEach((p) => URL.revokeObjectURL(p.url)); };
-  }, [imagePreviews]);
+    return () => { imagePreviewsRef.current.forEach((p) => URL.revokeObjectURL(p.url)); };
+  }, []);
 
-  const scrollToForm = () => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // Memoize grouped events for the dropdown to avoid recomputing on every render
+  const groupedEvents = useMemo(() =>
+    CATEGORY_ORDER.map((cat) => {
+      const catEvents = events.filter((ev) => ev.category === cat);
+      if (catEvents.length === 0) return null;
+      const c = CATEGORY_COLORS[cat] || DEFAULT_CAT;
+      return { cat, catEvents, colors: c };
+    }).filter(Boolean),
+    [events]
+  );
 
-  const handleEdit = (service) => {
+  const scrollToForm = useCallback(
+    () => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+    []
+  );
+
+  const handleEdit = useCallback((service) => {
     setEditingService(service);
     setForm({
-      eventId: service.eventId || selectedEventId,
+      eventId: service.eventId || '',
       title: service.title || '',
       description: service.description || '',
       imageFiles: [],
@@ -106,23 +173,26 @@ const ManageServices = () => {
     setImagePreviews([]);
     if (fileInputRef.current) fileInputRef.current.value = '';
     scrollToForm();
-  };
+  }, [scrollToForm]);
 
-  const handleCancelEdit = () => {
+  const handleCancelEdit = useCallback(() => {
     setEditingService(null);
-    setForm({ ...EMPTY_FORM, eventId: selectedEventId });
+    setForm((prev) => ({ ...EMPTY_FORM, eventId: prev.eventId }));
     setImagePreviews([]);
     if (fileInputRef.current) fileInputRef.current.value = '';
-  };
+  }, []);
 
-  const handleChange = (e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  const handleChange = useCallback(
+    (e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value })),
+    []
+  );
 
-  const handleEventFilterChange = (e) => {
-    setSelectedEventId(e.target.value);
-    setForm((prev) => ({ ...prev, eventId: e.target.value }));
-  };
+  const handleEventFilterChange = useCallback((value) => {
+    setSelectedEventId(value);
+    setForm((prev) => ({ ...prev, eventId: value }));
+  }, []);
 
-  const handleImageChange = (e) => {
+  const handleImageChange = useCallback((e) => {
     if (!e.target.files || e.target.files.length === 0) return;
     const allowed = ['image/webp', 'image/png'];
     const files = Array.from(e.target.files).filter((f) => {
@@ -137,9 +207,9 @@ const ManageServices = () => {
     const newPreviews = files.map((file) => ({ file, url: URL.createObjectURL(file) }));
     setImagePreviews((prev) => [...prev, ...newPreviews]);
     e.target.value = '';
-  };
+  }, []);
 
-  const removeNewImage = (index) => {
+  const removeNewImage = useCallback((index) => {
     setForm((prev) => {
       const updated = [...prev.imageFiles];
       updated.splice(index, 1);
@@ -151,15 +221,15 @@ const ManageServices = () => {
       updated.splice(index, 1);
       return updated;
     });
-  };
+  }, []);
 
-  const removeExistingImage = (imgUrl) => {
+  const removeExistingImage = useCallback((imgUrl) => {
     setForm((prev) => ({
       ...prev,
       existingImages: prev.existingImages.filter((img) => img !== imgUrl),
       deletedImages: [...prev.deletedImages, imgUrl],
     }));
-  };
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -192,7 +262,6 @@ const ManageServices = () => {
       handleCancelEdit();
     } catch (err) {
       console.error("Axios Error in Add Service:", err);
-      console.dir(err);
       let msg = 'Operation failed';
       if (err.response) {
         msg = err.response.data?.message || `Server error: ${err.response.status}`;
@@ -207,7 +276,7 @@ const ManageServices = () => {
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = useCallback(async (id) => {
     const confirmed = await toastConfirm('Delete this service? This cannot be undone.');
     if (!confirmed) return;
     setDeletingId(id);
@@ -219,103 +288,199 @@ const ManageServices = () => {
     } finally {
       setDeletingId(null);
     }
-  };
+  }, [dispatch]);
+
+  // Find selected event for display
+  const selectedEvent = useMemo(
+    () => events.find((e) => e._id === selectedEventId),
+    [events, selectedEventId]
+  );
 
   return (
-    <div className="min-h-screen pt-28 pb-16" style={{ background: '#FAF9F6' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 1.5rem' }}>
+    <div className="min-h-screen pt-28 pb-16 bg-[#FAF9F6]">
+      <div className="max-w-[1200px] mx-auto px-6">
 
         {/* Page Title */}
-        <div style={{ marginBottom: '2rem' }}>
-          <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(1.8rem,4vw,2.5rem)', fontWeight: '700', color: '#C1A27B', marginBottom: '0.25rem' }}>
-            Manage Services
-          </h1>
-          <p style={{ color: '#667280', fontSize: '0.9rem' }}>Create, edit and manage specific services for your events.</p>
+        <div className="mb-8">
+          <h1 className="font-['Playfair_Display'] text-4xl md:text-5xl font-bold text-[#C1A27B] mb-1">Manage Services</h1>
+          <p className="text-[#667280] text-sm">Create, edit and manage specific services for your events.</p>
         </div>
 
         {/* Event Filter */}
-        <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid #E8E1D5', padding: '1.5rem', marginBottom: '2rem', boxShadow: '0 2px 16px rgba(193,162,123,0.08)' }}>
-          <label style={lbl}>Select Event to Manage Services</label>
+        <div className="bg-white rounded-2xl border border-[#E8E1D5] shadow-sm p-6 mb-8">
+          <label className="block text-[0.72rem] font-bold text-[#667280] uppercase tracking-wider mb-2">Select Event to Manage Services</label>
           {eventsLoading ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#667280', fontSize: '0.9rem' }}>
-              <RefreshCw size={14} style={{ animation: 'spin 1s linear infinite' }} /> Loading events...
+            <div className="flex items-center gap-2 text-[#667280] text-sm">
+              <RefreshCw size={14} className="animate-spin" /> Loading events...
             </div>
           ) : (
-            <select value={selectedEventId} onChange={handleEventFilterChange} style={inp} onFocus={(e) => e.target.style.borderColor = '#C1A27B'} onBlur={(e) => e.target.style.borderColor = '#E8E1D5'}>
-              <option value="">-- Choose an Event --</option>
-              {events.map((ev) => (
-                <option key={ev._id} value={ev._id}>{ev.title} ({ev.category})</option>
-              ))}
-            </select>
+            <div ref={dropdownRef} className="relative">
+              {/* Trigger Button */}
+              <button
+                type="button"
+                onClick={() => setIsDropdownOpen((o) => !o)}
+                className={`w-full flex items-center justify-between gap-3 bg-[#FAF9F6] border-1.5 rounded-xl p-3 px-4 cursor-pointer transition-all outline-none ${isDropdownOpen ? 'border-[#C1A27B] ring-3 ring-[#C1A27B]/15' : 'border-[#E8E1D5]'}`}
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <Calendar size={16} className="text-[#C1A27B] flex-shrink-0" />
+                  {selectedEvent ? (
+                    <span className="flex items-center gap-2 min-w-0">
+                      <span className="font-bold text-[#1f2322] text-sm truncate">{selectedEvent.title}</span>
+                      <span className="bg-[#C1A27B]/12 text-[#C1A27B] rounded-md px-2 py-0.5 text-[0.68rem] font-bold capitalize flex-shrink-0">{selectedEvent.category}</span>
+                    </span>
+                  ) : (
+                    <span className="text-[#9B8E7E] text-sm truncate">— Choose an Event to manage its services —</span>
+                  )}
+                </div>
+                <RefreshCw size={14} className={`text-[#C1A27B] flex-shrink-0 transition-transform duration-250 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {/* Dropdown Panel */}
+              {isDropdownOpen && (
+                <div className="absolute top-[calc(100%+6px)] left-0 right-0 z-50 bg-white border-1.5 border-[#E8E1D5] rounded-2xl shadow-xl overflow-hidden max-h-[340px] overflow-y-auto">
+                  {/* Placeholder option */}
+                  <button
+                    type="button"
+                    onClick={() => { handleEventFilterChange(''); setIsDropdownOpen(false); }}
+                    className={`w-full text-left p-3 px-4 border-none border-b border-[#F0EAE0] cursor-pointer text-[#9B8E7E] text-[0.82rem] italic transition-colors ${!selectedEventId ? 'bg-[#C1A27B]/8' : 'bg-transparent'}`}
+                  >— Choose an Event —</button>
+
+                  {/* Group by category */}
+                  {groupedEvents.map(({ cat, catEvents, colors: c }) => (
+                    <div key={cat}>
+                      {/* Category Header */}
+                      <div className={`p-2 px-4 flex items-center gap-2 border-b border-[#F0EAE0] ${c.bg}`}>
+                        <span className={`text-[0.65rem] font-extrabold uppercase tracking-widest ${c.text}`}>{c.label}</span>
+                        <span className={`text-[0.6rem] rounded-full px-1.5 font-bold ${c.bg} ${c.text}`}>{catEvents.length}</span>
+                      </div>
+                      {/* Events in category */}
+                      {catEvents.map((ev) => (
+                        <button
+                          key={ev._id}
+                          type="button"
+                          onClick={() => { handleEventFilterChange(ev._id); setIsDropdownOpen(false); }}
+                          className={`w-full text-left p-2.5 px-4 pl-6 border-none border-b border-[#F7F3EE] cursor-pointer flex items-center justify-between gap-3 transition-colors hover:bg-[#C1A27B]/7 ${selectedEventId === ev._id ? 'bg-[#C1A27B]/10' : 'bg-transparent'}`}
+                        >
+                          <div className="flex items-center gap-2 min-w-0">
+                            {selectedEventId === ev._id && <CheckCircle size={13} className="text-[#C1A27B] flex-shrink-0" />}
+                            <span className={`text-[0.88rem] truncate ${selectedEventId === ev._id ? 'font-bold' : 'font-medium text-[#1f2322]'}`}>{ev.title}</span>
+                          </div>
+                          {ev.images?.length > 0 && (
+                            <span className="text-[0.65rem] text-[#9B8E7E] flex-shrink-0">{ev.images.length} img{ev.images.length !== 1 ? 's' : ''}</span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           )}
         </div>
 
         {/* ── FORM CARD ── */}
-        <div ref={formRef} style={{ opacity: selectedEventId ? 1 : 0.5, pointerEvents: selectedEventId ? 'auto' : 'none', background: '#fff', borderRadius: '16px', border: '1px solid #E8E1D5', boxShadow: '0 2px 16px rgba(193,162,123,0.08)', marginBottom: '2.5rem', overflow: 'hidden', transition: 'all 0.3s ease' }}>
+        <div
+          ref={formRef}
+          className={`bg-white rounded-2xl border border-[#E8E1D5] shadow-sm mb-10 overflow-hidden transition-opacity duration-300 ${!selectedEventId ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}
+        >
           {/* Header */}
-          <div style={{ padding: '1.25rem 1.75rem', borderBottom: '1px solid #EFE8DC', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(193,162,123,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <PlusCircle size={18} color="#C1A27B" />
+          <div className="p-5 px-7 border-b border-[#EFE8DC] flex items-center justify-between bg-white">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-[#C1A27B]/12 flex items-center justify-center">
+                <PlusCircle size={18} className="text-[#C1A27B]" />
               </div>
-              <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.2rem', fontWeight: '700', color: '#1f2322', margin: 0 }}>
+              <h2 className="font-['Playfair_Display'] text-xl font-bold text-[#1f2322] m-0">
                 {editingService ? 'Edit Service' : 'Add New Service'}
               </h2>
             </div>
             {editingService && (
-              <button onClick={handleCancelEdit} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'transparent', border: '1px solid #E8E1D5', borderRadius: '8px', padding: '0.4rem 0.85rem', color: '#667280', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '600' }}>
+              <button 
+                onClick={handleCancelEdit} 
+                className="flex items-center gap-1.5 bg-transparent border border-[#E8E1D5] rounded-lg py-1.5 px-3.5 text-[#667280] cursor-pointer text-xs font-semibold hover:bg-gray-50 transition-colors"
+              >
                 <X size={14} /> Cancel
               </button>
             )}
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} style={{ padding: '1.75rem' }}>
+          <form onSubmit={handleSubmit} className="p-7">
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: '1.25rem', marginBottom: '1.25rem' }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
               <div>
-                <label style={lbl}>Service Title *</label>
-                <input type="text" name="title" value={form.title} onChange={handleChange} required placeholder="e.g. Gourmet Catering" style={inp} onFocus={(e) => e.target.style.borderColor = '#C1A27B'} onBlur={(e) => e.target.style.borderColor = '#E8E1D5'} />
+                <label className="block text-[0.72rem] font-bold text-[#667280] uppercase tracking-wider mb-1.5">Service Title *</label>
+                <input 
+                  type="text" 
+                  name="title" 
+                  value={form.title} 
+                  onChange={handleChange} 
+                  required 
+                  placeholder="e.g. Gourmet Catering" 
+                  className="w-full bg-[#FAF9F6] border border-[#E8E1D5] rounded-xl p-2.5 px-3.5 text-sm text-[#1f2322] outline-none transition-colors focus:border-[#C1A27B]" 
+                />
               </div>
               <div>
-                <label style={lbl}>Service Images</label>
-                <input ref={fileInputRef} type="file" multiple accept=".webp,.png,image/webp,image/png" onChange={handleImageChange} id="imgInput" style={{ display: 'none' }} />
-                <label htmlFor="imgInput" style={{ ...inp, display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', justifyContent: 'center', color: '#667280', margin: 0 }}>
-                  <Upload size={15} color="#C1A27B" />
+                <label className="block text-[0.72rem] font-bold text-[#667280] uppercase tracking-wider mb-1.5">Service Images</label>
+                <input ref={fileInputRef} type="file" multiple accept=".webp,.png,image/webp,image/png" onChange={handleImageChange} id="svcImgInput" className="hidden" />
+                <label 
+                  htmlFor="svcImgInput" 
+                  className="w-full bg-[#FAF9F6] border border-[#E8E1D5] rounded-xl p-2.5 px-3.5 text-sm text-[#667280] outline-none transition-colors focus:border-[#C1A27B] flex items-center justify-center gap-2 cursor-pointer m-0"
+                >
+                  <Upload size={15} className="text-[#C1A27B]" />
                   Choose Images
                   {(form.imageFiles.length + form.existingImages.length) > 0 && (
-                    <span style={{ background: '#C1A27B', color: '#fff', borderRadius: '999px', fontSize: '0.7rem', padding: '0.1rem 0.5rem', fontWeight: '700' }}>
+                    <span className="bg-[#C1A27B] text-white rounded-full text-[0.7rem] py-0.5 px-2 font-bold">
                       {form.imageFiles.length + form.existingImages.length}
                     </span>
                   )}
                 </label>
-                <p style={{ fontSize: '0.68rem', color: '#9B8E7E', marginTop: '0.35rem', fontStyle: 'italic' }}>Accepted formats: WebP, PNG</p>
+                <p className="text-[0.68rem] text-[#9B8E7E] mt-1.5 italic">Accepted: WebP, PNG</p>
               </div>
             </div>
 
             {/* Description */}
-            <div style={{ marginBottom: '1.25rem' }}>
-              <label style={lbl}>Description *</label>
-              <textarea name="description" value={form.description} onChange={handleChange} required rows={3} placeholder="Describe the specific service..." style={{ ...inp, resize: 'vertical', minHeight: '80px', lineHeight: '1.5' }} onFocus={(e) => e.target.style.borderColor = '#C1A27B'} onBlur={(e) => e.target.style.borderColor = '#E8E1D5'} />
+            <div className="mb-5">
+              <label className="block text-[0.72rem] font-bold text-[#667280] uppercase tracking-wider mb-1.5">Description *</label>
+              <textarea 
+                name="description" 
+                value={form.description} 
+                onChange={handleChange} 
+                required 
+                rows={3} 
+                placeholder="Describe the specific service..." 
+                className="w-full bg-[#FAF9F6] border border-[#E8E1D5] rounded-xl p-2.5 px-3.5 text-sm text-[#1f2322] outline-none transition-colors focus:border-[#C1A27B] resize-vertical min-h-[80px] leading-relaxed" 
+              />
             </div>
 
             {/* Image Previews */}
             {(form.existingImages.length > 0 || imagePreviews.length > 0) && (
-              <div style={{ marginBottom: '1.25rem' }}>
-                <label style={lbl}>Selected Images ({form.existingImages.length + imagePreviews.length})</label>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.65rem', marginTop: '0.5rem' }}>
+              <div className="mb-5">
+                <label className="block text-[0.72rem] font-bold text-[#667280] uppercase tracking-wider mb-1.5">Selected Images ({form.existingImages.length + imagePreviews.length})</label>
+                <div className="flex flex-wrap gap-2.5 mt-2">
                   {form.existingImages.map((url, i) => (
-                    <div key={`ex-${i}`} style={{ position: 'relative', width: '70px', height: '70px' }}>
-                      <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px', border: '2px solid #E8E1D5' }} />
-                      <button type="button" onClick={() => removeExistingImage(url)} style={rmBtn}><X size={10} /></button>
-                      <span style={badge('#667280')}>Saved</span>
+                    <div key={`ex-${i}`} className="relative w-[70px] h-[70px]">
+                      <img src={url} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover rounded-lg border-2 border-[#E8E1D5]" />
+                      <button 
+                        type="button" 
+                        onClick={() => removeExistingImage(url)} 
+                        className="absolute -top-1.5 -right-1.5 bg-red-500 text-white border-none rounded-full w-4.5 h-4.5 flex items-center justify-center cursor-pointer p-0 z-10"
+                      >
+                        <X size={10} />
+                      </button>
+                      <span className="absolute bottom-0 left-0 right-0 bg-[#667280] text-white text-[0.58rem] font-bold text-center py-0.5 uppercase rounded-b-[6px]">Saved</span>
                     </div>
                   ))}
                   {imagePreviews.map((p, i) => (
-                    <div key={`nw-${i}`} style={{ position: 'relative', width: '70px', height: '70px' }}>
-                      <img src={p.url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px', border: '2px solid #C1A27B' }} />
-                      <button type="button" onClick={() => removeNewImage(i)} style={rmBtn}><X size={10} /></button>
-                      <span style={badge('#C1A27B')}>New</span>
+                    <div key={`nw-${i}`} className="relative w-[70px] h-[70px]">
+                      <img src={p.url} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover rounded-lg border-2 border-[#C1A27B]" />
+                      <button 
+                        type="button" 
+                        onClick={() => removeNewImage(i)} 
+                        className="absolute -top-1.5 -right-1.5 bg-red-500 text-white border-none rounded-full w-4.5 h-4.5 flex items-center justify-center cursor-pointer p-0 z-10"
+                      >
+                        <X size={10} />
+                      </button>
+                      <span className="absolute bottom-0 left-0 right-0 bg-[#C1A27B] text-white text-[0.58rem] font-bold text-center py-0.5 uppercase rounded-b-[6px]">New</span>
                     </div>
                   ))}
                 </div>
@@ -323,11 +488,12 @@ const ManageServices = () => {
             )}
 
             {/* Submit */}
-            <button type="submit" disabled={submitting || !selectedEventId} style={{ background: submitting || !selectedEventId ? '#aaa' : '#1f2322', color: '#fff', border: 'none', borderRadius: '10px', padding: '0.7rem 2rem', fontWeight: '700', fontSize: '0.9rem', cursor: submitting || !selectedEventId ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', transition: 'background 0.2s' }}
-              onMouseOver={(e) => { if (!submitting && selectedEventId) e.currentTarget.style.background = '#C1A27B'; }}
-              onMouseOut={(e) => { if (!submitting && selectedEventId) e.currentTarget.style.background = '#1f2322'; }}
+            <button 
+              type="submit" 
+              disabled={submitting || !selectedEventId} 
+              className={`border-none rounded-xl py-3 px-8 font-bold text-sm cursor-pointer flex items-center gap-2 transition-colors ${submitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#1f2322] text-white hover:bg-[#C1A27B]'}`}
             >
-              {submitting ? <RefreshCw size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <CheckCircle size={16} />}
+              {submitting ? <RefreshCw size={16} className="animate-spin" /> : <CheckCircle size={16} />}
               {submitting ? 'Please wait...' : editingService ? 'Update Service' : 'Add Service'}
             </button>
           </form>
@@ -335,68 +501,41 @@ const ManageServices = () => {
 
         {/* ── SERVICES HISTORY TABLE ── */}
         {selectedEventId && (
-          <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid #E8E1D5', boxShadow: '0 2px 16px rgba(193,162,123,0.08)', overflow: 'hidden' }}>
-            <div style={{ padding: '1.1rem 1.75rem', borderBottom: '1px solid #EFE8DC', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.1rem', fontWeight: '700', color: '#1f2322', margin: 0 }}>Services for Selected Event</h2>
-              <span style={{ background: 'rgba(193,162,123,0.15)', color: '#C1A27B', borderRadius: '999px', fontSize: '0.72rem', fontWeight: '700', padding: '0.15rem 0.6rem' }}>{services.length}</span>
+          <div className="bg-white rounded-2xl border border-[#E8E1D5] shadow-sm overflow-hidden">
+            <div className="p-4 px-7 border-b border-[#EFE8DC] flex items-center gap-3">
+              <h2 className="font-['Playfair_Display'] text-[1.1rem] font-bold text-[#1f2322] m-0">Services for Selected Event</h2>
+              <span className="bg-[#C1A27B]/15 text-[#C1A27B] rounded-full text-[0.72rem] font-bold py-0.5 px-2.5">{services.length}</span>
             </div>
 
-            <div style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: '450px' }}>
+            <div className="overflow-auto max-h-[450px]">
               {servicesLoading ? (
-                <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}>
-                  <RefreshCw size={28} color="#C1A27B" style={{ animation: 'spin 1s linear infinite' }} />
+                <div className="flex justify-center p-16">
+                  <RefreshCw size={28} className="text-[#C1A27B] animate-spin" />
                 </div>
               ) : services.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '4rem', color: '#667280' }}>
-                  <Settings size={36} style={{ opacity: 0.2, marginBottom: '1rem', display: 'inline-block' }} />
-                  <p style={{ fontWeight: '600' }}>No services yet for this event. Create your first service above.</p>
+                <div className="text-center p-16 text-[#667280]">
+                  <Settings size={36} className="opacity-20 mb-4 inline-block" />
+                  <p className="font-semibold">No services yet for this event. Create your first service above.</p>
                 </div>
               ) : (
-                <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '700px' }}>
+                <table className="w-full border-collapse min-w-[700px]">
                   <thead>
-                    <tr style={{ background: '#1f2322' }}>
+                    <tr className="bg-[#1f2322]">
                       {['Service', 'Description', 'Images', 'Actions'].map((h) => (
-                        <th key={h} style={{ padding: '0.9rem 1.25rem', textAlign: 'left', color: '#fff', fontSize: '0.72rem', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{h}</th>
+                        <th key={h} className="p-3.5 px-5 text-left text-white text-[0.72rem] font-bold tracking-widest uppercase whitespace-nowrap">{h}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
                     {services.map((service, idx) => (
-                      <tr key={service._id} style={{ background: idx % 2 === 0 ? '#fff' : '#FDFAF6', borderBottom: '1px solid #F0EAE0' }}
-                        onMouseOver={(e) => e.currentTarget.style.background = '#FFF8F0'}
-                        onMouseOut={(e) => e.currentTarget.style.background = idx % 2 === 0 ? '#fff' : '#FDFAF6'}
-                      >
-                        <td style={{ padding: '0.9rem 1.25rem' }}>
-                          <span style={{ fontWeight: '700', color: '#1f2322', fontSize: '0.9rem', display: 'block', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{service.title}</span>
-                        </td>
-                        <td style={{ padding: '0.9rem 1.25rem' }}>
-                          <span style={{ color: '#667280', fontSize: '0.85rem', display: 'block', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{service.description}</span>
-                        </td>
-                        <td style={{ padding: '0.9rem 1.25rem', minWidth: '160px' }}>
-                          {service.images?.length > 0 ? (
-                            <div style={{ display: 'flex', gap: '4px' }}>
-                              {service.images.slice(0, 3).map((img, i) => (
-                                <img key={i} src={img} alt="" style={{ width: '34px', height: '34px', borderRadius: '6px', objectFit: 'cover', border: '2px solid #EFE8DC' }} />
-                              ))}
-                              {service.images.length > 3 && <div style={{ width: '34px', height: '34px', borderRadius: '6px', background: '#F0EAE0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: '700', color: '#667280' }}>+{service.images.length - 3}</div>}
-                            </div>
-                          ) : <span style={{ color: '#ccc' }}>—</span>}
-                        </td>
-                        <td style={{ padding: '0.9rem 1.25rem 0.9rem 1.75rem' }}>
-                          <div style={{ display: 'flex', gap: '0.5rem' }}>
-                            <button onClick={() => handleEdit(service)} title="Edit" style={actBtn('#C1A27B', 'rgba(193,162,123,0.1)')}
-                              onMouseOver={(e) => e.currentTarget.style.background = 'rgba(193,162,123,0.22)'}
-                              onMouseOut={(e) => e.currentTarget.style.background = 'rgba(193,162,123,0.1)'}
-                            ><Edit2 size={15} /></button>
-                            <button onClick={() => handleDelete(service._id)} title="Delete" disabled={deletingId === service._id} style={actBtn('#ef4444', 'rgba(239,68,68,0.08)')}
-                              onMouseOver={(e) => e.currentTarget.style.background = 'rgba(239,68,68,0.18)'}
-                              onMouseOut={(e) => e.currentTarget.style.background = 'rgba(239,68,68,0.08)'}
-                            >
-                              {deletingId === service._id ? <RefreshCw size={15} style={{ animation: 'spin 1s linear infinite' }} /> : <Trash2 size={15} />}
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
+                      <ServiceRow
+                        key={service._id}
+                        service={service}
+                        idx={idx}
+                        deletingId={deletingId}
+                        onEdit={handleEdit}
+                        onDelete={handleDelete}
+                      />
                     ))}
                   </tbody>
                 </table>
@@ -405,15 +544,8 @@ const ManageServices = () => {
           </div>
         )}
       </div>
-      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 };
-
-const lbl = { display: 'block', fontSize: '0.72rem', fontWeight: '700', color: '#667280', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.4rem' };
-const inp = { width: '100%', background: '#FAF9F6', border: '1px solid #E8E1D5', borderRadius: '10px', padding: '0.6rem 0.9rem', fontSize: '0.88rem', color: '#1f2322', outline: 'none', transition: 'border-color 0.2s', boxSizing: 'border-box' };
-const rmBtn = { position: 'absolute', top: '-6px', right: '-6px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '50%', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0, zIndex: 1 };
-const badge = (bg) => ({ position: 'absolute', bottom: 0, left: 0, right: 0, background: bg, color: '#fff', fontSize: '0.58rem', fontWeight: '700', textAlign: 'center', padding: '0.1rem 0', textTransform: 'uppercase', borderBottomLeftRadius: '6px', borderBottomRightRadius: '6px' });
-const actBtn = (color, bg) => ({ background: bg, color, border: 'none', borderRadius: '8px', padding: '0.45rem 0.55rem', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'background 0.2s' });
 
 export default ManageServices;
