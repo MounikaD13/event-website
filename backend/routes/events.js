@@ -102,7 +102,7 @@ router.put("/events/:id", authMiddleware(["admin"]), upload.array("images", 10),
         let currentImages = event.images || [];
         if (req.body.deletedImages) {
             let deletedImages = req.body.deletedImages;
-            
+
             // Try to parse if it's a JSON string of an array
             if (typeof deletedImages === "string" && deletedImages.startsWith("[")) {
                 try {

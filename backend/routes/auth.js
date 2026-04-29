@@ -140,9 +140,10 @@ router.post("/login", async (req, res) => {
         const { accessToken, refreshToken } = generateTokens(user, role);
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
-            secure: false,
+            secure: false, // set to true in production
             path: "/",
-            sameSite: "lax"
+            sameSite: "lax",
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
         });
         res.status(200).json({
             message: "User identified and login successful",
@@ -273,7 +274,14 @@ router.post("/refresh-token", async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: "User not found" })
         }
-        const { accessToken } = generateTokens(user, decoded.role);
+        const { accessToken, refreshToken: newRefreshToken } = generateTokens(user, decoded.role);
+        res.cookie("refreshToken", newRefreshToken, {
+            httpOnly: true,
+            secure: false,
+            path: "/",
+            sameSite: "lax",
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
         res.json({
             accessToken: accessToken,
             user: { id: user._id, email: user.email, name: user.name, role: decoded.role }
