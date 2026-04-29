@@ -59,49 +59,47 @@ router.put("/admin/update-inquiry-status", authMiddleware(["admin"]), async (req
             await user.save();
             const latestBooking = user.bookings[user.bookings.length - 1];
 
-            // #3: SEND PREMIUM STATUS EMAIL NOTIFICATION
-            try {
-                await transporter.sendMail({
-                    from: `"Event Team" <${process.env.EMAIL_USER}>`,
-                    to: user.email,
-                    subject: `Inquiry Status Update: ${newStatus}`,
-                    html: `
-                    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-                        <div style="background: linear-gradient(135deg, #FF512F 0%, #DD2476 100%); padding: 30px; text-align: center; color: white;">
-                            <h1 style="margin: 0; font-size: 24px; letter-spacing: 1px;">Hello, ${user.name}!</h1>
-                            <p style="margin: 10px 0 0 0; opacity: 0.9;">Good news about your event inquiry!</p>
-                        </div>
+            // #3: SEND PREMIUM STATUS EMAIL NOTIFICATION (ASYNC)
+            transporter.sendMail({
+                from: `"Event Team" <${process.env.EMAIL_USER}>`,
+                to: user.email,
+                subject: `Inquiry Status Update: ${newStatus}`,
+                html: `
+                <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                    <div style="background: linear-gradient(135deg, #FF512F 0%, #DD2476 100%); padding: 30px; text-align: center; color: white;">
+                        <h1 style="margin: 0; font-size: 24px; letter-spacing: 1px;">Hello, ${user.name}!</h1>
+                        <p style="margin: 10px 0 0 0; opacity: 0.9;">Good news about your event inquiry!</p>
+                    </div>
+                    
+                    <div style="padding: 30px; background-color: #ffffff;">
+                        <p style="font-size: 16px; color: #333; line-height: 1.6;">
+                            Your inquiry for <strong>${inquiry.eventType}</strong> scheduled for <strong>${inquiry.eventDate}</strong> has been reviewed.
+                        </p>
                         
-                        <div style="padding: 30px; background-color: #ffffff;">
-                            <p style="font-size: 16px; color: #333; line-height: 1.6;">
-                                Your inquiry for <strong>${inquiry.eventType}</strong> scheduled for <strong>${inquiry.eventDate}</strong> has been reviewed.
-                            </p>
-                            
-                            <div style="margin: 25px 0; padding: 20px; background-color: #f8f9fa; border-left: 4px solid #DD2476; border-radius: 4px;">
-                                <h3 style="margin-top: 0; color: #DD2476; font-size: 14px; text-transform: uppercase;">Updated Status</h3>
-                                <p style="margin-bottom: 0; font-weight: bold; color: #2c3e50; font-size: 18px;">${newStatus}</p>
-                            </div>
-
-                            <div style="background: #fff5f7; padding: 15px; border-radius: 8px; border: 1px solid #ffebeb; margin-top: 20px; text-align: center;">
-                                <p style="margin: 0; color: #555;">You can now view more details and chat with us directly from your dashboard.</p>
-                                <a href="#" style="display: inline-block; margin-top: 15px; padding: 12px 25px; background: #DD2476; color: white; text-decoration: none; border-radius: 25px; font-weight: bold; box-shadow: 0 4px 10px rgba(221, 36, 118, 0.3);">Go to Dashboard</a>
-                            </div>
-
-                            <div style="text-align: center; margin-top: 40px;">
-                                <p style="font-size: 14px; color: #888;">Questions? We're here to help. Just reply to this email.</p>
-                                <p style="font-weight: bold; color: #333; margin-top: 20px;">We are thrilled to be part of your journey!</p>
-                            </div>
+                        <div style="margin: 25px 0; padding: 20px; background-color: #f8f9fa; border-left: 4px solid #DD2476; border-radius: 4px;">
+                            <h3 style="margin-top: 0; color: #DD2476; font-size: 14px; text-transform: uppercase;">Updated Status</h3>
+                            <p style="margin-bottom: 0; font-weight: bold; color: #2c3e50; font-size: 18px;">${newStatus}</p>
                         </div>
-                        
-                        <div style="background-color: #f1f1f1; padding: 20px; text-align: center; font-size: 12px; color: #999;">
-                            &copy; ${new Date().getFullYear()} Event Website Team. All rights reserved.
+
+                        <div style="background: #fff5f7; padding: 15px; border-radius: 8px; border: 1px solid #ffebeb; margin-top: 20px; text-align: center;">
+                            <p style="margin: 0; color: #555;">You can now view more details and chat with us directly from your dashboard.</p>
+                            <a href="#" style="display: inline-block; margin-top: 15px; padding: 12px 25px; background: #DD2476; color: white; text-decoration: none; border-radius: 25px; font-weight: bold; box-shadow: 0 4px 10px rgba(221, 36, 118, 0.3);">Go to Dashboard</a>
+                        </div>
+
+                        <div style="text-align: center; margin-top: 40px;">
+                            <p style="font-size: 14px; color: #888;">Questions? We're here to help. Just reply to this email.</p>
+                            <p style="font-weight: bold; color: #333; margin-top: 20px;">We are thrilled to be part of your journey!</p>
                         </div>
                     </div>
-                    `
-                });
-            } catch (mailErr) {
-                console.error("Email notification failed:", mailErr);
-            }
+                    
+                    <div style="background-color: #f1f1f1; padding: 20px; text-align: center; font-size: 12px; color: #999;">
+                        &copy; ${new Date().getFullYear()} Event Website Team. All rights reserved.
+                    </div>
+                </div>
+                `
+            }).catch(mailErr => {
+                console.error("Email notification failed (update-inquiry-status):", mailErr);
+            });
 
             emitToAdmins("dashboard:inquiry-updated", {
                 userId: user._id.toString(),

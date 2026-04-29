@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { fetchDashboardData, submitChat, cancelInquiry } from '../store/slices/userAccountSlice';
 import toast from 'react-hot-toast';
-import { createSocket } from '../utils/socket';
+import { getSocket, joinUserRoom } from '../utils/socket';
 import { motion, AnimatePresence } from 'framer-motion';
 
 /* ─── Helpers ────────────────────────────────────────────────────── */
@@ -193,8 +193,8 @@ const UserDashboard = () => {
   }, [chats.length]);
 
   useEffect(() => {
-    const socket = createSocket();
-    socket.on('connect', () => user?._id && socket.emit('join_room', user._id));
+    const socket = getSocket();
+    if (user?._id) joinUserRoom(user._id);
 
     const refresh = () => dispatch(fetchDashboardData());
     const onMsg   = (d) => {
@@ -214,7 +214,6 @@ const UserDashboard = () => {
       socket.off('receive_message',           onMsg);
       socket.off('dashboard:inquiry-updated', refresh);
       socket.off('dashboard:booking-created', refresh);
-      socket.disconnect();
     };
   }, [dispatch, user?._id]);
 

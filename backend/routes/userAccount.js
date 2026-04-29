@@ -5,16 +5,21 @@ const authMiddleware = require("../middleware/middleware");
 const transporter = require("../utils/mail");
 const { emitToAdmins, emitToUser, getIo } = require("../utils/socket");
 
-// 1. GET FULL DASHBOARD DATA 
+// 1. GET FULL DASHBOARD DATA (Optimized with lean and selection)
 router.get("/dashboard", authMiddleware(["user"]), async (req, res) => {
     try {
-        const user = await User.findById(req.user.id).select("-password");
+        const user = await User.findById(req.user.id)
+            .select("inquiries bookings chats")
+            .lean();
+
+        if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
         res.status(200).json({
             success: true,
             dashboard: {
-                inquiries: user.inquiries,
-                bookings: user.bookings,
-                chats: user.chats
+                inquiries: user.inquiries || [],
+                bookings: user.bookings || [],
+                chats: user.chats || []
             }
         });
     } catch (err) {
@@ -29,7 +34,8 @@ router.post("/dashboard/inquiry", authMiddleware(["user"]), async (req, res) => 
             budgetRange, location, estimatedDuration, specificServices,
             isFlexibleDate, message
         } = req.body;
-        const user = await User.findById(req.user.id);
+        // Fetch only necessary fields for update
+        const user = await User.findById(req.user.id).select("inquiries email name");
 
         user.inquiries.push({
             eventType, eventDate, guestCount, phone, referredBy,
@@ -59,47 +65,48 @@ router.post("/dashboard/inquiry", authMiddleware(["user"]), async (req, res) => 
 });
 
 // 2.5 DIRECT BOOKING (Simplified)
-router.post("/dashboard/book-event", authMiddleware(["user"]), async (req, res) => {
-    try {
-        const user = await User.findById(req.user.id);
+// router.post("/dashboard/book-event", authMiddleware(["user"]), async (req, res) => {
+//     try {
+//         const user = await User.findById(req.user.id);
 
-        user.bookings.push(req.body); // Pushes eventType, eventDate, venue
-        await user.save();
+//         user.bookings.push(req.body); // Pushes eventType, eventDate, venue
+//         await user.save();
 
-        const createdBooking = user.bookings[user.bookings.length - 1];
+//         const createdBooking = user.bookings[user.bookings.length - 1];
 
-        emitToAdmins("dashboard:booking-created", {
-            userId: user._id.toString(),
-            userName: user.name,
-            userEmail: user.email,
-            booking: createdBooking,
-            timestamp: new Date()
-        });
+//         emitToAdmins("dashboard:booking-created", {
+//             userId: user._id.toString(),
+//             userName: user.name,
+//             userEmail: user.email,
+//             booking: createdBooking,
+//             timestamp: new Date()
+//         });
 
-        emitToUser(user._id.toString(), "dashboard:booking-created", {
-            booking: createdBooking,
-            timestamp: new Date()
-        });
+//         emitToUser(user._id.toString(), "dashboard:booking-created", {
+//             booking: createdBooking,
+//             timestamp: new Date()
+//         });
 
-        // Simple text email
-        await transporter.sendMail({
-            from: process.env.EMAIL_USER,
-            to: user.email,
-            subject: "Booking Confirmed",
-            text: `Hi ${user.name}, your booking for ${req.body.eventType} is confirmed!`
-        });
+//         // Simple text email
+//         await transporter.sendMail({
+//             from: process.env.EMAIL_USER,
+//             to: user.email,
+//             subject: "Booking Confirmed",
+//             text: `Hi ${user.name}, your booking for ${req.body.eventType} is confirmed!`
+//         });
 
-        res.status(201).json({ success: true, message: "Event booked successfully" });
-    } catch (err) {
-        res.status(500).json({ success: false, message: "Booking failed" });
-    }
-});
+//         res.status(201).json({ success: true, message: "Event booked successfully" });
+//     } catch (err) {
+//         res.status(500).json({ success: false, message: "Booking failed" });
+//     }
+// });
 
 // 3. SEND CHAT MESSAGE
 router.post("/dashboard/chat", authMiddleware(["user"]), async (req, res) => {
     try {
         const { message } = req.body;
-        const user = await User.findById(req.user.id);
+        // Only fetch chats and info needed for notification
+        const user = await User.findById(req.user.id).select("chats name email");
 
         user.chats.push({ sender: "User", message });
         await user.save();
@@ -133,7 +140,8 @@ router.post("/dashboard/chat", authMiddleware(["user"]), async (req, res) => {
 // 4. CANCEL INQUIRY
 router.delete("/dashboard/inquiry/:id", authMiddleware(["user"]), async (req, res) => {
     try {
-        const user = await User.findById(req.user.id);
+        // Only fetch inquiries and name for the update
+        const user = await User.findById(req.user.id).select("inquiries name");
         const removedInquiry = user.inquiries.find(inq => inq._id.toString() === req.params.id);
 
         // Remove the inquiry from the array

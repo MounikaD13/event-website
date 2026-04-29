@@ -699,7 +699,7 @@ import {
   fetchAllContacts, updateContactStatus, deleteContact
 } from '../store/slices/adminSlice';
 import toast from 'react-hot-toast';
-import { createSocket } from '../utils/socket';
+import { getSocket, joinAdminRoom } from '../utils/socket';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 
 const COLORS = {
@@ -985,11 +985,8 @@ export default function AdminDashboard() {
       ].slice(0, 10));
     };
 
-    const socket = createSocket();
-
-    socket.on('connect', () => {
-      socket.emit('join_admin_room');
-    });
+    const socket = getSocket();
+    joinAdminRoom();
 
     socket.on('dashboard:inquiry-created', (data) => {
       pushRealtimeActivity({
@@ -1068,7 +1065,6 @@ export default function AdminDashboard() {
       socket.off('contact:created');
       socket.off('contact:updated');
       socket.off('contact:deleted');
-      socket.disconnect();
     };
   }, [dispatch]);
 

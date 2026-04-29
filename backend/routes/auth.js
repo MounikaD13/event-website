@@ -119,16 +119,20 @@ router.post("/login", async (req, res) => {
         const { email, password } = req.body;
         if (!email || !password)
             return res.status(400).json({ message: "All fields required" });
-        let user = null;
-        let role = null;
-        //user
-        user = await User.findOne({ email })
-        if (user) role = "user";
-        //admin
-        if (!user) {
-            user = await Admin.findOne({ email });
-            if (user) role = "admin";
+        // Search both Admin and User collections in parallel to save time
+        const [adminResult, userResult] = await Promise.all([
+            Admin.findOne({ email }).lean(),
+            User.findOne({ email }).lean()
+        ]);
+
+        if (adminResult) {
+            user = adminResult;
+            role = "admin";
+        } else if (userResult) {
+            user = userResult;
+            role = "user";
         }
+
         if (!user)
             return res.status(400).json({ message: "User not found" });
 
