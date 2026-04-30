@@ -65,10 +65,10 @@ export default function ServicesPage() {
               </span>
             </div>
           )}
-          <h1 className="font-['Playfair_Display'] text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-white font-medium mb-6 leading-tight drop-shadow-lg px-4">
-            {event ? `${event.title}` : "Event Services"}
+          <h1 className="font-cursive text-white text-2xl sm:text-2xl md:text-5xl text-center drop-shadow-md mb-2">
+            {event ? `${event.title} ` : "Event Services"}
           </h1>
-          <p className="text-white/90 text-sm sm:text-base md:text-lg leading-relaxed text-center drop-shadow-md max-w-4xl mx-auto font-light px-4">
+          <p className="text-white text-md md:text-lg leading-relaxed text-center">
             Discover our curated range of professional services designed to make your {event?.category || "event"} truly exceptional.
             We believe that {event?.category || "events"} are experiences that create unforgettable moments,
             bond friends and family, and transport guests to paradise even if it’s for a few hours.
